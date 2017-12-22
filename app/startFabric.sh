@@ -7,6 +7,8 @@
 # Exit on first error
 set -e
 
+export COMPOSE_PROJECT_NAME="net"
+
 # don't rewrite paths for Windows Git Bash users
 export MSYS_NO_PATHCONV=1
 
