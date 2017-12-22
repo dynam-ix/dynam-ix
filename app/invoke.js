@@ -61,7 +61,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 	// must send the proposal to endorsing peers
 	var request = {
 		chaincodeId: 'dynamix',
-		fcn: 'history',
+		fcn: 'delete',
 		args: ['AS1'],
 		chainId: 'mychannel',
 		txId: tx_id
