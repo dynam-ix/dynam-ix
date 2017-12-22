@@ -51,6 +51,12 @@ type AS struct {
 	ProvRep int    `json:"provrep"`
 }
 
+type agreement struct {
+	Hash     string `json:"hash"`
+	Customer string `json:"customer"`
+	Provider string `json:"provider"`
+}
+
 /*
  * The Init method is called when the Smart Contract "dynamix" is instantiated by the blockchain network
  * Best practice is to have any Ledger initialization in separate function -- see initLedger()
