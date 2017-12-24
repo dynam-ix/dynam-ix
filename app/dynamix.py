@@ -35,13 +35,41 @@ def cli():
 
     return
 
+def sendOffer():
+      reputation = verifyReputation(m.ASN):
+      if reputation >= threshold:
+        offer = checkPolicy(P, reputation) #can be based on the reputation
+        if offer not "NULL"
+            sendOffer()  
+
+def establishAgreement():
+      if checkValidity(m):
+            createSmartContract()
+            publishSmartContract()
+            updateNetworkConfiguration()
+     else:
+            sendMessage("This offer is not valid anymore!")
+
+def collectOffer():
+    if checkValidity(m):
+          storeOffer(m)
+    if numOffers == X:
+        #select and send proposal
+
 def messages():
 
-    print "Hello World!"
+    while True:
+        #recvMessage    
+        if msg.type == "query":
+            #create thread
+        elif msg.type == "proposal":
+            #create thread
+        elif msg.type == "offer":
+            #create thread
+        else:
+            print "Invalid message\n"
 
     return
-
-
 
 #Main function
 if __name__ == "__main__":
