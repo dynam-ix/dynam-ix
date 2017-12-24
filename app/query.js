@@ -49,6 +49,10 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 		throw new Error('Failed to get user1.... run registerUser.js');
 	}
 
+	process.argv.forEach(function (val, index, array) {
+		console.log(index + ': ' + val);
+	  });
+
 	const request = {
 		chaincodeId: 'dynamix',
 		fcn: process.argv[2],

@@ -13,7 +13,7 @@ def cli():
                 x = subprocess.check_output('node list.js', shell=True)
                 print x
             elif "query" in action: #query 'queryString'
-                queryString = "{\"selector\":{\"service\":\"Transit Provider\"}}"
+                queryString = "{\"selector\":{\"service\":\"cloud\"}}"
                 x = subprocess.check_output('node query.js '+action, shell=True)
                 print x
             elif "history" in action: #history 'ID'
