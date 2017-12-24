@@ -84,8 +84,6 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.list(APIstub)
 	} else if function == "history" {
 		return s.history(APIstub, args)
-	} else if function == "query" {
-		return s.query(APIstub, args)
 	} else if function == "delete" {
 		return s.delete(APIstub, args)
 	} else if function == "updateCustRep" {
@@ -123,6 +121,7 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 func (s *SmartContract) register(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 6 {
+		fmt.Printf("\n%s\n%d\n", args, len(args))
 		return shim.Error("Incorrect number of arguments. Expecting 6")
 	}
 

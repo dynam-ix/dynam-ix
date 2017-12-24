@@ -51,9 +51,8 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 
 	const request = {
 		chaincodeId: 'dynamix',
-		fcn: process.argv[2],
-		args: [process.argv[3]]
-		//args: ["{\"selector\":{\"service\":\"Transit Provider\"}}"]
+		fcn: 'list',
+		args: []
 	};
 
 	// send the query proposal to the peer
