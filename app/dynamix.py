@@ -8,14 +8,14 @@ def cli():
     while True:
         action = raw_input("Dynam-IX: ")
         if len(action) > 0:
-            if "register" in action: #Register 'ID' 'asn' 'address' 'service' 'custRep' 'provRep'
+            if "register" in action: #Register 'ASN' 'address' 'service' 'custRep' 'provRep' 'pubKey'
                 x = subprocess.check_output('node register.js '+action, shell=True)
                 print x
             elif "list" in action:  #list 
                 x = subprocess.check_output('node list.js', shell=True)
                 print x
-            elif "query" in action: #query 'queryString'
-                queryString = "{\"selector\":{\"service\":\"cloud\"}}"
+            elif "search" in action: #query 'queryString'
+                #queryString = "{\"selector\":{\"service\":\"cloud\"}}"
                 x = subprocess.check_output('node query.js '+action, shell=True)
                 print x
             elif "history" in action: #history 'ID'
@@ -30,13 +30,17 @@ def cli():
             elif "updateAddress" in action: #updateAddress 'ID' 'newAddress'
                 x = subprocess.check_output('node update.js '+action, shell=True)
                 print x
-            elif "propose" in action: 
+            elif "query" in action: #propose address:port myASN myAddress query pubkey - can encrypt with pubkey from provider
                 S = action.split(" ")[1]
                 address = S.split(":")[0]
                 port = int(S.split(":")[1])
+                myASN = action.split(" ")[2]
+                myAddress = action.split(" ")[3]
+                query = action.split(" ")[4]
+                pubkey = action.split(" ")[5]
                 clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 clientsocket.connect((address, port))
-                msg = 'proposal:5000'
+                msg = 'query;'+myASN+';'+myAddress+';'+query+';'+pubkey
                 clientsocket.send(msg)
                 clientsocket.close()
             elif "quit" or "exit" in action:
@@ -46,14 +50,31 @@ def cli():
 
     return
 
-def sendOffer():
+def sendOffer(query):
     print "\nI will check if I can send an offer\n"
-#      reputation = verifyReputation(m.ASN):
-#      if reputation >= threshold:
-#        offer = checkPolicy(P, reputation) #can be based on the reputation
-#        if offer not "NULL"
-#            sendOffer()  
+    print query
+    #Check ASN reputation
+    #Get ASN address
+    address = query.split(';')[2].split(":")[0]
+    port = int(query.split(';')[2].split(":")[1])
+    #if reputation >= threshold:
+    offer = 'offer;10' # + ASN + pubkey
+    #if len(offer) > 0:
+    clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    clientsocket.connect((address, port))    
+    clientsocket.send(offer)
+    clientsocket.close()    
+
     return 
+
+def collectOffer(offer):
+    print "\nCollecting offer\n"
+    print "Received: "+ offer
+#    if checkValidity(m):
+#          storeOffer(m)
+#    if numOffers == X:
+        #select and send proposal
+    return
 
 def establishAgreement():
     print "\nI will check if the proposal is still valid\n"
@@ -63,14 +84,6 @@ def establishAgreement():
  #           updateNetworkConfiguration()
  #    else:
  #           sendMessage("This offer is not valid anymore!")
-    return
-
-def collectOffer():
-    print "\nCollecting offer\n"
-#    if checkValidity(m):
-#          storeOffer(m)
-#    if numOffers == X:
-        #select and send proposal
     return
 
 def processMessages():
@@ -85,16 +98,16 @@ def processMessages():
         connection, address = serversocket.accept()
         msg = connection.recv(1024)
         if len(msg) > 0:
-            if msg == "query":
-                t = threading.Thread(target=sendOffer)
+            if "query" in msg:
+                t = threading.Thread(target=sendOffer, args=(msg,))
+                messageThreads.append(t)
+                t.start()
+            elif "offer" in msg:
+                t = threading.Thread(target=collectOffer, args=(msg,))
                 messageThreads.append(t)
                 t.start()
             elif "proposal" in msg:
-                t = threading.Thread(target=establishAgreement)
-                messageThreads.append(t)
-                t.start()
-            elif msg == "offer":
-                t = threading.Thread(target=collectOffer)
+                t = threading.Thread(target=establishAgreement, args=(msg,))
                 messageThreads.append(t)
                 t.start()
             else:

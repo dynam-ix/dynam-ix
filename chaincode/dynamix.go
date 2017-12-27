@@ -49,6 +49,7 @@ type AS struct {
 	Service string `json:"service"`
 	CustRep int    `json:"custrep"`
 	ProvRep int    `json:"provrep"`
+	PubKey  string `json:"pubkey"`
 }
 
 type agreement struct {
@@ -101,9 +102,9 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 
 func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Response {
 	ASes := []AS{
-		AS{Address: "10.1.1.50:5000", Service: "DDoS Mitigation", CustRep: 10, ProvRep: 100},
-		AS{Address: "10.1.1.60:5000", Service: "Transit Provider", CustRep: -1, ProvRep: 34},
-		AS{Address: "10.1.1.70:5000", Service: "Cloud Provider", CustRep: 5, ProvRep: 12},
+		AS{Address: "10.1.1.50:5000", Service: "DDoS Mitigation", CustRep: 10, ProvRep: 100, PubKey: "af671adebca7abdafd6152"},
+		AS{Address: "10.1.1.60:5000", Service: "Transit Provider", CustRep: -1, ProvRep: 34, PubKey: "176abf1234567abdafd6152"},
+		AS{Address: "10.1.1.70:5000", Service: "Cloud Provider", CustRep: 5, ProvRep: 12, PubKey: "abcdef1234567abdafd6152"},
 	}
 
 	i := 0
@@ -120,9 +121,9 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 
 func (s *SmartContract) register(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 5 {
+	if len(args) != 6 {
 		fmt.Printf("\n%s\n%d\n", args, len(args))
-		return shim.Error("Incorrect number of arguments. Expecting 5")
+		return shim.Error("Incorrect number of arguments. Expecting 6")
 	}
 
 	custRep, err := strconv.Atoi(args[3])
@@ -135,7 +136,7 @@ func (s *SmartContract) register(APIstub shim.ChaincodeStubInterface, args []str
 		return shim.Error(err.Error())
 	}
 
-	var as = AS{Address: args[1], Service: args[2], CustRep: custRep, ProvRep: provRep}
+	var as = AS{Address: args[1], Service: args[2], CustRep: custRep, ProvRep: provRep, PubKey: args[5]}
 
 	ASAsBytes, _ := json.Marshal(as)
 	APIstub.PutState(args[0], ASAsBytes)
