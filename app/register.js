@@ -26,7 +26,7 @@ channel.addOrderer(order);
 //
 var member_user = null;
 var store_path = path.join(__dirname, 'hfc-key-store');
-console.log('Store path:'+store_path);
+//console.log('Store path:'+store_path);
 var tx_id = null;
 
 // create the key value store as defined in the fabric-client/config/default.json 'key-value-store' setting
@@ -46,7 +46,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 }).then((user_from_store) => {
 
 	if (user_from_store && user_from_store.isEnrolled()) {
-		console.log('Successfully loaded user1 from persistence');
+		//console.log('Successfully loaded user1 from persistence');
 		member_user = user_from_store;
 	} else {
 		throw new Error('Failed to get user1.... run registerUser.js');
@@ -56,16 +56,16 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 	tx_id = fabric_client.newTransactionID();
 	console.log("Assigning transaction_id: ", tx_id._transaction_id);
 
-	process.argv.forEach(function (val, index, array) {
-		console.log(index + ': ' + val);
-	  });
+	//process.argv.forEach(function (val, index, array) {
+	//	console.log(index + ': ' + val);
+	//});
 
 
 	// must send the proposal to endorsing peers
 	var request = {
 		chaincodeId: 'dynamix',
 		fcn: process.argv[2],
-		args: [process.argv[3], process.argv[4], process.argv[5], process.argv[6], process.argv[7], process.argv[8]],
+		args: [process.argv[3], process.argv[4], process.argv[5], process.argv[6], process.argv[7]],
 		chainId: 'mychannel',
 		txId: tx_id
 	};

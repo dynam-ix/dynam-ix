@@ -44,7 +44,7 @@ type SmartContract struct {
 
 // Define the AS structure, with 5 properties.  Structure tags are used by encoding/json library
 type AS struct {
-	ASN     string `json:"asn"`
+	//ASN     string `json:"asn"`
 	Address string `json:"address"`
 	Service string `json:"service"`
 	CustRep int    `json:"custrep"`
@@ -101,9 +101,9 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 
 func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Response {
 	ASes := []AS{
-		AS{ASN: "1234", Address: "10.1.1.50:5000", Service: "DDoS Mitigation", CustRep: 10, ProvRep: 100},
-		AS{ASN: "5678", Address: "10.1.1.60:5000", Service: "Transit Provider", CustRep: -1, ProvRep: 34},
-		AS{ASN: "1590", Address: "10.1.1.70:5000", Service: "Cloud Provider", CustRep: 5, ProvRep: 12},
+		AS{Address: "10.1.1.50:5000", Service: "DDoS Mitigation", CustRep: 10, ProvRep: 100},
+		AS{Address: "10.1.1.60:5000", Service: "Transit Provider", CustRep: -1, ProvRep: 34},
+		AS{Address: "10.1.1.70:5000", Service: "Cloud Provider", CustRep: 5, ProvRep: 12},
 	}
 
 	i := 0
@@ -120,22 +120,22 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 
 func (s *SmartContract) register(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 6 {
+	if len(args) != 5 {
 		fmt.Printf("\n%s\n%d\n", args, len(args))
-		return shim.Error("Incorrect number of arguments. Expecting 6")
+		return shim.Error("Incorrect number of arguments. Expecting 5")
 	}
 
-	custRep, err := strconv.Atoi(args[4])
+	custRep, err := strconv.Atoi(args[3])
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-	provRep, err := strconv.Atoi(args[5])
+	provRep, err := strconv.Atoi(args[4])
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-	var as = AS{ASN: args[1], Address: args[2], Service: args[3], CustRep: custRep, ProvRep: provRep}
+	var as = AS{Address: args[1], Service: args[2], CustRep: custRep, ProvRep: provRep}
 
 	ASAsBytes, _ := json.Marshal(as)
 	APIstub.PutState(args[0], ASAsBytes)
@@ -156,30 +156,30 @@ func (s *SmartContract) list(APIstub shim.ChaincodeStubInterface) sc.Response {
 
 	// buffer is a JSON array containing QueryResults
 	var buffer bytes.Buffer
-	buffer.WriteString("[")
+	//buffer.WriteString("[")
 
-	bArrayMemberAlreadyWritten := false
+	//	bArrayMemberAlreadyWritten := false
 	for resultsIterator.HasNext() {
 		queryResponse, err := resultsIterator.Next()
 		if err != nil {
 			return shim.Error(err.Error())
 		}
 		// Add a comma before array members, suppress it for the first array member
-		if bArrayMemberAlreadyWritten == true {
-			buffer.WriteString(",")
-		}
-		buffer.WriteString("{\"Key\":")
-		buffer.WriteString("\"")
+		//if bArrayMemberAlreadyWritten == true {
+		//	buffer.WriteString(",")
+		//}
+		//		buffer.WriteString("ASN: ")
+		//buffer.WriteString("\"")
 		buffer.WriteString(queryResponse.Key)
-		buffer.WriteString("\"")
+		//buffer.WriteString("\"")
 
-		buffer.WriteString(", \"Record\":")
+		buffer.WriteString(", ")
 		// Record is a JSON object, so we write as-is
 		buffer.WriteString(string(queryResponse.Value))
-		buffer.WriteString("}")
-		bArrayMemberAlreadyWritten = true
+		buffer.WriteString("\n")
+		//	bArrayMemberAlreadyWritten = true
 	}
-	buffer.WriteString("]")
+	//buffer.WriteString("]")
 
 	fmt.Printf("- queryAllASes:\n%s\n", buffer.String())
 
