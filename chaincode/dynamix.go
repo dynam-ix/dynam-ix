@@ -75,8 +75,8 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 	// Retrieve the requested Smart Contract function and arguments
 	function, args := APIstub.GetFunctionAndParameters()
 	// Route to the appropriate handler function to interact with the ledger appropriately
-	if function == "query" {
-		return s.query(APIstub, args)
+	if function == "findService" {
+		return s.findService(APIstub, args)
 	} else if function == "initLedger" {
 		return s.initLedger(APIstub)
 	} else if function == "register" {
@@ -364,10 +364,8 @@ func (s *SmartContract) findAS(APIstub shim.ChaincodeStubInterface, args []strin
 	return shim.Success(ASAsBytes)
 }
 
-func (s *SmartContract) query(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func (s *SmartContract) findService(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	//   0
-	// "queryString"
 	if len(args) < 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
@@ -397,30 +395,30 @@ func getQueryResultForQueryString(stub shim.ChaincodeStubInterface, queryString 
 
 	// buffer is a JSON array containing QueryRecords
 	var buffer bytes.Buffer
-	buffer.WriteString("[")
+	//buffer.WriteString("[")
 
-	bArrayMemberAlreadyWritten := false
+	//bArrayMemberAlreadyWritten := false
 	for resultsIterator.HasNext() {
 		queryResponse, err := resultsIterator.Next()
 		if err != nil {
 			return nil, err
 		}
 		// Add a comma before array members, suppress it for the first array member
-		if bArrayMemberAlreadyWritten == true {
-			buffer.WriteString(",")
-		}
-		buffer.WriteString("{\"Key\":")
-		buffer.WriteString("\"")
+		//		if bArrayMemberAlreadyWritten == true {
+		//			buffer.WriteString(",")
+		//		}
+		//		buffer.WriteString("{\"AS\":")
+		//		buffer.WriteString("\"")
 		buffer.WriteString(queryResponse.Key)
-		buffer.WriteString("\"")
+		//		buffer.WriteString("\"")
 
-		buffer.WriteString(", \"Record\":")
+		buffer.WriteString(": ")
 		// Record is a JSON object, so we write as-is
 		buffer.WriteString(string(queryResponse.Value))
-		buffer.WriteString("}")
-		bArrayMemberAlreadyWritten = true
+		buffer.WriteString("\n")
+		//bArrayMemberAlreadyWritten = true
 	}
-	buffer.WriteString("]")
+	//buffer.WriteString("]")
 
 	fmt.Printf("- getQueryResultForQueryString queryResult:\n%s\n", buffer.String())
 

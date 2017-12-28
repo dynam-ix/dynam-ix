@@ -4,7 +4,16 @@ import socket
 import threading
 import subprocess
 
+#AS config
+myASN = sys.argv[1]
+myAddress = sys.argv[2]
+myIP = sys.argv[2].split(":")[0]
+myPort = sys.argv[2].split(":")[1]
+myPubKey = sys.argv[3]
+myService = sys.argv[4]
+
 def cli():
+
     while True:
         action = raw_input("Dynam-IX: ")
         if len(action) > 0:
@@ -14,12 +23,13 @@ def cli():
             elif "list" in action:  #list 
                 x = subprocess.check_output('node list.js', shell=True)
                 print x
-            elif "search" in action: #query 'queryString'
-                #queryString = "{\"selector\":{\"service\":\"cloud\"}}"
-                x = subprocess.check_output('node query.js '+action, shell=True)
+            elif "findService" in action: #findService service
+                #queryString = "{\"selector\":{\"service\":\"Transit\"}}"
+                service = action.split("-")[1]
+                print service
+                x = subprocess.check_output('node query.js findService \'{\"selector\":{\"service\":\"'+service+'\"}}\'', shell=True)
                 print x
-            elif "findAS" in action: #query 'ASN'
-                #queryString = "{\"selector\":{\"service\":\"cloud\"}}"
+            elif "findAS" in action: #findAS 'ASN'
                 x = subprocess.check_output('node query.js '+action, shell=True)
                 print x
             elif "history" in action: #history 'ASN'
@@ -34,25 +44,30 @@ def cli():
             elif "updateAddress" in action: #updateAddress 'ASN' 'newAddress'
                 x = subprocess.check_output('node update.js '+action, shell=True)
                 print x
-            elif "query" in action: #propose address:port myASN myAddress query pubkey - can encrypt with pubkey from provider
-                S = action.split(" ")[1]
-                address = S.split(":")[0]
-                port = int(S.split(":")[1])
-                myASN = action.split(" ")[2]
-                myAddress = action.split(" ")[3]
-                query = action.split(" ")[4]
-                pubkey = action.split(" ")[5]
-                clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                clientsocket.connect((address, port))
-                msg = 'query;'+myASN+';'+myAddress+';'+query+';'+pubkey
-                clientsocket.send(msg)
-                clientsocket.close()
+            elif "query" in action: #query providerASN request
+                sendQuery(action)
+            elif "establish" in action: #establish
+                establishAgreement(action)
             elif "quit" or "exit" in action:
                  os._exit(1)
             else:
                 print "Invalid command\n"
 
     return
+
+def sendQuery(action):
+
+    ASN = action.split(" ")[1]
+    S = getAddress(ASN)
+    address = S.split(":")[0]
+    port = int(S.split(":")[1])
+    query = action.split(" ")[2]
+    clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    clientsocket.connect((address, port))
+    pubkey = getPubKey(ASN)
+    msg = 'query;'+myASN+';'+query #encrypt with provider's pubkey
+    clientsocket.send(msg)
+    clientsocket.close()
 
 def getReputation(ASN, role):
 
@@ -71,34 +86,44 @@ def getAddress(ASN):
 
     return addr.split("\"")[1]+":"+port.split("\"")[0]
 
+def getPubKey(ASN):
+
+    x = subprocess.check_output('node query.js findAS \''+ASN+'\'', shell=True)
+    S = x.split(",")[3].split(":")[1]
+
+    return S.split("\"")[1]
+
 def sendOffer(query):
+
     print "\nI will check if I can send an offer\n"
     print query
     ASN = query.split(";")[1]
-    reputation = getReputation(ASN)
-    addr = getAddress(ASN)
-    address = addr.split(':')[0]
-    port = int(addr.split(':')[1])
-    #if reputation >= threshold:
-    offer = 'offer;10' # + ASN + pubkey
-    #if len(offer) > 0:
-    clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    clientsocket.connect((address, port))    
-    clientsocket.send(offer)
-    clientsocket.close()    
+    reputation = getReputation(ASN, "customer")
+    if int(reputation) >= 0:
+        addr = getAddress(ASN)
+        address = addr.split(':')[0]
+        port = int(addr.split(':')[1])
+        #composeOffer(query.split(";")[2])
+        offer = 'offer;10' # + ASN + pubkey
+        #if len(offer) > 0:
+        clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        clientsocket.connect((address, port))    
+        clientsocket.send(offer)
+        clientsocket.close()    
+    else:
+        print "Bad reputation!"
 
     return 
 
 def collectOffer(offer):
+    
     print "\nCollecting offer\n"
     print "Received: "+ offer
-#    if checkValidity(m):
-#          storeOffer(m)
-#    if numOffers == X:
-        #select and send proposal
+#    storeOffer(m)
     return
 
 def establishAgreement():
+
     print "\nI will check if the proposal is still valid\n"
  #     if checkValidity(m):
  #           createSmartContract()
@@ -113,11 +138,12 @@ def processMessages():
     messageThreads = []
 
     serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-    serversocket.bind(('localhost', int(sys.argv[1]))) #modify to get the IP address
+    serversocket.bind((myIP, int(myPort)))
     serversocket.listen(20) #maximum of 20 simultaneous requests 
 
     while True:
         connection, address = serversocket.accept()
+        msg = ''
         msg = connection.recv(1024)
         if len(msg) > 0:
             if "query" in msg:
@@ -139,6 +165,15 @@ def processMessages():
 
 #Main function
 if __name__ == "__main__":
+
+    #optimize to not query the blockchain
+    #If AS is not registered
+    if '{' not in subprocess.check_output('node query.js findAS \''+myASN+'\'', shell=True):
+        x = subprocess.check_output('node register.js register \''+myASN+'\' \''+myAddress+'\' \''+myService+'\' \'0\' \'0\' \''+myPubKey+'\'', shell=True)
+        print x
+    #else, update address
+    else:
+        x = subprocess.check_output('node update.js updateAddress \''+myASN+'\' \''+myAddress+'\'', shell=True)
 
     threads = []
     t = threading.Thread(target=cli)
