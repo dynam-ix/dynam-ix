@@ -44,7 +44,6 @@ type SmartContract struct {
 
 // Define the AS structure, with 5 properties.  Structure tags are used by encoding/json library
 type AS struct {
-	//ASN     string `json:"asn"`
 	Address string `json:"address"`
 	Service string `json:"service"`
 	CustRep int    `json:"custrep"`
@@ -52,6 +51,7 @@ type AS struct {
 	PubKey  string `json:"pubkey"`
 }
 
+// Define the agreement structure, with 3 properties.  Structure tags are used by encoding/json library
 type agreement struct {
 	Hash     string `json:"hash"`
 	Customer string `json:"customer"`

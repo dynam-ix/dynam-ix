@@ -12,6 +12,13 @@ myPort = sys.argv[2].split(":")[1]
 myPubKey = sys.argv[3]
 myService = sys.argv[4]
 
+#Offers lists
+offersSent = {}
+offersRecvd = {}
+
+#agreements list
+agreements = {}
+
 def cli():
 
     while True:
@@ -25,7 +32,7 @@ def cli():
                 print x
             elif "findService" in action: #findService service
                 #queryString = "{\"selector\":{\"service\":\"Transit\"}}"
-                service = action.split("-")[1]
+                service = action.split("")[1]
                 print service
                 x = subprocess.check_output('node query.js findService \'{\"selector\":{\"service\":\"'+service+'\"}}\'', shell=True)
                 print x
@@ -95,42 +102,97 @@ def getPubKey(ASN):
 
 def sendOffer(query):
 
-    print "\nI will check if I can send an offer\n"
-    print query
+    print "Received query: "+query
     ASN = query.split(";")[1]
     reputation = getReputation(ASN, "customer")
     if int(reputation) >= 0:
         addr = getAddress(ASN)
         address = addr.split(':')[0]
         port = int(addr.split(':')[1])
-        #composeOffer(query.split(";")[2])
-        offer = 'offer;10' # + ASN + pubkey
+        pubKey = getPubKey(ASN)
+        #offer = composeOffer(query.split(";")[2])
+        offer = 'offer;10' #
         #if len(offer) > 0:
         clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         clientsocket.connect((address, port))    
         clientsocket.send(offer)
-        clientsocket.close()    
+        clientsocket.close()
+        #else:
+        #   print "I cannot offer an agreement!"
     else:
-        print "Bad reputation!"
+        print "Customer with poor reputation!"
 
     return 
 
 def collectOffer(offer):
     
-    print "\nCollecting offer\n"
-    print "Received: "+ offer
-#    storeOffer(m)
+    print "Received offer: "+ offer
+    storeOffer(offer)
     return
 
-def establishAgreement():
+def storeOffer(offer):
 
-    print "\nI will check if the proposal is still valid\n"
- #     if checkValidity(m):
- #           createSmartContract()
- #           publishSmartContract()
- #           updateNetworkConfiguration()
- #    else:
- #           sendMessage("This offer is not valid anymore!")
+    #<timestamp+ASN, properties>
+    return 
+
+def listOffers():
+
+    for offer in offers:
+        print offer
+
+    return
+
+def establishAgreement(offerID):
+
+    valid = 1
+    #checkOffer expire data checkOffer(ID)
+    if valid == 1:
+        sendContract(offerID)
+    else:
+        msg = "Offer is no longer valid"
+        print msg
+        clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        clientsocket.connect((address, port))    
+        clientsocket.send(msg)
+        clientsocket.close()
+
+    return
+
+def sendContract(offerID):
+
+    customer = 'A'
+    provider = myASN
+
+    contract = "contract of the Interconnection agreement between "+provider+" and "+customer
+    clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    clientsocket.connect((address, port))    
+    clientsocket.send(contract)
+    clientsocket.close()
+
+def publishAgreement(info):
+
+    customer = info.split(";")[1]
+    provider = myASN
+    contractHash = info.split(";")[2]
+
+    x = subprocess.check_output('node publish.js \''+customer+'\' \''+provider+'\' \''+contractHash+'\'', shell=True)
+
+    print "Success! Updating routing configuration!"
+
+    return
+
+def signContract(contract):
+
+    #check contract
+    #sign
+    #send publish
+
+    return
+
+
+def executeAgreements():
+
+
     return
 
 def processMessages():
@@ -156,6 +218,14 @@ def processMessages():
                 t.start()
             elif "proposal" in msg:
                 t = threading.Thread(target=establishAgreement, args=(msg,))
+                messageThreads.append(t)
+                t.start()
+            elif "contract" in msg:
+                t = threading.Thread(target=signContract, args=(msg,))
+                messageThreads.append(t)
+                t.start()
+            elif "publish" in msg:
+                t = threading.Thread(target=publishAgreement, args=(msg,))
                 messageThreads.append(t)
                 t.start()
             else:
