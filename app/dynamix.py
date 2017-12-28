@@ -18,16 +18,20 @@ def cli():
                 #queryString = "{\"selector\":{\"service\":\"cloud\"}}"
                 x = subprocess.check_output('node query.js '+action, shell=True)
                 print x
-            elif "history" in action: #history 'ID'
+            elif "findAS" in action: #query 'ASN'
+                #queryString = "{\"selector\":{\"service\":\"cloud\"}}"
                 x = subprocess.check_output('node query.js '+action, shell=True)
                 print x
-            elif "delete" in action: #delete 'ID'
+            elif "history" in action: #history 'ASN'
+                x = subprocess.check_output('node query.js '+action, shell=True)
+                print x
+            elif "delete" in action: #delete 'ASN'
                 x = subprocess.check_output('node delete.js '+action, shell=True)
                 print x
-            elif "updateService" in action: #updateService 'ID' 'newService'
+            elif "updateService" in action: #updateService 'ASN' 'newService'
                 x = subprocess.check_output('node update.js '+action, shell=True)
                 print x
-            elif "updateAddress" in action: #updateAddress 'ID' 'newAddress'
+            elif "updateAddress" in action: #updateAddress 'ASN' 'newAddress'
                 x = subprocess.check_output('node update.js '+action, shell=True)
                 print x
             elif "query" in action: #propose address:port myASN myAddress query pubkey - can encrypt with pubkey from provider
@@ -50,13 +54,31 @@ def cli():
 
     return
 
+def getReputation(ASN, role):
+
+    x = subprocess.check_output('node query.js findAS \''+ASN+'\'', shell=True)
+    if role == "customer":
+        return x.split(",")[1].split(':')[1]
+    elif role == "provider":
+        return x.split(",")[2].split(':')[1]
+
+def getAddress(ASN):
+
+    x = subprocess.check_output('node query.js findAS \''+ASN+'\'', shell=True)
+    S = x.split(",")[0]
+    addr = S.split(":")[1]
+    port = S.split(":")[2]
+
+    return addr.split("\"")[1]+":"+port.split("\"")[0]
+
 def sendOffer(query):
     print "\nI will check if I can send an offer\n"
     print query
-    #Check ASN reputation
-    #Get ASN address
-    address = query.split(';')[2].split(":")[0]
-    port = int(query.split(';')[2].split(":")[1])
+    ASN = query.split(";")[1]
+    reputation = getReputation(ASN)
+    addr = getAddress(ASN)
+    address = addr.split(':')[0]
+    port = int(addr.split(':')[1])
     #if reputation >= threshold:
     offer = 'offer;10' # + ASN + pubkey
     #if len(offer) > 0:
@@ -90,9 +112,9 @@ def processMessages():
 
     messageThreads = []
 
-    serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    serversocket.bind(('localhost', int(sys.argv[1]))) #load from config
-    serversocket.listen(5) # become a server socket, maximum 5 connections
+    serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+    serversocket.bind(('localhost', int(sys.argv[1]))) #modify to get the IP address
+    serversocket.listen(20) #maximum of 20 simultaneous requests 
 
     while True:
         connection, address = serversocket.accept()

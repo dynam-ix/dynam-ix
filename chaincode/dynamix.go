@@ -95,6 +95,8 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.updateService(APIstub, args)
 	} else if function == "updateAddress" {
 		return s.updateAddress(APIstub, args)
+	} else if function == "findAS" {
+		return s.findAS(APIstub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name.")
@@ -350,6 +352,16 @@ func (s *SmartContract) history(stub shim.ChaincodeStubInterface, args []string)
 	fmt.Printf("\n%s\n", buffer.String())
 
 	return shim.Success(buffer.Bytes())
+}
+
+func (s *SmartContract) findAS(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	ASAsBytes, _ := APIstub.GetState(args[0])
+	return shim.Success(ASAsBytes)
 }
 
 func (s *SmartContract) query(stub shim.ChaincodeStubInterface, args []string) sc.Response {
