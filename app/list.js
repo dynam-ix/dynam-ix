@@ -51,7 +51,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 
 	const request = {
 		chaincodeId: 'dynamix',
-		fcn: 'list',
+		fcn: 'listASes',
 		args: []
 	};
 

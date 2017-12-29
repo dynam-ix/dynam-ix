@@ -3,6 +3,8 @@ import os
 import socket
 import threading
 import subprocess
+from datetime import datetime
+import hashlib
 
 #AS config
 myASN = sys.argv[1]
@@ -24,25 +26,25 @@ def cli():
     while True:
         action = raw_input("Dynam-IX: ")
         if len(action) > 0:
-            if "register" in action: #Register 'ASN' 'address' 'service' 'custRep' 'provRep' 'pubKey'
+            if "registerAS" in action: #registerAS 'ASN' 'address' 'service' 'custRep' 'provRep' 'pubKey'
                 x = subprocess.check_output('node register.js '+action, shell=True)
                 print x
-            elif "list" in action:  #list 
+            elif "listASes" in action:  #listAS 
                 x = subprocess.check_output('node list.js', shell=True)
                 print x
             elif "findService" in action: #findService service
                 #queryString = "{\"selector\":{\"service\":\"Transit\"}}"
                 service = action.split("")[1]
-                print service
+                #print service
                 x = subprocess.check_output('node query.js findService \'{\"selector\":{\"service\":\"'+service+'\"}}\'', shell=True)
                 print x
-            elif "findAS" in action: #findAS 'ASN'
+            elif "show" in action: #show 'key'
                 x = subprocess.check_output('node query.js '+action, shell=True)
                 print x
-            elif "history" in action: #history 'ASN'
+            elif "history" in action: #history 'key'
                 x = subprocess.check_output('node query.js '+action, shell=True)
                 print x
-            elif "delete" in action: #delete 'ASN'
+            elif "delete" in action: #delete 'key'
                 x = subprocess.check_output('node delete.js '+action, shell=True)
                 print x
             elif "updateService" in action: #updateService 'ASN' 'newService'
@@ -53,12 +55,15 @@ def cli():
                 print x
             elif "query" in action: #query providerASN request
                 sendQuery(action)
-            elif "establish" in action: #establish
-                establishAgreement(action)
-            elif "showAgreements" in action:
-                x = subprocess.check_output('node showAgreements.js', shell=True)
+            elif "propose" in action: #propose ID
+                sendProposal(action)
+            elif "listAgreements" in action:
+                x = subprocess.check_output('node listAgreements.js', shell=True)
                 print x
-            elif "quit" or "exit" in action:
+            elif "listOffers" in action:
+                 listOffers()
+            elif "quit" in action:
+                 print "Quiting Dynam-IX" 
                  os._exit(1)
             else:
                 print "Invalid command\n"
@@ -81,7 +86,7 @@ def sendQuery(action):
 
 def getReputation(ASN, role):
 
-    x = subprocess.check_output('node query.js findAS \''+ASN+'\'', shell=True)
+    x = subprocess.check_output('node query.js show \''+ASN+'\'', shell=True)
     if role == "customer":
         return x.split(",")[1].split(':')[1]
     elif role == "provider":
@@ -89,7 +94,7 @@ def getReputation(ASN, role):
 
 def getAddress(ASN):
 
-    x = subprocess.check_output('node query.js findAS \''+ASN+'\'', shell=True)
+    x = subprocess.check_output('node query.js show \''+ASN+'\'', shell=True)
     S = x.split(",")[0]
     addr = S.split(":")[1]
     port = S.split(":")[2]
@@ -98,7 +103,7 @@ def getAddress(ASN):
 
 def getPubKey(ASN):
 
-    x = subprocess.check_output('node query.js findAS \''+ASN+'\'', shell=True)
+    x = subprocess.check_output('node query.js show \''+ASN+'\'', shell=True)
     S = x.split(",")[3].split(":")[1]
 
     return S.split("\"")[1]
@@ -113,37 +118,84 @@ def sendOffer(query):
         address = addr.split(':')[0]
         port = int(addr.split(':')[1])
         pubKey = getPubKey(ASN)
-        #offer = composeOffer(query.split(";")[2])
-        offer = 'offer;10' #
-        #if len(offer) > 0:
-        clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        clientsocket.connect((address, port))    
-        clientsocket.send(offer)
-        clientsocket.close()
-        #else:
-        #   print "I cannot offer an agreement!"
+        offer = composeOffer(query.split(";")[2], ASN)
+        if len(offer) > 0:
+            clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            clientsocket.connect((address, port))    
+            clientsocket.send(offer)
+            clientsocket.close()
+        else:
+           print "I cannot offer an agreement!"
     else:
         print "Customer with poor reputation!"
 
-    return 
+
+def composeOffer(query, ASN):
+
+    customer = ASN
+    timestamp = str(datetime.now())
+    expireDate = "2 days"
+    ID = myASN+"-"+customer+"-"+timestamp
+
+    offer = "offer;"+ID+";"+query+";10$"
+
+    storeOffer(offer, "sent")
+
+    return offer
 
 def collectOffer(offer):
     
-    print "Received offer: "+ offer
-    storeOffer(offer)
-    return
+    print "Received: "+ offer
+    storeOffer(offer, "recvd")
 
-def storeOffer(offer):
+def storeOffer(offer, direction):
 
-    #<timestamp+ASN, properties>
-    return 
+    ts = offer.split(";")[1]
+    properties = offer.split(";")[2]+"-"+offer.split(";")[3]
+
+    if direction == "sent":
+        #print "Storing offer sent"
+        offersSent[ts] = properties
+        #print ts, offersSent[ts]
+    elif direction == "recvd":
+        #print "Storing offer received"
+        offersRecvd[ts] = properties
+        #print ts, offersRecvd[ts]
+
 
 def listOffers():
 
-    for offer in offers:
-        print offer
+    print "Offers received\n"
+    for offer in offersRecvd:
+        print offer, offersRecvd[offer]
 
+    print "Offers sent\n"
+    for offer in offersSent:
+        print offer, offersSent[offer]
+
+def cleanOffers():
+
+    #if offer expired, remove
     return
+
+def sendProposal(action):
+
+    offerID = action.split("propose ")[1]
+    provider = offerID.split("-")[0]
+
+    valid = 1
+    #checkValidity(offerID)
+    if valid == 1:
+        addr = getAddress(provider)
+        address = addr.split(':')[0]
+        port = int(addr.split(':')[1])
+
+        clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        clientsocket.connect((address, port))    
+        clientsocket.send("propose"+";"+offerID)
+        clientsocket.close()
+    else:
+        print "Offer is not valid anymore!"
 
 def establishAgreement(offerID):
 
@@ -159,44 +211,66 @@ def establishAgreement(offerID):
         clientsocket.send(msg)
         clientsocket.close()
 
-    return
+def sendContract(proposal):
 
-def sendContract(offerID):
+    #proposal = propose;OfferID
 
-    customer = 'A'
+    offerID = proposal.split(";")[1]
+    customer = offerID.split("-")[1]
     provider = myASN
-
+    addr = getAddress(customer)
+    address = addr.split(':')[0]
+    port = int(addr.split(':')[1])
     contract = "contract of the Interconnection agreement between "+provider+" and "+customer
+    hash_object = hashlib.md5(contract.encode())
+    h = hash_object.hexdigest()
+    providerSignature = "lalalla" #use encrypt with AS' private key
+
     clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     clientsocket.connect((address, port))    
-    clientsocket.send(contract)
+    clientsocket.send("contract;"+offerID+";"+h+";"+customer+";"+provider+";"+providerSignature)
     clientsocket.close()
-
-def publishAgreement(info):
-
-    customer = info.split(";")[1]
-    provider = myASN
-    contractHash = info.split(";")[2]
-
-    x = subprocess.check_output('node publish.js \''+customer+'\' \''+provider+'\' \''+contractHash+'\'', shell=True)
-
-    print "Success! Updating routing configuration!"
-
-    return
 
 def signContract(contract):
 
+    s = contract.split("contract;")[1]
     #check contract
-    #sign
-    #send publish
+    terms = contract.split(";")[2]
+    customerSignature = "lelelelele" #use encrypt with AS' private key
+
+    provider = contract.split(";")[4]
+
+    addr = getAddress(provider)
+    address = addr.split(':')[0]
+    port = int(addr.split(':')[1])
+
+    clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    clientsocket.connect((address, port))    
+    clientsocket.send("publish;"+s+";"+customerSignature)
+    clientsocket.close()
 
     return
+
+def publishAgreement(info):
+
+    print info
+
+    key = "AGR10"
+    contractHash = info.split(";")[2]
+    customer = info.split(";")[3]
+    provider = myASN
+    providerSignature = info.split(";")[5]
+    customerSignature = info.split(";")[6]
+
+    #agreemeent ID, contractHash, customerASN, providerASN(myASN), customerSignature, providerSignature
+    x = subprocess.check_output('node publish.js storeAgreement \''+key+'\' \''+contractHash+'\' \''+customer+'\' \''+provider+'\' \''+customerSignature+'\' \''+providerSignature+'\'', shell=True)
+
+    print "Success! Updating routing configuration!"
 
 
 def executeAgreements():
 
-
-    return
+    return 
 
 def processMessages():
 
@@ -219,7 +293,7 @@ def processMessages():
                 t = threading.Thread(target=collectOffer, args=(msg,))
                 messageThreads.append(t)
                 t.start()
-            elif "proposal" in msg:
+            elif "propose" in msg:
                 t = threading.Thread(target=establishAgreement, args=(msg,))
                 messageThreads.append(t)
                 t.start()
@@ -234,15 +308,13 @@ def processMessages():
             else:
                 print "Invalid message\n"
 
-    return
-
 #Main function
 if __name__ == "__main__":
 
     #optimize to not query the blockchain
     #If AS is not registered
-    if '{' not in subprocess.check_output('node query.js findAS \''+myASN+'\'', shell=True):
-        x = subprocess.check_output('node register.js register \''+myASN+'\' \''+myAddress+'\' \''+myService+'\' \'0\' \'0\' \''+myPubKey+'\'', shell=True)
+    if '{' not in subprocess.check_output('node query.js show \''+myASN+'\'', shell=True):
+        x = subprocess.check_output('node register.js registerAS \''+myASN+'\' \''+myAddress+'\' \''+myService+'\' \'0\' \'0\' \''+myPubKey+'\'', shell=True)
         print x
     #else, update address
     else:
