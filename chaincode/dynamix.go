@@ -17,46 +17,52 @@
  * under the License.
  */
 
-/*
- * Smart contract of the Dynam-IX project. Based on the fabcar smart contract.
- */
-
+// Smart contract of the Dynam-IX project. Based on the fabcar smart contract from Hyperledger fabric-samples.
 package main
 
-/* Imports
- * 4 utility libraries for formatting, handling bytes, reading and writing JSON, and string manipulation
- * 2 specific Hyperledger Fabric specific libraries for Smart Contracts
- */
+//=======================================================================================//
+//										Imports											 //
+//=======================================================================================//
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"strconv"
-	"time"
+	"bytes"         // Handling bytes
+	"encoding/json" // Reading and writing JSON
+	"fmt"           // Formatting
+	"strconv"       // String manipulation
+	"time"          // Time manipulation
 
-	"github.com/hyperledger/fabric/core/chaincode/shim"
-	sc "github.com/hyperledger/fabric/protos/peer"
+	"github.com/hyperledger/fabric/core/chaincode/shim" // Hyperledger Fabric specific
+	sc "github.com/hyperledger/fabric/protos/peer"      // Hyperledger Fabric specific
 )
 
-// Define the Smart Contract structure
+//=======================================================================================//
+//								Struct Definitions										 //
+//=======================================================================================//
+
+// SmartContract structure
 type SmartContract struct {
 }
 
-// Define the AS structure, with 5 properties.  Structure tags are used by encoding/json library
+// AS (Autonomous System) structure. Tags are used by encoding/json library
 type AS struct {
-	Address string `json:"address"`
-	Service string `json:"service"`
-	CustRep int    `json:"custrep"`
-	ProvRep int    `json:"provrep"`
-	PubKey  string `json:"pubkey"`
+	Address string `json:"address"` // IP:port
+	Service string `json:"service"` // Description of the service being offered by the AS (e.g., Transit Provider)
+	CustRep int    `json:"custrep"` // AS' reputation as a customer
+	ProvRep int    `json:"provrep"` // AS' reputation as a provider
+	PubKey  string `json:"pubkey"`  // AS' public key
 }
 
-// Define the agreement structure, with 3 properties.  Structure tags are used by encoding/json library
+// Interconnection agreement structure. Tags are used by encoding/json library
 type agreement struct {
-	Hash     string `json:"hash"`
-	Customer string `json:"customer"`
-	Provider string `json:"provider"`
+	ContractHash      string `json:"contracthash"`      // Hash of the agreement contract (terms)
+	CustomerASN       string `json:"customerasn"`       // ASN of the customer
+	ProviderASN       string `json:"providerasn"`       // ASN of the provider
+	CustomerSignature string `json:"customersignature"` // Hash of the agreement contract (terms) encrypted with the customer's public key
+	ProviderSignature string `json:"providersignature"` // Hash of the agreement contract (terms) encrypted with the provider's public key
 }
+
+//=======================================================================================//
+//								Smart Contract functions								 //
+//=======================================================================================//
 
 /*
  * The Init method is called when the Smart Contract "dynamix" is instantiated by the blockchain network
@@ -75,14 +81,12 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 	// Retrieve the requested Smart Contract function and arguments
 	function, args := APIstub.GetFunctionAndParameters()
 	// Route to the appropriate handler function to interact with the ledger appropriately
-	if function == "findService" {
-		return s.findService(APIstub, args)
-	} else if function == "initLedger" {
+	if function == "initLedger" {
 		return s.initLedger(APIstub)
-	} else if function == "register" {
-		return s.register(APIstub, args)
-	} else if function == "list" {
-		return s.list(APIstub)
+	} else if function == "registerAS" {
+		return s.registerAS(APIstub, args)
+	} else if function == "listASes" {
+		return s.listASes(APIstub)
 	} else if function == "history" {
 		return s.history(APIstub, args)
 	} else if function == "delete" {
@@ -95,16 +99,22 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.updateService(APIstub, args)
 	} else if function == "updateAddress" {
 		return s.updateAddress(APIstub, args)
-	} else if function == "findAS" {
-		return s.findAS(APIstub, args)
-	} else if function == "showAgreements" {
-		return s.showAgreements(APIstub)
+	} else if function == "show" {
+		return s.show(APIstub, args)
+	} else if function == "findService" {
+		return s.findService(APIstub, args)
+	} else if function == "listAgreements" {
+		return s.listAgreements(APIstub)
+	} else if function == "storeAgreement" {
+		return s.storeAgreement(APIstub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name.")
 }
 
+// Initialize ledger
 func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Response {
+
 	ASes := []AS{
 		AS{Address: "10.1.1.50:5000", Service: "DDoS Mitigation", CustRep: 10, ProvRep: 100, PubKey: "af671adebca7abdafd6152"},
 		AS{Address: "10.1.1.60:5000", Service: "Transit Provider", CustRep: -1, ProvRep: 34, PubKey: "176abf1234567abdafd6152"},
@@ -121,7 +131,7 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 	}
 
 	Agreements := []agreement{
-		agreement{Hash: "sagiiGUGidaGiudgas", Customer: "AS1", Provider: "AS7"},
+		agreement{ContractHash: "sagiiGUGidaGiudgas", CustomerASN: "AS1", ProviderASN: "AS7", CustomerSignature: "76atsd8ahd87asg", ProviderSignature: "yasudas78d9asdsa"},
 	}
 
 	i = 0
@@ -136,7 +146,12 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 	return shim.Success(nil)
 }
 
-func (s *SmartContract) register(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+//=======================================================================================//
+//								Autunomous System functions								 //
+//=======================================================================================//
+
+// Register a new AS on the ledger
+func (s *SmartContract) registerAS(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 6 {
 		fmt.Printf("\n%s\n%d\n", args, len(args))
@@ -161,7 +176,8 @@ func (s *SmartContract) register(APIstub shim.ChaincodeStubInterface, args []str
 	return shim.Success(nil)
 }
 
-func (s *SmartContract) list(APIstub shim.ChaincodeStubInterface) sc.Response {
+// List all the ASes on the ledger
+func (s *SmartContract) listASes(APIstub shim.ChaincodeStubInterface) sc.Response {
 
 	startKey := "AS0"
 	endKey := "AS999"
@@ -174,79 +190,26 @@ func (s *SmartContract) list(APIstub shim.ChaincodeStubInterface) sc.Response {
 
 	// buffer is a JSON array containing QueryResults
 	var buffer bytes.Buffer
-	//buffer.WriteString("[")
 
-	//	bArrayMemberAlreadyWritten := false
 	for resultsIterator.HasNext() {
 		queryResponse, err := resultsIterator.Next()
 		if err != nil {
 			return shim.Error(err.Error())
 		}
-		// Add a comma before array members, suppress it for the first array member
-		//if bArrayMemberAlreadyWritten == true {
-		//	buffer.WriteString(",")
-		//}
-		//		buffer.WriteString("ASN: ")
-		//buffer.WriteString("\"")
-		buffer.WriteString(queryResponse.Key)
-		//buffer.WriteString("\"")
 
-		buffer.WriteString(", ")
+		buffer.WriteString(queryResponse.Key)
+		buffer.WriteString(": ")
 		// Record is a JSON object, so we write as-is
 		buffer.WriteString(string(queryResponse.Value))
 		buffer.WriteString("\n")
-		//	bArrayMemberAlreadyWritten = true
 	}
-	//buffer.WriteString("]")
 
 	fmt.Printf("- queryAllASes:\n%s\n", buffer.String())
 
 	return shim.Success(buffer.Bytes())
 }
 
-func (s *SmartContract) showAgreements(APIstub shim.ChaincodeStubInterface) sc.Response {
-
-	startKey := "AGR0"
-	endKey := "AGR999"
-
-	resultsIterator, err := APIstub.GetStateByRange(startKey, endKey)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-	defer resultsIterator.Close()
-
-	// buffer is a JSON array containing QueryResults
-	var buffer bytes.Buffer
-	//buffer.WriteString("[")
-
-	//	bArrayMemberAlreadyWritten := false
-	for resultsIterator.HasNext() {
-		queryResponse, err := resultsIterator.Next()
-		if err != nil {
-			return shim.Error(err.Error())
-		}
-		// Add a comma before array members, suppress it for the first array member
-		//if bArrayMemberAlreadyWritten == true {
-		//	buffer.WriteString(",")
-		//}
-		//		buffer.WriteString("ASN: ")
-		//buffer.WriteString("\"")
-		buffer.WriteString(queryResponse.Key)
-		//buffer.WriteString("\"")
-
-		buffer.WriteString(", ")
-		// Record is a JSON object, so we write as-is
-		buffer.WriteString(string(queryResponse.Value))
-		buffer.WriteString("\n")
-		//	bArrayMemberAlreadyWritten = true
-	}
-	//buffer.WriteString("]")
-
-	fmt.Printf("- queryAllASes:\n%s\n", buffer.String())
-
-	return shim.Success(buffer.Bytes())
-}
-
+// Update the customer reputation of an AS
 func (s *SmartContract) updateCustRep(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 2 {
@@ -270,6 +233,7 @@ func (s *SmartContract) updateCustRep(APIstub shim.ChaincodeStubInterface, args 
 	return shim.Success(nil)
 }
 
+// Update the provider reputation of an AS
 func (s *SmartContract) updateProvRep(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 2 {
@@ -293,6 +257,7 @@ func (s *SmartContract) updateProvRep(APIstub shim.ChaincodeStubInterface, args 
 	return shim.Success(nil)
 }
 
+// Update the service description of an AS
 func (s *SmartContract) updateService(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 2 {
@@ -311,6 +276,7 @@ func (s *SmartContract) updateService(APIstub shim.ChaincodeStubInterface, args 
 	return shim.Success(nil)
 }
 
+// Update the address of an AS
 func (s *SmartContract) updateAddress(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 2 {
@@ -329,7 +295,91 @@ func (s *SmartContract) updateAddress(APIstub shim.ChaincodeStubInterface, args 
 	return shim.Success(nil)
 }
 
-// Deletes an entity from state
+// List all ASes offering a specific service
+func (s *SmartContract) findService(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) < 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	queryString := args[0]
+
+	queryResults, err := getQueryResultForQueryString(stub, queryString)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	return shim.Success(queryResults)
+}
+
+//=======================================================================================//
+//								Agreements functions									 //
+//=======================================================================================//
+
+// List all agreements on the ledger
+func (s *SmartContract) listAgreements(APIstub shim.ChaincodeStubInterface) sc.Response {
+
+	startKey := "AGR0"
+	endKey := "AGR999"
+
+	resultsIterator, err := APIstub.GetStateByRange(startKey, endKey)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	defer resultsIterator.Close()
+
+	// buffer is a JSON array containing QueryResults
+	var buffer bytes.Buffer
+
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+
+		buffer.WriteString(queryResponse.Key)
+		buffer.WriteString(": ")
+		// Record is a JSON object, so we write as-is
+		buffer.WriteString(string(queryResponse.Value))
+		buffer.WriteString("\n")
+	}
+
+	fmt.Printf("- queryAllASes:\n%s\n", buffer.String())
+
+	return shim.Success(buffer.Bytes())
+}
+
+// Store a new agreement
+func (s *SmartContract) storeAgreement(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 6 {
+		fmt.Printf("\n%s\n%d\n", args, len(args))
+		return shim.Error("Incorrect number of arguments. Expecting 6")
+	}
+
+	var agrmnt = agreement{ContractHash: args[1], CustomerASN: args[2], ProviderASN: args[3], CustomerSignature: args[4], ProviderSignature: args[5]}
+
+	AgreementAsBytes, _ := json.Marshal(agrmnt)
+	APIstub.PutState(args[0], AgreementAsBytes)
+
+	return shim.Success(nil)
+}
+
+//=======================================================================================//
+//								Shared functions										 //
+//=======================================================================================//
+
+// Show information about a specific key
+func (s *SmartContract) show(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	ASAsBytes, _ := APIstub.GetState(args[0])
+	return shim.Success(ASAsBytes)
+}
+
+// Delete a key from the ledger
 func (s *SmartContract) delete(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 1 {
@@ -347,6 +397,7 @@ func (s *SmartContract) delete(stub shim.ChaincodeStubInterface, args []string) 
 	return shim.Success(nil)
 }
 
+// Show the history of transactions involving an specific key
 func (s *SmartContract) history(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) < 1 {
@@ -412,35 +463,10 @@ func (s *SmartContract) history(stub shim.ChaincodeStubInterface, args []string)
 	return shim.Success(buffer.Bytes())
 }
 
-func (s *SmartContract) findAS(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
-
-	if len(args) != 1 {
-		return shim.Error("Incorrect number of arguments. Expecting 1")
-	}
-
-	ASAsBytes, _ := APIstub.GetState(args[0])
-	return shim.Success(ASAsBytes)
-}
-
-func (s *SmartContract) findService(stub shim.ChaincodeStubInterface, args []string) sc.Response {
-
-	if len(args) < 1 {
-		return shim.Error("Incorrect number of arguments. Expecting 1")
-	}
-
-	queryString := args[0]
-
-	queryResults, err := getQueryResultForQueryString(stub, queryString)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-	return shim.Success(queryResults)
-}
-
-// =========================================================================================
-// getQueryResultForQueryString executes the passed in query string.
-// Result set is built and returned as a byte array containing the JSON results.
-// =========================================================================================
+/*
+ * getQueryResultForQueryString executes the passed in query string.
+ * Result set is built and returned as a byte array containing the JSON results.
+ */
 func getQueryResultForQueryString(stub shim.ChaincodeStubInterface, queryString string) ([]byte, error) {
 
 	fmt.Printf("- getQueryResultForQueryString queryString:\n%s\n", queryString)
@@ -453,35 +479,28 @@ func getQueryResultForQueryString(stub shim.ChaincodeStubInterface, queryString 
 
 	// buffer is a JSON array containing QueryRecords
 	var buffer bytes.Buffer
-	//buffer.WriteString("[")
 
-	//bArrayMemberAlreadyWritten := false
 	for resultsIterator.HasNext() {
 		queryResponse, err := resultsIterator.Next()
 		if err != nil {
 			return nil, err
 		}
-		// Add a comma before array members, suppress it for the first array member
-		//		if bArrayMemberAlreadyWritten == true {
-		//			buffer.WriteString(",")
-		//		}
-		//		buffer.WriteString("{\"AS\":")
-		//		buffer.WriteString("\"")
-		buffer.WriteString(queryResponse.Key)
-		//		buffer.WriteString("\"")
 
+		buffer.WriteString(queryResponse.Key)
 		buffer.WriteString(": ")
 		// Record is a JSON object, so we write as-is
 		buffer.WriteString(string(queryResponse.Value))
 		buffer.WriteString("\n")
-		//bArrayMemberAlreadyWritten = true
 	}
-	//buffer.WriteString("]")
 
 	fmt.Printf("- getQueryResultForQueryString queryResult:\n%s\n", buffer.String())
 
 	return buffer.Bytes(), nil
 }
+
+//=======================================================================================//
+//										Main											 //
+//=======================================================================================//
 
 // The main function is only relevant in unit test mode. Only included here for completeness.
 func main() {
