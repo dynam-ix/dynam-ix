@@ -97,6 +97,8 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.updateAddress(APIstub, args)
 	} else if function == "findAS" {
 		return s.findAS(APIstub, args)
+	} else if function == "showAgreements" {
+		return s.showAgreements(APIstub)
 	}
 
 	return shim.Error("Invalid Smart Contract function name.")
@@ -115,6 +117,19 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 		ASAsBytes, _ := json.Marshal(ASes[i])
 		APIstub.PutState("AS"+strconv.Itoa(i), ASAsBytes)
 		fmt.Println("Added", ASes[i])
+		i = i + 1
+	}
+
+	Agreements := []agreement{
+		agreement{Hash: "sagiiGUGidaGiudgas", Customer: "AS1", Provider: "AS7"},
+	}
+
+	i = 0
+	for i < len(Agreements) {
+		fmt.Println("i is ", i)
+		AgreementAsBytes, _ := json.Marshal(Agreements[i])
+		APIstub.PutState("AGR"+strconv.Itoa(i), AgreementAsBytes)
+		fmt.Println("Added", Agreements[i])
 		i = i + 1
 	}
 
@@ -150,6 +165,49 @@ func (s *SmartContract) list(APIstub shim.ChaincodeStubInterface) sc.Response {
 
 	startKey := "AS0"
 	endKey := "AS999"
+
+	resultsIterator, err := APIstub.GetStateByRange(startKey, endKey)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	defer resultsIterator.Close()
+
+	// buffer is a JSON array containing QueryResults
+	var buffer bytes.Buffer
+	//buffer.WriteString("[")
+
+	//	bArrayMemberAlreadyWritten := false
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		// Add a comma before array members, suppress it for the first array member
+		//if bArrayMemberAlreadyWritten == true {
+		//	buffer.WriteString(",")
+		//}
+		//		buffer.WriteString("ASN: ")
+		//buffer.WriteString("\"")
+		buffer.WriteString(queryResponse.Key)
+		//buffer.WriteString("\"")
+
+		buffer.WriteString(", ")
+		// Record is a JSON object, so we write as-is
+		buffer.WriteString(string(queryResponse.Value))
+		buffer.WriteString("\n")
+		//	bArrayMemberAlreadyWritten = true
+	}
+	//buffer.WriteString("]")
+
+	fmt.Printf("- queryAllASes:\n%s\n", buffer.String())
+
+	return shim.Success(buffer.Bytes())
+}
+
+func (s *SmartContract) showAgreements(APIstub shim.ChaincodeStubInterface) sc.Response {
+
+	startKey := "AGR0"
+	endKey := "AGR999"
 
 	resultsIterator, err := APIstub.GetStateByRange(startKey, endKey)
 	if err != nil {

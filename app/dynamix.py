@@ -55,6 +55,9 @@ def cli():
                 sendQuery(action)
             elif "establish" in action: #establish
                 establishAgreement(action)
+            elif "showAgreements" in action:
+                x = subprocess.check_output('node showAgreements.js', shell=True)
+                print x
             elif "quit" or "exit" in action:
                  os._exit(1)
             else:
