@@ -17,7 +17,8 @@
  * under the License.
  */
 
-// Smart contract of the Dynam-IX project. Based on the fabcar smart contract from Hyperledger fabric-samples.
+// Smart contract of the Dynam-IX project
+// Based on the fabcar and marbles smart contracts from Hyperledger fabric-samples
 package main
 
 //=======================================================================================//
@@ -64,18 +65,12 @@ type agreement struct {
 //								Smart Contract functions								 //
 //=======================================================================================//
 
-/*
- * The Init method is called when the Smart Contract "dynamix" is instantiated by the blockchain network
- * Best practice is to have any Ledger initialization in separate function -- see initLedger()
- */
+// Init method is called when the Smart Contract "dynamix" is instantiated by the blockchain network
 func (s *SmartContract) Init(APIstub shim.ChaincodeStubInterface) sc.Response {
 	return shim.Success(nil)
 }
 
-/*
- * The Invoke method is called as a result of an application request to run the Smart Contract "dynamix"
- * The calling application program has also specified the particular smart contract function to be called, with arguments
- */
+// Invoke method is called as a result of an application request to run the Smart Contract "dynamix"
 func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response {
 
 	// Retrieve the requested Smart Contract function and arguments
@@ -105,8 +100,8 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.findService(APIstub, args)
 	} else if function == "listAgreements" {
 		return s.listAgreements(APIstub)
-	} else if function == "storeAgreement" {
-		return s.storeAgreement(APIstub, args)
+	} else if function == "registerAgreement" {
+		return s.registerAgreement(APIstub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name.")
@@ -176,7 +171,7 @@ func (s *SmartContract) registerAS(APIstub shim.ChaincodeStubInterface, args []s
 	return shim.Success(nil)
 }
 
-// List all the ASes on the ledger
+// List all ASes on the ledger
 func (s *SmartContract) listASes(APIstub shim.ChaincodeStubInterface) sc.Response {
 
 	startKey := "AS0"
@@ -348,8 +343,8 @@ func (s *SmartContract) listAgreements(APIstub shim.ChaincodeStubInterface) sc.R
 	return shim.Success(buffer.Bytes())
 }
 
-// Store a new agreement
-func (s *SmartContract) storeAgreement(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+// Register a new agreement on the ledger
+func (s *SmartContract) registerAgreement(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 6 {
 		fmt.Printf("\n%s\n%d\n", args, len(args))
@@ -416,24 +411,18 @@ func (s *SmartContract) history(stub shim.ChaincodeStubInterface, args []string)
 
 	// buffer is a JSON array containing historic values for the AS
 	var buffer bytes.Buffer
-	buffer.WriteString("[")
 
-	bArrayMemberAlreadyWritten := false
 	for resultsIterator.HasNext() {
 		response, err := resultsIterator.Next()
 		if err != nil {
 			return shim.Error(err.Error())
-		}
-		// Add a comma before array members, suppress it for the first array member
-		if bArrayMemberAlreadyWritten == true {
-			buffer.WriteString(",")
 		}
 		buffer.WriteString("{\"TxId\":")
 		buffer.WriteString("\"")
 		buffer.WriteString(response.TxId)
 		buffer.WriteString("\"")
 
-		buffer.WriteString(", \"Value\":")
+		buffer.WriteString(": ")
 		// if it was a delete operation on given key, then we need to set the
 		//corresponding value null. Else, we will write the response.Value
 		//as-is (as the Value itself a JSON AS)
@@ -453,20 +442,16 @@ func (s *SmartContract) history(stub shim.ChaincodeStubInterface, args []string)
 		buffer.WriteString(strconv.FormatBool(response.IsDelete))
 		buffer.WriteString("\"")
 
-		buffer.WriteString("}")
-		bArrayMemberAlreadyWritten = true
+		buffer.WriteString("}\n")
 	}
-	buffer.WriteString("]")
 
 	fmt.Printf("\n%s\n", buffer.String())
 
 	return shim.Success(buffer.Bytes())
 }
 
-/*
- * getQueryResultForQueryString executes the passed in query string.
- * Result set is built and returned as a byte array containing the JSON results.
- */
+// getQueryResultForQueryString executes the passed in query string.
+// Result set is built and returned as a byte array containing the JSON results.
 func getQueryResultForQueryString(stub shim.ChaincodeStubInterface, queryString string) ([]byte, error) {
 
 	fmt.Printf("- getQueryResultForQueryString queryString:\n%s\n", queryString)
