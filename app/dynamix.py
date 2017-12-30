@@ -1,13 +1,15 @@
 #===================================================#
 #                     Imports                       #
 #===================================================#
-import sys
 import os
-import socket
+import sys
 import threading
 import subprocess
-import hashlib
+import socket
 from datetime import datetime
+import hashlib
+from Crypto.PublicKey import RSA
+from Crypto import Random
 
 #===================================================#
 #                   Global config                   #
@@ -26,7 +28,8 @@ offersSent = {}
 offersRecvd = {}
 
 # Dictionary containing the AS' interconnetion agreements
-agreements = {}
+agreementsCust = {}
+agreementsProv = {}
 
 #===================================================#
 #                     Functions                     #
@@ -44,9 +47,10 @@ def cli():
             elif "listASes" in action:  # listASes 
                 x = subprocess.check_output('node list.js', shell=True)
                 print x
-            elif "findService" in action: # findService service
+            elif "findService" in action: # findService service         # TODO fix this function when string has space
                 #queryString = "{\"selector\":{\"service\":\"Transit\"}}"
-                service = action.split("")[1]
+                service = action.split("- ")[1]
+                print service
                 x = subprocess.check_output('node query.js findService \'{\"selector\":{\"service\":\"'+service+'\"}}\'', shell=True)
                 print x
             elif "show" in action: #show 'key'
@@ -75,6 +79,10 @@ def cli():
                  listOffersSent()
             elif "listOffersRecvd" in action:
                  listOffersRecvd()
+            elif "myAgreements" in action:
+                 myAgreements()
+            elif "executeAgreements" in action:
+                 executeAgreements()
             elif "quit" in action:
                  print "Quiting Dynam-IX" 
                  os._exit(1)
@@ -121,6 +129,14 @@ def processMessages():
             else:
                 print "Invalid message\n"
 
+def sendMessage(msg, ip, port):
+
+    clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    clientsocket.connect((ip, port))
+    clientsocket.send(msg)
+    clientsocket.close()
+
+
 # Receives a query action and send it to a potential provider
 def sendQuery(action):
 
@@ -139,11 +155,8 @@ def sendQuery(action):
     # Create the message that is going to be sent
     msg = 'query;'+myASN+';'+query # TODO encrypt with provider's pubkey
 
-    # Send the query to the provider    TODO create a sendMessage(msg, ip, port) function
-    clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    clientsocket.connect((IP, port))
-    clientsocket.send(msg)
-    clientsocket.close()
+    # Send the query to the provider   
+    sendMessage(msg, IP, port)
 
 # get AS' reputation as a customer or as a provider from the ledger
 def getReputation(ASN, role):
@@ -201,10 +214,7 @@ def sendOffer(query):
             # Get customer's public key
             pubKey = getPubKey(customer)
             #Send offer
-            clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            clientsocket.connect((IP, port))    
-            clientsocket.send(offer)    # TODO encrypt with customer's public key
-            clientsocket.close()
+            sendMessage(offer, IP, port)
         # Provider is not able to offer an agreement with the desired properties
         else:
            print "I cannot offer an agreement!"
@@ -216,7 +226,7 @@ def sendOffer(query):
 def composeOffer(query, customer):
 
     # Generate the offer ID
-    timestamp = str(datetime.now())
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
     ID = myASN+"-"+customer+"-"+timestamp
 
     # TODO create a real offer
@@ -280,10 +290,8 @@ def sendProposal(action):
         IP = address.split(':')[0]
         port = int(address.split(':')[1])
         # Send interconnection proposal
-        clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        clientsocket.connect((IP, port))    
-        clientsocket.send("propose"+";"+offerID)
-        clientsocket.close()
+        msg = "propose"+";"+offerID
+        sendMessage(msg, IP, port)
     # If the offer is not valid anymore, there is no reason to send the interconnection proposal
     else:
         print "Offer is not valid anymore!"
@@ -307,10 +315,8 @@ def establishAgreement(propose):
         print msg
         # TODO get address
         # Send message
-        clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        clientsocket.connect((address, port))    
-        clientsocket.send(msg)
-        clientsocket.close()
+        sendMessage(msg, IP, port)
+
 
 # Send the contract of the interconnection agreement to the customer
 def sendContract(offerID):
@@ -335,10 +341,7 @@ def sendContract(offerID):
 
     # Send the contract
     msg = "contract;"+offerID+";"+h+";"+customer+";"+provider+";"+providerSignature
-    clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    clientsocket.connect((IP, port))    
-    clientsocket.send(msg)
-    clientsocket.close()
+    sendMessage(msg, IP, port)
 
 # Customer sign the contract
 def signContract(contract):
@@ -359,15 +362,13 @@ def signContract(contract):
     port = int(address.split(':')[1])
 
     # Send message with the contract signed by the customer
-    clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    clientsocket.connect((IP, port))    
-    clientsocket.send("publish;"+s+";"+customerSignature)
-    clientsocket.close()
+    msg = "publish;"+s+";"+customerSignature
+    sendMessage(msg, IP, port)
 
+    key = "IA-"+h
+    agreementsCust[key] = myASN+";"+provider
 
 def publishAgreement(info):
-
-    key = "AGR12"   # TODO generate key in an automatically
 
     # Get the parameters that will be registered on the ledger 
     contractHash = info.split(";")[2]
@@ -376,6 +377,8 @@ def publishAgreement(info):
     providerSignature = info.split(";")[5]
     customerSignature = info.split(";")[6]
 
+    key = "IA-"+contractHash 
+
     # Register the agreement on the ledger
     x = subprocess.check_output('node publish.js registerAgreement \''+key+'\' \''+contractHash+'\' \''+customer+'\' \''+provider+'\' \''+customerSignature+'\' \''+providerSignature+'\'', shell=True)
 
@@ -383,13 +386,47 @@ def publishAgreement(info):
 
     print "Success! Updating routing configuration!"
 
+    agreementsProv[key] = customer+";"+provider
+
 def executeAgreements():
 
+    for agmnt in agreementsProv.keys():
+        #if ended
+        customer = agreementsProv[agmnt].split(";")[0]
+        print customer
+        # update customer's reputation
+        x = subprocess.check_output('node update.js updateCustRep \''+customer+'\' \'1\'', shell=True)
+        print x
+
+
+        del agreementsProv[agmnt]
+
+    for agmnt in agreementsCust.keys():
+        #if ended
+        provider = agreementsCust[agmnt].split(";")[1]
+        print provider
+        # update provider's reputation
+        x = subprocess.check_output('node update.js updateProvRep \''+provider+'\' \'1\'', shell=True)
+        print x
+
+        del agreementsCust[agmnt]
+
     return 
+
+def myAgreements():
+
+    for agmnt in agreementsCust:
+        print agmnt, agreementsCust[agmnt]
+    for agmnt in agreementsProv:
+        print agmnt, agreementsProv[agmnt]
+
 
 #Main function
 if __name__ == "__main__":
 
+    random_generator = Random.new().read
+    key = RSA.generate(1024, random_generator)
+    public_key = key.publickey()
     # TODO optimize to not query the blockchain
     # If AS is not registered
     if '{' not in subprocess.check_output('node query.js show \''+myASN+'\'', shell=True):

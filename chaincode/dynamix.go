@@ -133,7 +133,7 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 	for i < len(Agreements) {
 		fmt.Println("i is ", i)
 		AgreementAsBytes, _ := json.Marshal(Agreements[i])
-		APIstub.PutState("AGR"+strconv.Itoa(i), AgreementAsBytes)
+		APIstub.PutState("IA-"+strconv.Itoa(i), AgreementAsBytes)
 		fmt.Println("Added", Agreements[i])
 		i = i + 1
 	}
@@ -313,8 +313,8 @@ func (s *SmartContract) findService(stub shim.ChaincodeStubInterface, args []str
 // List all agreements on the ledger
 func (s *SmartContract) listAgreements(APIstub shim.ChaincodeStubInterface) sc.Response {
 
-	startKey := "AGR0"
-	endKey := "AGR999"
+	startKey := "IA-"
+	endKey := ""
 
 	resultsIterator, err := APIstub.GetStateByRange(startKey, endKey)
 	if err != nil {
