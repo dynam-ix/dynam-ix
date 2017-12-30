@@ -6,6 +6,7 @@ import sys
 import threading
 import subprocess
 import socket
+import json
 from datetime import datetime
 import hashlib
 from Crypto.PublicKey import RSA
@@ -230,11 +231,24 @@ def composeOffer(query, customer):
     ID = myASN+"-"+customer+"-"+timestamp
 
     # TODO create a real offer
-    expireDate = "2d"
+    expireDate = "2d" # TODO time.now() + 3 hours
+
     offer = "offer;"+ID+";"+query+";10$;"+expireDate
+    #offer = checkIntents(query)
+
 
     # Store the offer on the list. This is important to verify if the offer is still valid when the customer sends the proposal message.
     storeOffer(offer, "sent")
+
+    return offer
+    # return "offer;"+ID+";"+offer+";"+expireDate
+
+def checkIntents(query):
+
+
+    #str(data["intent-1"]["routing"])
+
+
 
     return offer
 
@@ -298,6 +312,14 @@ def sendProposal(action):
 
 # Check if the offer is not expired
 def checkValidity(offerID):
+
+    # query offersSent[offerID]
+    # get expireDate
+
+    # if time.now() < expireDate:
+    #    return 1
+    # else:
+    #   return -1
 
     return 1
 
@@ -424,9 +446,15 @@ def myAgreements():
 #Main function
 if __name__ == "__main__":
 
+    # Generate public and private keys
     random_generator = Random.new().read
     key = RSA.generate(1024, random_generator)
     public_key = key.publickey()
+
+
+    # Read intent file
+    intents = json.load(open('intents.json'))
+
     # TODO optimize to not query the blockchain
     # If AS is not registered
     if '{' not in subprocess.check_output('node query.js show \''+myASN+'\'', shell=True):
