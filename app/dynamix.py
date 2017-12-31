@@ -8,6 +8,7 @@ import subprocess
 import socket
 import json
 from datetime import datetime
+from datetime import timedelta
 import hashlib
 from Crypto.PublicKey import RSA
 from Crypto import Random
@@ -206,7 +207,7 @@ def sendOffer(query):
         # Check interconnection policy to compose and offer to the customer
         offer = composeOffer(query.split(";")[2], customer)
         # If provider can offer something, send
-        if len(offer) > 0:
+        if offer != -1:
             # Get customer's address
             address = getAddress(customer)
             # Split address into IP and port
@@ -230,39 +231,70 @@ def composeOffer(query, customer):
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
     ID = myASN+"-"+customer+"-"+timestamp
 
-    # TODO create a real offer
-    expireDate = "2d" # TODO time.now() + 3 hours
+#    offer = "offer;"+ID+";"+query+";10$;"+expireDate
+    properties = checkIntents(query)
 
-    offer = "offer;"+ID+";"+query+";10$;"+expireDate
-    #offer = checkIntents(query)
+    if properties != -1:
+        # Store the offer on the list. This is important to verify if the offer is still valid when the customer sends the proposal message.
+        storeOffer(ID+";"+properties, "sent")
+        #return offer
+        return "offer;"+ID+";"+properties
+    else:
+        return properties
 
-
-    # Store the offer on the list. This is important to verify if the offer is still valid when the customer sends the proposal message.
-    storeOffer(offer, "sent")
-
-    return offer
-    # return "offer;"+ID+";"+offer+";"+expireDate
 
 def checkIntents(query):
 
+    customerIntent = query # TODO improve
 
-    #str(data["intent-1"]["routing"])
+    print "customer intent "+customerIntent
 
+    i = 1
+    # iterate over provider's intents
+    while "intent-"+str(i) in intents:
+        print i, str(intents["intent-"+str(i)]["routing"]["reachability"])
+        if str(intents["intent-"+str(i)]["routing"]["reachability"]) == customerIntent:
+            offer = fillOffer(i)
+            return offer
+        i = i + 1
 
+    # return -1 if the provider cannot offer an agreement with the desired propertiess
+    return -1
+
+def fillOffer(i):
+
+    reachability = "routing.reachability:"+str(intents["intent-"+str(i)]["routing"]["reachability"])
+    aspath = ",routing.aspath:"+str(intents["intent-"+str(i)]["routing"]["aspath"])
+    bandwidth = ",sla.bandwidth:"+str(intents["intent-"+str(i)]["sla"]["bandwidth"])
+    latency = ",sla.latency:"+str(intents["intent-"+str(i)]["sla"]["latency"])
+    loss = ",sla.loss:"+str(intents["intent-"+str(i)]["sla"]["loss"])
+    repair = ",sla.repair:"+str(intents["intent-"+str(i)]["sla"]["repair"])
+    guarantee = ",sla.guarantee:"+str(intents["intent-"+str(i)]["sla"]["guarantee"])
+    egress = ",pricing.egress:"+str(intents["intent-"+str(i)]["pricing"]["egress"])
+    ingress = ",pricing.ingress:"+str(intents["intent-"+str(i)]["pricing"]["ingress"])
+    billing = ",pricing.billing:"+str(intents["intent-"+str(i)]["pricing"]["billing"])
+    length = ",time.length:"+str(intents["intent-"+str(i)]["time"]["unit"])
+    expireDate = ",time.expire:"+str(datetime.now() + timedelta(hours=6))
+
+    offer = reachability+aspath+bandwidth+latency+loss+repair+guarantee+egress+ingress+billing+length+expireDate
 
     return offer
+
 
 # Receive an offer and store it on the appropriate dictionary
 def collectOffer(offer):
     
+    ID = offer.split(";")[1]
+    properties = offer.split(";")[2]
+
     print "Received: "+ offer
-    storeOffer(offer, "recvd")
+    storeOffer(ID+";"+properties, "recvd")
 
 # Store an offer on the appropriate dictionary
 def storeOffer(offer, direction):
 
-    ID = offer.split(";")[1]
-    properties = offer.split(";")[2]+"-"+offer.split(";")[3]    # TODO fix after defining the intent abstraction
+    ID = offer.split(";")[0]
+    properties = offer.split(";")[1]
 
     if direction == "sent":
         offersSent[ID] = properties
@@ -453,7 +485,7 @@ if __name__ == "__main__":
 
 
     # Read intent file
-    intents = json.load(open('intents.json'))
+    intents = json.load(open('intents.json')) # TODO get filename from sys.argv
 
     # TODO optimize to not query the blockchain
     # If AS is not registered
