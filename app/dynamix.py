@@ -10,8 +10,8 @@ import json
 from datetime import datetime
 from datetime import timedelta
 import hashlib
-from Crypto.PublicKey import RSA
-from Crypto import Random
+from Crypto.Cipher import AES
+import base64
 
 #===================================================#
 #                   Global config                   #
@@ -21,9 +21,10 @@ myASN = sys.argv[1]
 myAddress = sys.argv[2]
 myIP = sys.argv[2].split(":")[0]
 myPort = sys.argv[2].split(":")[1]
-myPubKey = sys.argv[3]      # TODO Generate automatically and store private key on myPrivKey
-myService = sys.argv[4]
+myService = sys.argv[3]
 myPrivKey = ""
+myPubKey = ""
+
 
 # Dictionaries contanining the offers that the AS have sent and received
 offersSent = {}
@@ -85,6 +86,8 @@ def cli():
                  myAgreements()
             elif "executeAgreements" in action:
                  executeAgreements()
+            elif "updateIntents" in action:
+                 intents = json.load(open(action.split(" ")[1]))
             elif "quit" in action:
                  print "Quiting Dynam-IX" 
                  os._exit(1)
@@ -390,8 +393,9 @@ def sendContract(offerID):
     # Compute the contract hash
     hash_object = hashlib.md5(contract.encode())
     h = hash_object.hexdigest()
-    # Provider sign the contract
-    providerSignature = "lalalla" # TODO encrypt hash with provider's private key
+    # Provider signs the contract
+    cipher = AES.new(myPrivKey,AES.MODE_ECB)   #TODO use a stronger mode in the future
+    providerSignature = base64.b64encode(cipher.encrypt(h))
 
     # Send the contract
     msg = "contract;"+offerID+";"+h+";"+customer+";"+provider+";"+providerSignature
@@ -404,7 +408,9 @@ def signContract(contract):
     s = contract.split("contract;")[1]
     # Get the contract hash
     h = contract.split(";")[2]
-    customerSignature = "lelelelele" # TODO use encrypt with AS' private key
+    # Customer signs the contract
+    cipher = AES.new(myPrivKey,AES.MODE_ECB)   #TODO use a stronger mode in the future
+    customerSignature = base64.b64encode(cipher.encrypt(h))
 
     # Get provider's ASN
     provider = contract.split(";")[4]
@@ -479,13 +485,12 @@ def myAgreements():
 if __name__ == "__main__":
 
     # Generate public and private keys
-    random_generator = Random.new().read
-    key = RSA.generate(1024, random_generator)
-    public_key = key.publickey()
-
+    basePhrase = myASN+myASN+"Dynam-IX"
+    myPubKey = hashlib.md5(basePhrase.encode()).hexdigest() 
+    myPrivKey = myPubKey
 
     # Read intent file
-    intents = json.load(open('intents.json')) # TODO get filename from sys.argv
+    intents = json.load(open(sys.argv[4]))
 
     # TODO optimize to not query the blockchain
     # If AS is not registered
