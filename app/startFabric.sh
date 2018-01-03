@@ -15,7 +15,7 @@ export MSYS_NO_PATHCONV=1
 starttime=$(date +%s)
 
 # launch network; create channel and join peer to channel
-cd ../test
+cd ../compelte-network
 ./start.sh
 
 # Now launch the CLI container in order to install, instantiate chaincode and prime the ledger 
