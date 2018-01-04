@@ -6,10 +6,10 @@
 # Genesis block
 ../bin/configtxgen -profile SingleOrgOrdererGenesis -outputBlock ./config/genesis.block
 # Channnel
-../bin/configtxgen -profile MultipleOrgChannel -outputCreateChannelTx ./config/channel.tx -channelID mychannel1
+../bin/configtxgen -profile MultipleOrgChannel -outputCreateChannelTx ./config/channel.tx -channelID mychannel
 # Anchor peer update for each org
-../bin/configtxgen -profile MultipleOrgChannel -outputAnchorPeersUpdate ./config/Org1MSPanchors.tx -channelID mychannel1 -asOrg Org1MSP
-../bin/configtxgen -profile MultipleOrgChannel -outputAnchorPeersUpdate ./config/Org2MSPanchors.tx -channelID mychannel1 -asOrg Org2MSP
+../bin/configtxgen -profile MultipleOrgChannel -outputAnchorPeersUpdate ./config/Org1MSPanchors.tx -channelID mychannel -asOrg Org1MSP
+../bin/configtxgen -profile MultipleOrgChannel -outputAnchorPeersUpdate ./config/Org2MSPanchors.tx -channelID mychannel -asOrg Org2MSP
 
 # update the ca keys on docker-compose.yml
 
