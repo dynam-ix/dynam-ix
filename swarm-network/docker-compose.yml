@@ -26,7 +26,7 @@ services:
       - basic
     deploy:
        placement:
-          constraints: [node.role == worker]
+          constraints: [node.role == manager]
 
   orderer:
     container_name: orderer
@@ -51,7 +51,7 @@ services:
       - basic
     deploy:
        placement:
-          constraints: [node.role == worker]
+          constraints: [node.role == manager]
 
   peer0-org1:
     container_name: peer0-org1
@@ -93,7 +93,7 @@ services:
       - basic
     deploy:
        placement:
-          constraints: [node.role == worker]
+          constraints: [node.role == manager]
 
   peer0-org2:
     container_name: peer0-org2
@@ -135,7 +135,7 @@ services:
       - basic
     deploy:
        placement:
-          constraints: [node.role == manager]
+          constraints: [node.role == worker]
 
   couchdb-1:
     container_name: couchdb-1
@@ -151,7 +151,7 @@ services:
       - basic
     deploy:
        placement:
-          constraints: [node.role == worker]
+          constraints: [node.role == manager]
 
   couchdb-2:
     container_name: couchdb-2
@@ -167,7 +167,7 @@ services:
       - basic
     deploy:
        placement:
-          constraints: [node.role == manager]
+          constraints: [node.role == worker]
 
   cli:
     container_name: cli
@@ -191,7 +191,7 @@ services:
         - ./config:/opt/gopath/src/github.com/hyperledger/fabric/peer/
     deploy:
        placement:
-          constraints: [node.role == worker]
+          constraints: [node.role == manager]
 
 
     networks:
