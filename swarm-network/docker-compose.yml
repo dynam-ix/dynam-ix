@@ -7,6 +7,8 @@ version: '3'
 
 networks:
   basic:
+  external:
+    name: basic
 
 services:
   ca.org1.example.com:
@@ -25,7 +27,6 @@ services:
     networks:
       - basic
     deploy:
-       replicas: 1
        placement:
           constraints: [node.role == manager]
 
@@ -67,7 +68,6 @@ services:
     networks:
       - basic
     deploy:
-       replicas: 1
        placement:
           constraints: [node.role == manager]
 
@@ -110,7 +110,6 @@ services:
     networks:
       - basic
     deploy:
-       replicas: 1
        placement:
           constraints: [node.role == manager]
 
@@ -153,7 +152,6 @@ services:
     networks:
       - basic
     deploy:
-       replicas: 1
        placement:
           constraints: [node.role == worker]
 
@@ -170,7 +168,6 @@ services:
     networks:
       - basic
     deploy:
-       replicas: 1
        placement:
           constraints: [node.role == manager]
 
@@ -187,7 +184,6 @@ services:
     networks:
       - basic
     deploy:
-       replicas: 1
        placement:
           constraints: [node.role == worker]
 
@@ -212,7 +208,6 @@ services:
         - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
         - ./config:/opt/gopath/src/github.com/hyperledger/fabric/peer/
     deploy:
-       replicas: 1
        placement:
           constraints: [node.role == manager]
 
