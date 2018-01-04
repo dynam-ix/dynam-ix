@@ -26,23 +26,7 @@ services:
       - basic
     deploy:
        placement:
-          constraints: [node.role == manager]
-
-#  ca.org2.example.com:
-#    image: hyperledger/fabric-ca
-#    environment:
-#      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
-#      - FABRIC_CA_SERVER_CA_NAME=ca.org2.example.com
-#      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.org2.example.com-cert.pem
-#      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/095be0666edd418e0fbc0b833afe16377ccc0e2113ebe499f856667f62088225_sk # Update key
-#    ports:
-#      - "8054:7054"
-#    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
-#    volumes:
-#      - ./crypto-config/peerOrganizations/org2.example.com/ca/:/etc/hyperledger/fabric-ca-server-config
-#    container_name: ca.org2.example.com
-#    networks:
-#      - basic
+          constraints: [node.role == worker]
 
   orderer:
     container_name: orderer
@@ -67,7 +51,7 @@ services:
       - basic
     deploy:
        placement:
-          constraints: [node.role == manager]
+          constraints: [node.role == worker]
 
   peer0-org1:
     container_name: peer0-org1
@@ -109,7 +93,7 @@ services:
       - basic
     deploy:
        placement:
-          constraints: [node.role == manager]
+          constraints: [node.role == worker]
 
   peer0-org2:
     container_name: peer0-org2
@@ -151,7 +135,7 @@ services:
       - basic
     deploy:
        placement:
-          constraints: [node.role == worker]
+          constraints: [node.role == manager]
 
   couchdb-1:
     container_name: couchdb-1
@@ -167,7 +151,7 @@ services:
       - basic
     deploy:
        placement:
-          constraints: [node.role == manager]
+          constraints: [node.role == worker]
 
   couchdb-2:
     container_name: couchdb-2
@@ -183,7 +167,7 @@ services:
       - basic
     deploy:
        placement:
-          constraints: [node.role == worker]
+          constraints: [node.role == manager]
 
   cli:
     container_name: cli
@@ -207,7 +191,7 @@ services:
         - ./config:/opt/gopath/src/github.com/hyperledger/fabric/peer/
     deploy:
        placement:
-          constraints: [node.role == manager]
+          constraints: [node.role == worker]
 
 
     networks:
