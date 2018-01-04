@@ -11,7 +11,7 @@ docker run --rm -it --network="dynamix" --name orderer -p 8050:7050
 -e ORDERER_GENERAL_LISTENPORT=7050 
 -e ORDERER_RAMLEDGER_HISTORY_SIZE=100 
 -e CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=dynamix
-sfhackfest22017/fabric-orderer:x86_64-0.7.0-snapshot-c7b3fe0 orderer
+hyperledger/fabric-orderer orderer
 
 Peer 0
 
@@ -29,14 +29,14 @@ docker run --rm -it --link orderer:orderer --network="dynamix" --name peer0 -p 8
 -e CORE_PEER_GOSSIP_ORGLEADER=true 
 -e CORE_PEER_GOSSIP_IGNORESECURITY=true 
 -e CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=dynamix
-sfhackfest22017/fabric-peer:x86_64-0.7.0-snapshot-c7b3fe0 peer node start --peer-defaultchain=false
+hyperledger/fabric-peer peer node start --peer-defaultchain=false
 
 Peer 1
 
-docker run --rm -it --network="dynamix" --link orderer:orderer --link peer0:peer0 [...] -e CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=dynamix sfhackfest22017/fabric-peer:x86_64-0.7.0-snapshot-c7b3fe0 peer node start --peer-defaultchain=false
+docker run --rm -it --network="dynamix" --link orderer:orderer --link peer0:peer0 [...] -e CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=dynamix hyperledger/fabric-peer peer node start --peer-defaultchain=false
 
 Peer 2
-docker run --rm -it --network="dynamix" --link orderer:orderer --link peer0:peer0 --link peer1:peer1 [...] -e CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=dynamix sfhackfest22017/fabric-peer:x86_64-0.7.0-snapshot-c7b3fe0 peer node start --peer-defaultchain=false
+docker run --rm -it --network="dynamix" --link orderer:orderer --link peer0:peer0 --link peer1:peer1 [...] -e CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=dynamix hyperledger/fabric-peer peer node start --peer-defaultchain=false
 
 Cli
-docker run --rm -it --network="dynamix" --link orderer:orderer --link peer0:peer0 --link peer1:peer1 --link peer2:peer2 [...] -e CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=dynamix sfhackfest22017/fabric-peer:x86_64-0.7.0-snapshot-c7b3fe0 bash
+docker run --rm -it --network="dynamix" --link orderer:orderer --link peer0:peer0 --link peer1:peer1 --link peer2:peer2 [...] -e CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=dynamix hyperledger/fabric-tools bash
