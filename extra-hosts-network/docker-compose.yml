@@ -20,13 +20,13 @@ services:
       - ./crypto-config/peerOrganizations/org1.example.com/ca/:/etc/hyperledger/fabric-ca-server-config
     container_name: ca.org1.example.com
     extra_hosts:
-        - orderer.example.com:192.168.1.119
-        - ca.org1.example.com:192.168.1.119
-        - peer0.org1.example.com:192.168.1.119
-        - peer0.org2.example.com:192.168.1.126
-        - couchdb-1:192.168.1.119
-        - couchdb-2:192.168.1.126
-        - cli:192.168.1.119
+        - "orderer.example.com:192.168.1.119"
+        - "ca.org1.example.com:192.168.1.119"
+        - "peer0.org1.example.com:192.168.1.119"
+        - "peer0.org2.example.com:192.168.1.126"
+        - "couchdb-1:192.168.1.119"
+        - "couchdb-2:192.168.1.126"
+        - "cli:192.168.1.119"
 
   orderer.example.com:
     container_name: orderer.example.com
@@ -48,13 +48,13 @@ services:
         - ./crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/:/etc/hyperledger/msp/peerOrg1
         - ./crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/:/etc/hyperledger/msp/peerOrg2
     extra_hosts:
-        - orderer.example.com:192.168.1.119
-        - ca.org1.example.com:192.168.1.119
-        - peer0.org1.example.com:192.168.1.119
-        - peer0.org2.example.com:192.168.1.126
-        - couchdb-1:192.168.1.119
-        - couchdb-2:192.168.1.126
-        - cli:192.168.1.119
+        - "orderer.example.com:192.168.1.119"
+        - "ca.org1.example.com:192.168.1.119"
+        - "peer0.org1.example.com:192.168.1.119"
+        - "peer0.org2.example.com:192.168.1.126"
+        - "couchdb-1:192.168.1.119"
+        - "couchdb-2:192.168.1.126"
+        - "cli:192.168.1.119"
 
   peer0.org1.example.com:
     container_name: peer0.org1.example.com
@@ -88,13 +88,13 @@ services:
       - orderer.example.com
       - couchdb-1
     extra_hosts:
-        - orderer.example.com:192.168.1.119
-        - ca.org1.example.com:192.168.1.119
-        - peer0.org1.example.com:192.168.1.119
-        - peer0.org2.example.com:192.168.1.126
-        - couchdb-1:192.168.1.119
-        - couchdb-2:192.168.1.126
-        - cli:192.168.1.119
+        - "orderer.example.com:192.168.1.119"
+        - "ca.org1.example.com:192.168.1.119"
+        - "peer0.org1.example.com:192.168.1.119"
+        - "peer0.org2.example.com:192.168.1.126"
+        - "couchdb-1:192.168.1.119"
+        - "couchdb-2:192.168.1.126"
+        - "cli:192.168.1.119"
 
   peer0.org2.example.com:
     container_name: peer0.org2.example.com
@@ -125,16 +125,15 @@ services:
         - ./crypto-config/peerOrganizations/org2.example.com/users:/etc/hyperledger/msp/users
         - ./config:/etc/hyperledger/configtx
     depends_on:
-      - orderer.example.com
       - couchdb-2
     extra_hosts:
-        - orderer.example.com:192.168.1.119
-        - ca.org1.example.com:192.168.1.119
-        - peer0.org1.example.com:192.168.1.119
-        - peer0.org2.example.com:192.168.1.126
-        - couchdb-1:192.168.1.119
-        - couchdb-2:192.168.1.126
-        - cli:192.168.1.119
+        - "orderer.example.com:192.168.1.119"
+        - "ca.org1.example.com:192.168.1.119"
+        - "peer0.org1.example.com:192.168.1.119"
+        - "peer0.org2.example.com:192.168.1.126"
+        - "couchdb-1:192.168.1.119"
+        - "couchdb-2:192.168.1.126"
+        - "cli:192.168.1.119"
 
   couchdb-1:
     container_name: couchdb-1
@@ -147,13 +146,13 @@ services:
     ports:
       - 5984:5984
     extra_hosts:
-        - orderer.example.com:192.168.1.119
-        - ca.org1.example.com:192.168.1.119
-        - peer0.org1.example.com:192.168.1.119
-        - peer0.org2.example.com:192.168.1.126
-        - couchdb-1:192.168.1.119
-        - couchdb-2:192.168.1.126
-        - cli:192.168.1.119
+        - "orderer.example.com:192.168.1.119"
+        - "ca.org1.example.com:192.168.1.119"
+        - "peer0.org1.example.com:192.168.1.119"
+        - "peer0.org2.example.com:192.168.1.126"
+        - "couchdb-1:192.168.1.119"
+        - "couchdb-2:192.168.1.126"
+        - "cli:192.168.1.119"
 
   couchdb-2:
     container_name: couchdb-2
@@ -166,13 +165,13 @@ services:
     ports:
       - 5984:5984
     extra_hosts:
-        - orderer.example.com:192.168.1.119
-        - ca.org1.example.com:192.168.1.119
-        - peer0.org1.example.com:192.168.1.119
-        - peer0.org2.example.com:192.168.1.126
-        - couchdb-1:192.168.1.119
-        - couchdb-2:192.168.1.126
-        - cli:192.168.1.119
+        - "orderer.example.com:192.168.1.119"
+        - "ca.org1.example.com:192.168.1.119"
+        - "peer0.org1.example.com:192.168.1.119"
+        - "peer0.org2.example.com:192.168.1.126"
+        - "couchdb-1:192.168.1.119"
+        - "couchdb-2:192.168.1.126"
+        - "cli:192.168.1.119"
 
   cli:
     container_name: cli
@@ -195,10 +194,10 @@ services:
         - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
         - ./config:/opt/gopath/src/github.com/hyperledger/fabric/peer/
     extra_hosts:
-        - orderer.example.com:192.168.1.119
-        - ca.org1.example.com:192.168.1.119
-        - peer0.org1.example.com:192.168.1.119
-        - peer0.org2.example.com:192.168.1.126
-        - couchdb-1:192.168.1.119
-        - couchdb-2:192.168.1.126
-        - cli:192.168.1.119
+        - "orderer.example.com:192.168.1.119"
+        - "ca.org1.example.com:192.168.1.119"
+        - "peer0.org1.example.com:192.168.1.119"
+        - "peer0.org2.example.com:192.168.1.126"
+        - "couchdb-1:192.168.1.119"
+        - "couchdb-2:192.168.1.126"
+        - "cli:192.168.1.119"
