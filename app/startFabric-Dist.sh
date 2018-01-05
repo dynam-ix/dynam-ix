@@ -16,7 +16,7 @@ starttime=$(date +%s)
 
 # launch network; create channel and join peer to channel
 cd ../tmp
-./start.sh
+./start-dist.sh
 
 
 # Only for one peer
