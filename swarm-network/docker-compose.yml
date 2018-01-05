@@ -24,8 +24,8 @@ services:
     container_name: ca.org1.example.com
     networks:
       - basic
-          aliases:
-          - caOrg1
+#          aliases:
+#          - caOrg1
     deploy:
       placement:
         constraints: [node.role == manager]
@@ -67,8 +67,8 @@ services:
         - ./crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/:/etc/hyperledger/msp/peerOrg2
     networks:
       - basic
-          aliases:
-          - ordererNode
+#          aliases:
+#          - ordererNode
     deploy:
       placement:
         constraints: [node.role == manager]
@@ -111,8 +111,8 @@ services:
       - couchdb-1
     networks:
       - basic
-          aliases:
-          - peerOrg1
+#          aliases:
+#          - peerOrg1
     deploy:
       placement:
         constraints: [node.role == manager]
@@ -155,8 +155,8 @@ services:
       - couchdb-2
     networks:
       - basic
-          aliases:
-          - peerOrg2
+ #         aliases:
+ #         - peerOrg2
     deploy:
       placement:
         constraints: [node.role == worker]
@@ -174,8 +174,8 @@ services:
       - 5984:5984
     networks:
       - basic
-          aliases:
-          - couchDB-1
+#          aliases:
+#          - couchDB-1
     deploy:
       placement:
         constraints: [node.role == manager]
@@ -192,8 +192,8 @@ services:
       - 6984:5984
     networks:
       - basic
-          aliases:
-          - couchDB-2
+#          aliases:
+#          - couchDB-2
     deploy:
       placement:
         constraints: [node.role == worker]
@@ -220,8 +220,8 @@ services:
         - ./config:/opt/gopath/src/github.com/hyperledger/fabric/peer/
     networks:
         - basic
-          aliases:
-          - cliNode
+ #         aliases:
+ #         - cliNode
     deploy:
       placement:
         constraints: [node.role == manager]
