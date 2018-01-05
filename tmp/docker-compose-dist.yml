@@ -23,7 +23,7 @@ services:
       - ./crypto-config/peerOrganizations/org1.example.com/ca/:/etc/hyperledger/fabric-ca-server-config
     container_name: ca.org1.example.com
     networks:
-      - host
+      - basic
     extra_hosts:
         - "orderer.example.com:192.168.1.119"
         - "ca.org1.example.com:192.168.1.119"
