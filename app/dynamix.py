@@ -24,8 +24,7 @@ myPort = sys.argv[2].split(":")[1]
 myService = sys.argv[3]
 myPrivKey = ""
 myPubKey = ""
-myUser = sys.argv[4]
-
+myUser = sys.argv[5]
 
 # Dictionaries contanining the offers that the AS have sent and received
 offersSent = {}
