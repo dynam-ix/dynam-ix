@@ -184,10 +184,13 @@ def getAddress(ASN):
     # Query the ledger to get AS' information
     x = subprocess.check_output('node query.js show \''+ASN+'\'', shell=True)
     # Get the address
+    print x
     aux = x.split(",")[0]
+    print aux
     ip = aux.split(":")[1]
+    print ip
     port = aux.split(":")[2]
-
+    print port
     # Return ip:port
     return ip.split("\"")[1]+":"+port.split("\"")[0]
 
