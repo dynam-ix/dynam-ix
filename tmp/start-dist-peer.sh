@@ -14,7 +14,7 @@ export COMPOSE_PROJECT_NAME="net"
 
 docker-compose -f docker-compose-dist.yml down
 
-docker-compose -f docker-compose-dist.yml up -d cli couchdb-2 peer0.org2.example.com
+docker-compose -f docker-compose-dist.yml up -d cli couchdb-2 peer0.org2.example.com ca.org2.example.com
 
 # wait for Hyperledger Fabric to start
 # incase of errors when running later commands, issue export FABRIC_START_TIMEOUT=<larger number>
