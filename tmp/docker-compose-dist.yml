@@ -25,13 +25,13 @@ services:
     networks:
       - basic
     extra_hosts:
-        - "orderer.example.com:192.168.1.119"
-        - "ca.org1.example.com:192.168.1.119"
-        - "peer0.org1.example.com:192.168.1.119"
-        - "peer0.org2.example.com:192.168.1.126"
-        - "couchdb-1:192.168.1.119"
-        - "couchdb-2:192.168.1.126"
-        - "cli:192.168.1.119"
+        - "orderer.example.com:192.168.1.128"
+        - "ca.org1.example.com:192.168.1.128"
+        - "peer0.org1.example.com:192.168.1.128"
+        - "peer0.org2.example.com:192.168.1.127"
+        - "couchdb-1:192.168.1.128"
+        - "couchdb-2:192.168.1.127"
+        - "cli:192.168.1.128"
 
   orderer.example.com:
     container_name: orderer.example.com
@@ -55,13 +55,13 @@ services:
     networks:
       - basic
     extra_hosts:
-        - "orderer.example.com:192.168.1.119"
-        - "ca.org1.example.com:192.168.1.119"
-        - "peer0.org1.example.com:192.168.1.119"
-        - "peer0.org2.example.com:192.168.1.126"
-        - "couchdb-1:192.168.1.119"
-        - "couchdb-2:192.168.1.126"
-        - "cli:192.168.1.119"
+        - "orderer.example.com:192.168.1.128"
+        - "ca.org1.example.com:192.168.1.128"
+        - "peer0.org1.example.com:192.168.1.128"
+        - "peer0.org2.example.com:192.168.1.127"
+        - "couchdb-1:192.168.1.128"
+        - "couchdb-2:192.168.1.127"
+        - "cli:192.168.1.128"
 
   peer0.org1.example.com:
     container_name: peer0.org1.example.com
@@ -102,13 +102,13 @@ services:
     networks:
       - basic
     extra_hosts:
-        - "orderer.example.com:192.168.1.119"
-        - "ca.org1.example.com:192.168.1.119"
-        - "peer0.org1.example.com:192.168.1.119"
-        - "peer0.org2.example.com:192.168.1.126"
-        - "couchdb-1:192.168.1.119"
-        - "couchdb-2:192.168.1.126"
-        - "cli:192.168.1.119"
+        - "orderer.example.com:192.168.1.128"
+        - "ca.org1.example.com:192.168.1.128"
+        - "peer0.org1.example.com:192.168.1.128"
+        - "peer0.org2.example.com:192.168.1.127"
+        - "couchdb-1:192.168.1.128"
+        - "couchdb-2:192.168.1.127"
+        - "cli:192.168.1.128"
 
   peer0.org2.example.com:
     container_name: peer0.org2.example.com
@@ -148,13 +148,13 @@ services:
     networks:
       - basic
     extra_hosts:
-        - "orderer.example.com:192.168.1.119"
-        - "ca.org1.example.com:192.168.1.119"
-        - "peer0.org1.example.com:192.168.1.119"
-        - "peer0.org2.example.com:192.168.1.126"
-        - "couchdb-1:192.168.1.119"
-        - "couchdb-2:192.168.1.126"
-        - "cli:192.168.1.119"
+        - "orderer.example.com:192.168.1.128"
+        - "ca.org1.example.com:192.168.1.128"
+        - "peer0.org1.example.com:192.168.1.128"
+        - "peer0.org2.example.com:192.168.1.127"
+        - "couchdb-1:192.168.1.128"
+        - "couchdb-2:192.168.1.127"
+        - "cli:192.168.1.128"
 
   couchdb-1:
     container_name: couchdb-1
@@ -169,13 +169,13 @@ services:
     networks:
       - basic
     extra_hosts:
-        - "orderer.example.com:192.168.1.119"
-        - "ca.org1.example.com:192.168.1.119"
-        - "peer0.org1.example.com:192.168.1.119"
-        - "peer0.org2.example.com:192.168.1.126"
-        - "couchdb-1:192.168.1.119"
-        - "couchdb-2:192.168.1.126"
-        - "cli:192.168.1.119"
+        - "orderer.example.com:192.168.1.128"
+        - "ca.org1.example.com:192.168.1.128"
+        - "peer0.org1.example.com:192.168.1.128"
+        - "peer0.org2.example.com:192.168.1.127"
+        - "couchdb-1:192.168.1.128"
+        - "couchdb-2:192.168.1.127"
+        - "cli:192.168.1.128"
 
   couchdb-2:
     container_name: couchdb-2
@@ -190,13 +190,13 @@ services:
     networks:
       - basic
     extra_hosts:
-        - "orderer.example.com:192.168.1.119"
-        - "ca.org1.example.com:192.168.1.119"
-        - "peer0.org1.example.com:192.168.1.119"
-        - "peer0.org2.example.com:192.168.1.126"
-        - "couchdb-1:192.168.1.119"
-        - "couchdb-2:192.168.1.126"
-        - "cli:192.168.1.119"
+        - "orderer.example.com:192.168.1.128"
+        - "ca.org1.example.com:192.168.1.128"
+        - "peer0.org1.example.com:192.168.1.128"
+        - "peer0.org2.example.com:192.168.1.127"
+        - "couchdb-1:192.168.1.128"
+        - "couchdb-2:192.168.1.127"
+        - "cli:192.168.1.128"
 
   cli:
     container_name: cli
@@ -221,10 +221,10 @@ services:
     networks:
         - basic
     extra_hosts:
-        - "orderer.example.com:192.168.1.119"
-        - "ca.org1.example.com:192.168.1.119"
-        - "peer0.org1.example.com:192.168.1.119"
-        - "peer0.org2.example.com:192.168.1.126"
-        - "couchdb-1:192.168.1.119"
-        - "couchdb-2:192.168.1.126"
-        - "cli:192.168.1.119"
+        - "orderer.example.com:192.168.1.128"
+        - "ca.org1.example.com:192.168.1.128"
+        - "peer0.org1.example.com:192.168.1.128"
+        - "peer0.org2.example.com:192.168.1.127"
+        - "couchdb-1:192.168.1.128"
+        - "couchdb-2:192.168.1.127"
+        - "cli:192.168.1.128"
