@@ -25,7 +25,7 @@ services:
     networks:
       - basic
     extra_hosts:
-        - "orderer.example.com:192.168.1.116"
+        - "orderer.example.com:192.168.1.128"
         - "ca.org1.example.com:192.168.1.128"
         - "ca.org2.example.com:192.168.1.130"
         - "peer0.org1.example.com:192.168.1.128"
@@ -34,7 +34,6 @@ services:
         - "couchdb-2:192.168.1.130"
         - "cli:192.168.1.128"
 
-services:
   ca.org2.example.com:
     image: hyperledger/fabric-ca
     environment:
@@ -51,7 +50,7 @@ services:
     networks:
       - basic
     extra_hosts:
-        - "orderer.example.com:192.168.1.116"
+        - "orderer.example.com:192.168.1.128"
         - "ca.org1.example.com:192.168.1.128"
         - "ca.org2.example.com:192.168.1.130"
         - "peer0.org1.example.com:192.168.1.128"
@@ -82,7 +81,7 @@ services:
     networks:
       - basic
     extra_hosts:
-        - "orderer.example.com:192.168.1.116"
+        - "orderer.example.com:192.168.1.128"
         - "ca.org1.example.com:192.168.1.128"
         - "ca.org2.example.com:192.168.1.130"
         - "peer0.org1.example.com:192.168.1.128"
@@ -130,7 +129,7 @@ services:
     networks:
       - basic
     extra_hosts:
-        - "orderer.example.com:192.168.1.116"
+        - "orderer.example.com:192.168.1.128"
         - "ca.org1.example.com:192.168.1.128"
         - "ca.org2.example.com:192.168.1.130"
         - "peer0.org1.example.com:192.168.1.128"
@@ -177,7 +176,7 @@ services:
     networks:
       - basic
     extra_hosts:
-        - "orderer.example.com:192.168.1.116"
+        - "orderer.example.com:192.168.1.128"
         - "ca.org1.example.com:192.168.1.128"
         - "ca.org2.example.com:192.168.1.130"
         - "peer0.org1.example.com:192.168.1.128"
@@ -199,7 +198,7 @@ services:
     networks:
       - basic
     extra_hosts:
-        - "orderer.example.com:192.168.1.116"
+        - "orderer.example.com:192.168.1.128"
         - "ca.org1.example.com:192.168.1.128"
         - "ca.org2.example.com:192.168.1.130"
         - "peer0.org1.example.com:192.168.1.128"
@@ -221,7 +220,7 @@ services:
     networks:
       - basic
     extra_hosts:
-        - "orderer.example.com:192.168.1.116"
+        - "orderer.example.com:192.168.1.128"
         - "ca.org1.example.com:192.168.1.128"
         - "ca.org2.example.com:192.168.1.130"
         - "peer0.org1.example.com:192.168.1.128"
@@ -253,7 +252,7 @@ services:
     networks:
         - basic
     extra_hosts:
-        - "orderer.example.com:192.168.1.116"
+        - "orderer.example.com:192.168.1.128"
         - "ca.org1.example.com:192.168.1.128"
         - "ca.org2.example.com:192.168.1.130"
         - "peer0.org1.example.com:192.168.1.128"
