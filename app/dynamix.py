@@ -187,12 +187,12 @@ def getAddress(ASN):
     print x
     aux = x.split(",")[0]
     print aux
-    ip = aux.split(":")[1]
-    print ip
-    port = aux.split(":")[2]
-    print port
+#    ip = aux.split(":")[1]
+  #  print ip
+ #   port = aux.split(":")[2]
+   # print port
     # Return ip:port
-    return ip.split("\"")[1]+":"+port.split("\"")[0]
+    #return ip.split("\"")[1]+":"+port.split("\"")[0]
 
 # get AS' public key from the ledger
 def getPubKey(ASN):
