@@ -171,7 +171,7 @@ def sendQuery(action):
 def getReputation(ASN, role):
 
     # Query the ledger to get AS' information
-    x = subprocess.check_output('node query.js show \''+ASN+'\'', shell=True)
+    x = subprocess.check_output('node query.js show \''+ASN+'\''+' '+myUser, shell=True)
     # Get the reputation
     if role == "customer":
         return x.split(",")[1].split(':')[1]
@@ -182,23 +182,23 @@ def getReputation(ASN, role):
 def getAddress(ASN):
 
     # Query the ledger to get AS' information
-    x = subprocess.check_output('node query.js show \''+ASN+'\'', shell=True)
+    x = subprocess.check_output('node query.js show \''+ASN+'\''+' '+myUser, shell=True)
     # Get the address
     print x
     aux = x.split(",")[0]
     print aux
-#    ip = aux.split(":")[1]
-  #  print ip
- #   port = aux.split(":")[2]
-   # print port
+    ip = aux.split(":")[1]
+    print ip
+    port = aux.split(":")[2]
+
     # Return ip:port
-    #return ip.split("\"")[1]+":"+port.split("\"")[0]
+    return ip.split("\"")[1]+":"+port.split("\"")[0]
 
 # get AS' public key from the ledger
 def getPubKey(ASN):
 
     # Query the ledger to get AS' information
-    x = subprocess.check_output('node query.js show \''+ASN+'\'', shell=True)
+    x = subprocess.check_output('node query.js show \''+ASN+'\''+' '+myUser, shell=True)
     S = x.split(",")[3].split(":")[1]
 
     return S.split("\"")[1]
@@ -462,7 +462,7 @@ def executeAgreements():
         customer = agreementsProv[agmnt].split(";")[0]
         print customer
         # update customer's reputation
-        x = subprocess.check_output('node update.js updateCustRep \''+customer+'\' \'1\'', shell=True)
+        x = subprocess.check_output('node update.js updateCustRep \''+customer+'\' \'1\''+' '+myUser, shell=True)
         print x
 
 
@@ -473,7 +473,7 @@ def executeAgreements():
         provider = agreementsCust[agmnt].split(";")[1]
         print provider
         # update provider's reputation
-        x = subprocess.check_output('node update.js updateProvRep \''+provider+'\' \'1\'', shell=True)
+        x = subprocess.check_output('node update.js updateProvRep \''+provider+'\' \'1\''+' '+myUser, shell=True)
         print x
 
         del agreementsCust[agmnt]
