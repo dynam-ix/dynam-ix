@@ -39,7 +39,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
     	verify: false
     };
     // be sure to change the http to https when the CA is running TLS enabled
-    fabric_ca_client = new Fabric_CA_Client('http://localhost:7054', tlsOptions , '', crypto_suite);
+    fabric_ca_client = new Fabric_CA_Client('http://192.168.1.119:7054', tlsOptions , '', crypto_suite);    // Get IP
 
     // first check to see if the admin is already enrolled
     return fabric_client.getUserContext('admin', true);
@@ -57,7 +57,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
           console.log('Successfully enrolled admin user "admin"');
           return fabric_client.createUser(
               {username: 'admin',
-                  mspid: 'Org1MSP',
+                  mspid: 'Org1MSP',     // Update org
                   cryptoContent: { privateKeyPEM: enrollment.key.toBytes(), signedCertPEM: enrollment.certificate }
               });
         }).then((user) => {

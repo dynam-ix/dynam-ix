@@ -20,7 +20,7 @@ var fabric_client = new Fabric_Client();
 var channel = fabric_client.newChannel('mychannel');
 var peer = fabric_client.newPeer('grpc://localhost:7051');
 channel.addPeer(peer);
-var order = fabric_client.newOrderer('grpc://localhost:7050')
+var order = fabric_client.newOrderer('grpc://192.168.1.119:7050')	// Update orderer IP
 channel.addOrderer(order);
 
 //
@@ -42,14 +42,14 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 	fabric_client.setCryptoSuite(crypto_suite);
 
 	// get the enrolled user from persistence, this user will sign all requests
-	return fabric_client.getUserContext('user1', true);
+	return fabric_client.getUserContext('user1', true);		// update user
 }).then((user_from_store) => {
 
 	if (user_from_store && user_from_store.isEnrolled()) {
 		//console.log('Successfully loaded user1 from persistence');
 		member_user = user_from_store;
 	} else {
-		throw new Error('Failed to get user1.... run registerUser.js');
+		throw new Error('Failed to get user1.... run registerUser.js');		//update username
 	}
 
 	// get a transaction id object based on the current user assigned to fabric client
