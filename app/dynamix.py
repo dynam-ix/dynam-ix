@@ -24,6 +24,7 @@ myPort = sys.argv[2].split(":")[1]
 myService = sys.argv[3]
 myPrivKey = ""
 myPubKey = ""
+myUser = sys.argv[4]
 
 
 # Dictionaries contanining the offers that the AS have sent and received
@@ -45,38 +46,38 @@ def cli():
         action = raw_input("Dynam-IX: ")
         if len(action) > 0:
             if "registerAS" in action: # registerAS 'ASN' 'address' 'service' 'custRep' 'provRep' 'pubKey'
-                x = subprocess.check_output('node register.js '+action, shell=True)
+                x = subprocess.check_output('node register.js '+action+' '+myUser, shell=True)
                 print x
             elif "listASes" in action:  # listASes 
-                x = subprocess.check_output('node list.js', shell=True)
+                x = subprocess.check_output('node list.js'+' '+myUser, shell=True)
                 print x
             elif "findService" in action: # findService service         # TODO fix this function when string has space
                 #queryString = "{\"selector\":{\"service\":\"Transit\"}}"
                 service = action.split("- ")[1]
                 print service
-                x = subprocess.check_output('node query.js findService \'{\"selector\":{\"service\":\"'+service+'\"}}\'', shell=True)
+                x = subprocess.check_output('node query.js findService \'{\"selector\":{\"service\":\"'+service+'\"}}\''+' '+myUser, shell=True)
                 print x
             elif "show" in action: #show 'key'
-                x = subprocess.check_output('node query.js '+action, shell=True)
+                x = subprocess.check_output('node query.js '+action+' '+myUser, shell=True)
                 print x
             elif "history" in action: #history 'key'
-                x = subprocess.check_output('node query.js '+action, shell=True)
+                x = subprocess.check_output('node query.js '+action+' '+myUser, shell=True)
                 print x
             elif "delete" in action: #delete 'key'
-                x = subprocess.check_output('node delete.js '+action, shell=True)
+                x = subprocess.check_output('node delete.js '+action+' '+myUser, shell=True)
                 print x
             elif "updateService" in action: #updateService 'ASN' 'newService'
-                x = subprocess.check_output('node update.js '+action, shell=True)
+                x = subprocess.check_output('node update.js '+action+' '+myUser, shell=True)
                 print x
             elif "updateAddress" in action: #updateAddress 'ASN' 'newAddress'
-                x = subprocess.check_output('node update.js '+action, shell=True)
+                x = subprocess.check_output('node update.js '+action+' '+myUser, shell=True)
                 print x
             elif "query" in action: #query providerASN request
                 sendQuery(action)
             elif "propose" in action: #propose ID
                 sendProposal(action)
             elif "listAgreements" in action:
-                x = subprocess.check_output('node listAgreements.js', shell=True)
+                x = subprocess.check_output('node listAgreements.js'+' '+myUser, shell=True)
                 print x
             elif "listOffersSent" in action:
                  listOffersSent()
@@ -136,10 +137,14 @@ def processMessages():
 
 def sendMessage(msg, ip, port):
 
+    print "Going to send ", msg, ip, port
+
     clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     clientsocket.connect((ip, port))
     clientsocket.send(msg)
     clientsocket.close()
+
+    print "message sent"
 
 
 # Receives a query action and send it to a potential provider
