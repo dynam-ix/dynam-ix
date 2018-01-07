@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # Environment variables
-
 DYNAMIX_DIR=$HOME/dynam-ix
 NUM_ORGS=$1
 EXPERIMENT=${NUM_ORGS}-experiment
@@ -19,10 +18,10 @@ cd ${DYNAMIX_DIR}/experiments/${EXPERIMENT}
 
 # Generate crypto-config.yaml
 echo "Generating cryto-config.yaml file"
-python ${DYNAMIX_DIR}/scripts/generateCryptoConfig.py $NUM_ORGS
+python ${DYNAMIX_DIR}/scripts/generateCryptoConfig.py $NUM_ORGS > cryto-config.yaml
 # Generate configtx.yaml
 echo "Generating configtx.yaml file"
-python ${DYNAMIX_DIR}/scripts/generateConfigtx.py $NUM_ORGS
+python ${DYNAMIX_DIR}/scripts/generateConfigtx.py $NUM_ORGS > configtx.yaml
 
 # Generate certifactes
 echo "Generating certificates"
@@ -43,7 +42,7 @@ $DYNAMIX_DIR/bin/configtxgen -profile MultipleOrgChannel -outputAnchorPeersUpdat
 # Generate docker-compose.yaml
 echo "Generating docker-compose.yaml file"
 python ${DYNAMIX_DIR}/scripts/generateDockerCompose.py $NUM_ORGS $HOSTS
-# update the ca keys on docker-compose.yml
 
 echo "Configuration files generated successfully!!!"
 echo "Do not forget the commit the files to the repository!"
+echo "To run the experiment use ./runExperiment.sh EXPERIMENT_NAME"
