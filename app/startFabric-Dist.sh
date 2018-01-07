@@ -15,7 +15,7 @@ export MSYS_NO_PATHCONV=1
 starttime=$(date +%s)
 
 # launch network; create channel and join peer to channel
-cd ../tmp
+cd ../tests/dist-network
 ./start-dist.sh
 
 
