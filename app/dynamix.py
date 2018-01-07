@@ -447,7 +447,7 @@ def publishAgreement(info):
     key = "IA-"+contractHash 
 
     # Register the agreement on the ledger
-    x = subprocess.check_output('node publish.js registerAgreement \''+key+'\' \''+contractHash+'\' \''+customer+'\' \''+provider+'\' \''+customerSignature+'\' \''+providerSignature+'\'', shell=True)
+    x = subprocess.check_output('node publish.js registerAgreement \''+key+'\' \''+contractHash+'\' \''+customer+'\' \''+provider+'\' \''+customerSignature+'\' \''+providerSignature+'\''+' '+myUser, shell=True)
 
     # TODO store the agreement on the dictionary
 
