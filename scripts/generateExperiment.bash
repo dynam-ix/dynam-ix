@@ -1,9 +1,13 @@
-#!/bin/sh
+#!/bin/bash
 
 # Environment variables
 DYNAMIX_DIR=$HOME/dynam-ix
 NUM_ORGS=$1
 EXPERIMENT=${NUM_ORGS}-experiment
+
+echo $DYNAMIX_DIR
+echo $NUM_ORGS
+echo $EXPERIMENT
 
 # Exit in case of errors
 set -ev
@@ -18,7 +22,7 @@ cd ${DYNAMIX_DIR}/experiments/${EXPERIMENT}
 
 # Generate crypto-config.yaml
 echo "Generating cryto-config.yaml file"
-python ${DYNAMIX_DIR}/scripts/generateCryptoConfig.py $NUM_ORGS > cryto-config.yaml
+python ${DYNAMIX_DIR}/scripts/generateCryptoConfig.py $NUM_ORGS > crypto-config.yaml
 # Generate configtx.yaml
 echo "Generating configtx.yaml file"
 python ${DYNAMIX_DIR}/scripts/generateConfigtx.py $NUM_ORGS > configtx.yaml
@@ -36,12 +40,13 @@ $DYNAMIX_DIR/bin/configtxgen -profile SingleOrgOrdererGenesis -outputBlock ./con
 echo "Creating channel"
 $DYNAMIX_DIR/bin/configtxgen -profile MultipleOrgChannel -outputCreateChannelTx ./config/channel.tx -channelID mychannel
 # Anchor peer update for each org
-echo "Updating anchor peer" # TODO Repeat for all peers
-$DYNAMIX_DIR/bin/configtxgen -profile MultipleOrgChannel -outputAnchorPeersUpdate ./config/Org${ASN}MSPanchors.tx -channelID mychannel -asOrg Org${ASN}MSP
-
+for (( ASN=0; ASN < $NUM_ORGS; ASN++ )) do
+    echo "Updating anchor peer for org $ASN" # TODO Repeat for all peers
+    $DYNAMIX_DIR/bin/configtxgen -profile MultipleOrgChannel -outputAnchorPeersUpdate ./config/Org${ASN}MSPanchors.tx -channelID mychannel -asOrg Org${ASN}MSP
+done
 # Generate docker-compose.yaml
 echo "Generating docker-compose.yaml file"
-python ${DYNAMIX_DIR}/scripts/generateDockerCompose.py $NUM_ORGS $HOSTS
+#python ${DYNAMIX_DIR}/scripts/generateDockerCompose.py $NUM_ORGS $HOSTS
 
 echo "Configuration files generated successfully!!!"
 echo "Do not forget the commit the files to the repository!"
