@@ -16,7 +16,7 @@ export AS="1"
 
 docker-compose -f docker-compose-new.yml down
 
-docker-compose -f docker-compose-new.yml up -d cli couchdb-${AS} orderer.example.com peer0.org${AS}.example.com ca.org${AS}.example.com
+docker-compose -f docker-compose-new.yml up -d cli couchdb orderer peer ca
 
 # wait for Hyperledger Fabric to start
 # incase of errors when running later commands, issue export FABRIC_START_TIMEOUT=<larger number>
