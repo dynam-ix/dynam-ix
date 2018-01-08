@@ -12,9 +12,11 @@ export MSYS_NO_PATHCONV=1
 
 export COMPOSE_PROJECT_NAME="net"
 
-docker-compose -f docker-compose-dist.yml down
+export AS="1"
 
-docker-compose -f docker-compose-dist.yml up -d cli couchdb-1 orderer.example.com peer0.org1.example.com ca.org1.example.com
+docker-compose -f docker-compose-new.yml down
+
+docker-compose -f docker-compose-new.yml up -d cli couchdb-${AS} orderer.example.com peer0.org${AS}.example.com ca.org${AS}.example.com
 
 # wait for Hyperledger Fabric to start
 # incase of errors when running later commands, issue export FABRIC_START_TIMEOUT=<larger number>
