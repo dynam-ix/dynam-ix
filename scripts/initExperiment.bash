@@ -1,22 +1,22 @@
 #!/bin/sh
 
 # Environment variables
-DYNAMIX_DIR=$HOME/dynam-ix 
-AS=$1               #1234
-ADDRESS=$2          #10.0.0.1:5000
-SERVICE=$3          #"Transit Provider"
-INTENT_FILE=$4      #/path/to/intent/file
-ORDERER_IP=$5       #192.168.1.130
-USER=org{$AS}
-COMPOSE_PROJECT_NAME="net"
+export DYNAMIX_DIR=$HOME/dynam-ix 
+export AS=$1               #1234
+export ADDRESS=$2          #10.0.0.1:5000
+export SERVICE=$3          #"Transit Provider"
+export INTENT_FILE=$4      #/path/to/intent/file
+export ORDERER_IP=$5       #192.168.1.130
+export USER="org${AS}"
+export COMPOSE_PROJECT_NAME="net"
 
 # Exit in case of errors
-set -ev
+set -v
 
 # Getting KEYFILE
 echo "Getting KEYFILE"
 cd crypto-config/peerOrganizations/org${AS}.example.com/ca/
-KEYFILE = $(ls *_sk) 
+export KEYFILE=$(ls *_sk) 
 cd ../../../../
 
 # Cleaning any previous experiment
@@ -27,7 +27,7 @@ docker-compose -f docker-compose-base.yml down
 
 # Start Docker Containers
 echo "Staring docker containers"
-docker-compose -f docker-compose-base.yml -d peer ca couchdb cli orderer
+docker-compose -f docker-compose-base.yml up -d peer ca couchdb cli orderer
 
 # Create channel
 docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/users/Admin@org${AS}.example.com/msp" peer0.org${AS}.example.com peer channel create -o orderer.example.com:7050 -c mychannel -f /etc/hyperledger/configtx/channel.tx
