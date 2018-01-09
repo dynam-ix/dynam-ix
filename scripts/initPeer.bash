@@ -34,6 +34,8 @@ docker-compose -f docker-compose-base.yml down
 echo "Staring docker containers"
 docker-compose -f docker-compose-base.yml up -d peer ca couchdb cli
 
+sleep 10
+
 # Join channel
 echo "Joining channel"
 docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/users/Admin@org${AS}.example.com/msp" peer0.org${AS}.example.com peer channel join -b /etc/hyperledger/configtx/mychannel.block
