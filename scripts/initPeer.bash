@@ -66,4 +66,4 @@ node registerUser.js org${AS} Org${AS}MSP
 
 # Run Dynam-IX
 echo "Starting Dynam-IX with $AS, $ADDRESS, $SERVICE, $INTENT_FILE, $USER, $ORDERER_IP"
-python dynamix.py AS{$AS} $ADDRESS $SERVICE $INTENT_FILE $USER $ORDERER_IP
+python dynamix.py AS${AS} $ADDRESS $SERVICE $INTENT_FILE $USER $ORDERER_IP
