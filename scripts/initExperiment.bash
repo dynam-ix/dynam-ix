@@ -23,16 +23,19 @@ cd ../../../../
 docker rm -f $(docker ps -aq)
 docker rmi $(docker images dev-* -q)
 docker network prune -f
-docker-compose -f docker-compose.yml down
+docker-compose -f docker-compose-base.yml down
 
 # Start Docker Containers
 echo "Staring docker containers"
-docker-compose -f docker-compose.yml -d peer ca couchdb cli
+docker-compose -f docker-compose-base.yml -d peer ca couchdb cli orderer
 
 # Create channel
 docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/users/Admin@org${AS}.example.com/msp" peer0.org${AS}.example.com peer channel create -o orderer.example.com:7050 -c mychannel -f /etc/hyperledger/configtx/channel.tx
 
-# IMPORTANT !!!! share the block
+# Share the block 
+git add config/mychannel.block
+git commit -m "new block"
+git push
 
 # Join channel
 docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/users/Admin@org${AS}.example.com/msp" peer0.org${AS}.example.com peer channel join -b /etc/hyperledger/configtx/mychannel.block
@@ -52,7 +55,7 @@ cd $DYNAMIX_DIR/app
 npm install
 
 # Remove previous keys
-rm -rf hfc-keystore/
+rm -rf hfc-key-store/
 
 # Enroll admin user
 node enrollAdmin.js Org${AS}MSP
@@ -61,4 +64,4 @@ node enrollAdmin.js Org${AS}MSP
 node registerUser.js org${AS} Org${AS}MSP
 
 # Run Dynam-IX
-python dynamix.py AS{$AS} $ADDRESS $SERVICE $INTENT_FILE $USER
+python dynamix.py AS{$AS} $ADDRESS $SERVICE $INTENT_FILE $USER $ORDERER_IP

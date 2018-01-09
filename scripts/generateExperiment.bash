@@ -41,6 +41,13 @@ for (( ASN=0; ASN < $NUM_ORGS; ASN++ )) do
     $DYNAMIX_DIR/bin/configtxgen -profile MultipleOrgChannel -outputAnchorPeersUpdate ./config/Org${ASN}MSPanchors.tx -channelID mychannel -asOrg Org${ASN}MSP
 done
 
+# copy base files
+echo "Copying experiment scripts"
+cp docker-compose-base.yml ${DYNAMIX_DIR}/experiments/${EXPERIMENT}
+cp initExperiment.bash ${DYNAMIX_DIR}/experiments/${EXPERIMENT}
+cp initPeer.bash ${DYNAMIX_DIR}/experiments/${EXPERIMENT}
+
 echo "Configuration files generated successfully!!!"
 echo "Do not forget the commit the files to the repository!"
-echo "To run the experiment use ./runExperiment.sh EXPERIMENT_NAME"
+echo "To run the experiment, go to ${DYNAMIX_DIR}/experiments/${EXPERIMENT} and run ./initExperiment.bash ASN IP:PORT SERVICE INTENTFILE ORDERER_IP"
+echo "Then, on the (remote) peers, pull the git repository, go to ${DYNAMIX_DIR}/experiments/${EXPERIMENT} and run ./initPeer.bash ASN IP:PORT SERVICE INTENTFILE ORDERER_IP"

@@ -8,7 +8,7 @@
  * Enroll the admin user
  */
 
-//node enrollAdmin.js http://192.168.1.128:7054 Org1MSP
+//node enrollAdmin.js Org_MSP
 
 var Fabric_Client = require('fabric-client');
 var Fabric_CA_Client = require('fabric-ca-client');
@@ -41,7 +41,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
     	verify: false
     };
     // be sure to change the http to https when the CA is running TLS enabled
-    fabric_ca_client = new Fabric_CA_Client(process.argv[2], tlsOptions , '', crypto_suite);    // Get IP
+    fabric_ca_client = new Fabric_CA_Client("http://localhost:7054", tlsOptions , '', crypto_suite);
 
     // first check to see if the admin is already enrolled
     return fabric_client.getUserContext('admin', true);
@@ -59,7 +59,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
           console.log('Successfully enrolled admin user "admin"');
           return fabric_client.createUser(
               {username: 'admin',
-                  mspid: process.argv[3],     // Update org
+                  mspid: process.argv[2],
                   cryptoContent: { privateKeyPEM: enrollment.key.toBytes(), signedCertPEM: enrollment.certificate }
               });
         }).then((user) => {
