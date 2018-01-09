@@ -43,9 +43,9 @@ done
 
 # copy base files
 echo "Copying experiment scripts"
-cp docker-compose-base.yml ${DYNAMIX_DIR}/experiments/${EXPERIMENT}
-cp initExperiment.bash ${DYNAMIX_DIR}/experiments/${EXPERIMENT}
-cp initPeer.bash ${DYNAMIX_DIR}/experiments/${EXPERIMENT}
+cp ${DYNAMIX_DIR}/scripts/docker-compose-base.yml ${DYNAMIX_DIR}/experiments/${EXPERIMENT}
+cp ${DYNAMIX_DIR}/scripts/initExperiment.bash ${DYNAMIX_DIR}/experiments/${EXPERIMENT}
+cp ${DYNAMIX_DIR}/scripts/initPeer.bash ${DYNAMIX_DIR}/experiments/${EXPERIMENT}
 
 echo "Configuration files generated successfully!!!"
 echo "Do not forget the commit the files to the repository!"
