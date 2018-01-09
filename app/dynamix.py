@@ -27,7 +27,6 @@ myPubKey = ""
 myUser = sys.argv[5]
 ordererIP = 'grpc://'+sys.argv[6]+':7050'
 
-
 # Dictionaries contanining the offers that the AS have sent and received
 offersSent = {}
 offersRecvd = {}
@@ -251,7 +250,7 @@ def checkIntents(query):
 
     customerIntent = query # TODO improve
 
-    print "customer intent "+customerIntent
+    #print "customer intent "+customerIntent
 
     i = 1
     # iterate over provider's intents
