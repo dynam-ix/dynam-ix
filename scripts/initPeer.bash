@@ -11,10 +11,11 @@ export USER="org${AS}"
 export COMPOSE_PROJECT_NAME="net"
 
 # Exit in case of errors
-#set -ev
+set -ev
 
 # Make sure to have the block to join the channel
 echo "Downloading latest files"
+git config --global credential.helper 'cache --timeout 3600'
 git pull
 
 # Getting KEYFILE
@@ -34,7 +35,7 @@ docker-compose -f docker-compose-base.yml down
 echo "Staring docker containers"
 docker-compose -f docker-compose-base.yml up -d peer ca couchdb cli
 
-sleep 10
+sleep 12    #increase in case of errors
 
 # Join channel
 echo "Joining channel"

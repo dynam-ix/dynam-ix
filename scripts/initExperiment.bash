@@ -39,6 +39,7 @@ docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/e
 
 # Share the block 
 echo "Uploading block to git"
+git config --global credential.helper 'cache --timeout 3600'
 git add config/mychannel.block
 git commit -m "new block"
 git push
