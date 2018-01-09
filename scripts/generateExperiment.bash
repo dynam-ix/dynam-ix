@@ -5,10 +5,6 @@ DYNAMIX_DIR=$HOME/dynam-ix
 NUM_ORGS=$1
 EXPERIMENT=${NUM_ORGS}-experiment
 
-echo $DYNAMIX_DIR
-echo $NUM_ORGS
-echo $EXPERIMENT
-
 # Exit in case of errors
 set -ev
 
@@ -44,9 +40,6 @@ for (( ASN=0; ASN < $NUM_ORGS; ASN++ )) do
     echo "Updating anchor peer for org $ASN" # TODO Repeat for all peers
     $DYNAMIX_DIR/bin/configtxgen -profile MultipleOrgChannel -outputAnchorPeersUpdate ./config/Org${ASN}MSPanchors.tx -channelID mychannel -asOrg Org${ASN}MSP
 done
-# Generate docker-compose.yaml
-echo "Generating docker-compose.yaml file"
-#python ${DYNAMIX_DIR}/scripts/generateDockerCompose.py $NUM_ORGS $HOSTS
 
 echo "Configuration files generated successfully!!!"
 echo "Do not forget the commit the files to the repository!"
