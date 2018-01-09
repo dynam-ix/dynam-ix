@@ -22,5 +22,5 @@ def orgs(i):
 if __name__ == "__main__":
     orderer()
     print "PeerOrgs:"
-    for i in range(0,int(sys.argv[1])):
+    for i in range(1,int(sys.argv[1])+1):
         orgs(i)

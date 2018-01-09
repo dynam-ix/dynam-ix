@@ -36,7 +36,7 @@ $DYNAMIX_DIR/bin/configtxgen -profile SingleOrgOrdererGenesis -outputBlock ./con
 echo "Creating channel"
 $DYNAMIX_DIR/bin/configtxgen -profile MultipleOrgChannel -outputCreateChannelTx ./config/channel.tx -channelID mychannel
 # Anchor peer update for each org
-for (( ASN=0; ASN < $NUM_ORGS; ASN++ )) do
+for (( ASN=1; ASN <= $NUM_ORGS; ASN++ )) do
     echo "Updating anchor peer for org $ASN" # TODO Repeat for all peers
     $DYNAMIX_DIR/bin/configtxgen -profile MultipleOrgChannel -outputAnchorPeersUpdate ./config/Org${ASN}MSPanchors.tx -channelID mychannel -asOrg Org${ASN}MSP
 done

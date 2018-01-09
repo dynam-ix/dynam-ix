@@ -12,14 +12,14 @@ def profiles(numOrgs):
     print "    Consortiums:"        
     print "      SampleConsortium:"
     print "        Organizations:"
-    for i in range(0, numOrgs):
+    for i in range(1, numOrgs+1):
         print "          - *Org"+str(i)
     print "  MultipleOrgChannel:"
     print "    Consortium: SampleConsortium"
     print "    Application:"
     print "      <<: *ApplicationDefaults"
     print "      Organizations:"
-    for i in range(0, numOrgs):
+    for i in range(1, numOrgs+1):
         print "          - *Org"+str(i)
 
 def organizations(numOrgs):
@@ -29,7 +29,7 @@ def organizations(numOrgs):
     print "    Name: OrdererOrg"
     print "    ID: OrdererMSP"
     print "    MSPDir: crypto-config/ordererOrganizations/example.com/msp\n"
-    for i in range(0, numOrgs):
+    for i in range(1, numOrgs+1):
         print "  - &Org"+str(i)
         print "    Name: Org"+str(i)+"MSP"
         print "    ID: Org"+str(i)+"MSP"
