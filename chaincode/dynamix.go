@@ -110,7 +110,7 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 // Initialize ledger
 func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Response {
 
-	ASes := []AS{
+	/*ASes := []AS{
 		AS{Address: "10.1.1.50:5000", Service: "DDoS Mitigation", CustRep: 10, ProvRep: 100, PubKey: "af671adebca7abdafd6152"},
 		AS{Address: "10.1.1.60:5000", Service: "Transit Provider", CustRep: -1, ProvRep: 34, PubKey: "176abf1234567abdafd6152"},
 		AS{Address: "10.1.1.70:5000", Service: "Cloud Provider", CustRep: 5, ProvRep: 12, PubKey: "abcdef1234567abdafd6152"},
@@ -136,7 +136,7 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 		APIstub.PutState("IA-"+strconv.Itoa(i), AgreementAsBytes)
 		fmt.Println("Added", Agreements[i])
 		i = i + 1
-	}
+	}*/
 
 	return shim.Success(nil)
 }
