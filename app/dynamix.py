@@ -25,6 +25,8 @@ myService = sys.argv[3]
 myPrivKey = ""
 myPubKey = ""
 myUser = sys.argv[5]
+ordererIP = 'grpc://'+sys.argv[6]+':7050'
+
 
 # Dictionaries contanining the offers that the AS have sent and received
 offersSent = {}
@@ -45,7 +47,7 @@ def cli():
         action = raw_input("Dynam-IX: ")
         if len(action) > 0:
             if "registerAS" in action: # registerAS 'ASN' 'address' 'service' 'custRep' 'provRep' 'pubKey'
-                x = subprocess.check_output('node register.js '+action+' '+myUser, shell=True)
+                x = subprocess.check_output('node register.js '+action+' '+myUser+' '+ordererIP, shell=True)
                 print x
             elif "listASes" in action:  # listASes 
                 x = subprocess.check_output('node list.js'+' '+myUser, shell=True)
@@ -63,13 +65,13 @@ def cli():
                 x = subprocess.check_output('node query.js '+action+' '+myUser, shell=True)
                 print x
             elif "delete" in action: #delete 'key'
-                x = subprocess.check_output('node delete.js '+action+' '+myUser, shell=True)
+                x = subprocess.check_output('node delete.js '+action+' '+myUser+' '+ordererIP, shell=True)
                 print x
             elif "updateService" in action: #updateService 'ASN' 'newService'
-                x = subprocess.check_output('node update.js '+action+' '+myUser, shell=True)
+                x = subprocess.check_output('node update.js '+action+' '+myUser+' '+ordererIP, shell=True)
                 print x
             elif "updateAddress" in action: #updateAddress 'ASN' 'newAddress'
-                x = subprocess.check_output('node update.js '+action+' '+myUser, shell=True)
+                x = subprocess.check_output('node update.js '+action+' '+myUser+' '+ordererIP, shell=True)
                 print x
             elif "query" in action: #query providerASN request
                 sendQuery(action)
@@ -447,7 +449,7 @@ def publishAgreement(info):
     key = "IA-"+contractHash 
 
     # Register the agreement on the ledger
-    x = subprocess.check_output('node publish.js registerAgreement \''+key+'\' \''+contractHash+'\' \''+customer+'\' \''+provider+'\' \''+customerSignature+'\' \''+providerSignature+'\''+' '+myUser, shell=True)
+    x = subprocess.check_output('node publish.js registerAgreement \''+key+'\' \''+contractHash+'\' \''+customer+'\' \''+provider+'\' \''+customerSignature+'\' \''+providerSignature+'\''+' '+myUser+' '+ordererIP, shell=True)
 
     # TODO store the agreement on the dictionary
 
@@ -462,7 +464,7 @@ def executeAgreements():
         customer = agreementsProv[agmnt].split(";")[0]
         print customer
         # update customer's reputation
-        x = subprocess.check_output('node update.js updateCustRep \''+customer+'\' \'1\''+' '+myUser, shell=True)
+        x = subprocess.check_output('node update.js updateCustRep \''+customer+'\' \'1\''+' '+myUser+' '+ordererIP, shell=True)
         print x
 
 
@@ -473,7 +475,7 @@ def executeAgreements():
         provider = agreementsCust[agmnt].split(";")[1]
         print provider
         # update provider's reputation
-        x = subprocess.check_output('node update.js updateProvRep \''+provider+'\' \'1\''+' '+myUser, shell=True)
+        x = subprocess.check_output('node update.js updateProvRep \''+provider+'\' \'1\''+' '+myUser+' '+ordererIP, shell=True)
         print x
 
         del agreementsCust[agmnt]
@@ -502,11 +504,11 @@ if __name__ == "__main__":
     # TODO optimize to not query the blockchain
     # If AS is not registered
     if '{' not in subprocess.check_output('node query.js show \''+myASN+'\''+' '+myUser, shell=True):
-        x = subprocess.check_output('node register.js registerAS \''+myASN+'\' \''+myAddress+'\' \''+myService+'\' \'0\' \'0\' \''+myPubKey+'\''+' '+myUser, shell=True)
+        x = subprocess.check_output('node register.js registerAS \''+myASN+'\' \''+myAddress+'\' \''+myService+'\' \'0\' \'0\' \''+myPubKey+'\''+' '+myUser+' '+ordererIP, shell=True)
         print x
     # else, update address
     else:
-        x = subprocess.check_output('node update.js updateAddress \''+myASN+'\' \''+myAddress+'\''+' '+myUser, shell=True)
+        x = subprocess.check_output('node update.js updateAddress \''+myASN+'\' \''+myAddress+'\''+' '+myUser+' '+ordererIP, shell=True)
 
     # Start threads
     threads = []
