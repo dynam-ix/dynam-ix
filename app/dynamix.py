@@ -504,10 +504,12 @@ if __name__ == "__main__":
     # TODO optimize to not query the blockchain
     # If AS is not registered
     if '{' not in subprocess.check_output('node query.js show \''+myASN+'\''+' '+myUser, shell=True):
+        print "Registering new AS", myASN, myAddress, myService
         x = subprocess.check_output('node register.js registerAS \''+myASN+'\' \''+myAddress+'\' \''+myService+'\' \'0\' \'0\' \''+myPubKey+'\''+' '+myUser+' '+ordererIP, shell=True)
         print x
     # else, update address
     else:
+        print "Updating AS address", myASN, myAddress, myService
         x = subprocess.check_output('node update.js updateAddress \''+myASN+'\' \''+myAddress+'\''+' '+myUser+' '+ordererIP, shell=True)
 
     # Start threads
