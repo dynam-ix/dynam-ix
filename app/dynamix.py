@@ -138,15 +138,10 @@ def processMessages():
 
 def sendMessage(msg, ip, port):
 
-    print "Going to send ", msg, ip, port
-
     clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     clientsocket.connect((ip, port))
     clientsocket.send(msg)
     clientsocket.close()
-
-    print "message sent"
-
 
 # Receives a query action and send it to a potential provider
 def sendQuery(action):
@@ -186,11 +181,8 @@ def getAddress(ASN):
     # Query the ledger to get AS' information
     x = subprocess.check_output('node query.js show \''+ASN+'\''+' '+myUser, shell=True)
     # Get the address
-    print x
     aux = x.split(",")[0]
-    print aux
     ip = aux.split(":")[1]
-    print ip
     port = aux.split(":")[2]
 
     # Return ip:port
@@ -264,7 +256,7 @@ def checkIntents(query):
     i = 1
     # iterate over provider's intents
     while "intent-"+str(i) in intents:
-        print i, str(intents["intent-"+str(i)]["routing"]["reachability"])
+        #print i, str(intents["intent-"+str(i)]["routing"]["reachability"])
         if str(intents["intent-"+str(i)]["routing"]["reachability"]) == customerIntent:
             offer = fillOffer(i)
             return offer
