@@ -110,34 +110,34 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 // Initialize ledger
 func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Response {
 
-	ASes := []AS{
-		AS{Address: "10.1.1.50:5000", Service: "DDoS Mitigation", CustRep: 10, ProvRep: 100, PubKey: "af671adebca7abdafd6152"},
-		AS{Address: "10.1.1.60:5000", Service: "Transit Provider", CustRep: -1, ProvRep: 34, PubKey: "176abf1234567abdafd6152"},
-		AS{Address: "10.1.1.70:5000", Service: "Cloud Provider", CustRep: 5, ProvRep: 12, PubKey: "abcdef1234567abdafd6152"},
-	}
+	/*	ASes := []AS{
+			AS{Address: "10.1.1.50:5000", Service: "DDoS Mitigation", CustRep: 10, ProvRep: 100, PubKey: "af671adebca7abdafd6152"},
+			AS{Address: "10.1.1.60:5000", Service: "Transit Provider", CustRep: -1, ProvRep: 34, PubKey: "176abf1234567abdafd6152"},
+			AS{Address: "10.1.1.70:5000", Service: "Cloud Provider", CustRep: 5, ProvRep: 12, PubKey: "abcdef1234567abdafd6152"},
+		}
 
-	i := 0
-	for i < len(ASes) {
-		fmt.Println("i is ", i)
-		ASAsBytes, _ := json.Marshal(ASes[i])
-		APIstub.PutState("AS"+strconv.Itoa(i), ASAsBytes)
-		fmt.Println("Added", ASes[i])
-		i = i + 1
-	}
+		i := 0
+		for i < len(ASes) {
+			fmt.Println("i is ", i)
+			ASAsBytes, _ := json.Marshal(ASes[i])
+			APIstub.PutState("AS"+strconv.Itoa(i), ASAsBytes)
+			fmt.Println("Added", ASes[i])
+			i = i + 1
+		}
 
-	Agreements := []agreement{
-		agreement{ContractHash: "sagiiGUGidaGiudgas", CustomerASN: "AS1", ProviderASN: "AS7", CustomerSignature: "76atsd8ahd87asg", ProviderSignature: "yasudas78d9asdsa"},
-	}
+		Agreements := []agreement{
+			agreement{ContractHash: "sagiiGUGidaGiudgas", CustomerASN: "AS1", ProviderASN: "AS7", CustomerSignature: "76atsd8ahd87asg", ProviderSignature: "yasudas78d9asdsa"},
+		}
 
-	i = 0
-	for i < len(Agreements) {
-		fmt.Println("i is ", i)
-		AgreementAsBytes, _ := json.Marshal(Agreements[i])
-		APIstub.PutState("IA-"+strconv.Itoa(i), AgreementAsBytes)
-		fmt.Println("Added", Agreements[i])
-		i = i + 1
-	}
-
+		i = 0
+		for i < len(Agreements) {
+			fmt.Println("i is ", i)
+			AgreementAsBytes, _ := json.Marshal(Agreements[i])
+			APIstub.PutState("IA-"+strconv.Itoa(i), AgreementAsBytes)
+			fmt.Println("Added", Agreements[i])
+			i = i + 1
+		}
+	*/
 	return shim.Success(nil)
 }
 
