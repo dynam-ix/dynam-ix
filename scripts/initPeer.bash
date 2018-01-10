@@ -11,7 +11,7 @@ export USER="org${AS}"
 export COMPOSE_PROJECT_NAME="net"
 
 # Exit in case of errors
-set -ev
+#set -ev
 
 # Make sure to have the block to join the channel
 echo "Downloading latest files"

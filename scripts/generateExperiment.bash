@@ -41,6 +41,11 @@ for (( ASN=1; ASN <= $NUM_ORGS; ASN++ )) do
     $DYNAMIX_DIR/bin/configtxgen -profile MultipleOrgChannel -outputAnchorPeersUpdate ./config/Org${ASN}MSPanchors.tx -channelID mychannel -asOrg Org${ASN}MSP
 done
 
+# Generate ca-file
+echo "Generating CA config file"
+mkdir -p ca-server-config
+python ${DYNAMIX_DIR}/scripts/generateCAConfig.py $NUM_ORGS > ca-server-config/fabric-ca-server-config.yaml
+
 # copy base files
 echo "Copying experiment scripts"
 cp ${DYNAMIX_DIR}/scripts/docker-compose-base.yml ${DYNAMIX_DIR}/experiments/${EXPERIMENT}
