@@ -44,6 +44,9 @@ git add config/mychannel.block
 git commit -m "new block"
 git push
 
+
+sleep 10
+
 # Join channel
 echo "Joining channel"
 docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/users/Admin@org${AS}.example.com/msp" peer0.org${AS}.example.com peer channel join -b /etc/hyperledger/configtx/mychannel.block
