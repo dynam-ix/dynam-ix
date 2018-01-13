@@ -148,6 +148,8 @@ def sendMessage(msg, ip, port):
 # Receives a query action and send it to a potential provider
 def sendQuery(action):
 
+    global QID
+
     # Get provider's ASN
     provider = action.split(" ")[1]
     # Query the ledger to get the provider's address
