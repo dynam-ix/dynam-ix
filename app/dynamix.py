@@ -150,6 +150,10 @@ def processMessages():
                 t = threading.Thread(target=publishAgreement, args=(msg,))
                 messageThreads.append(t)
                 t.start()
+            elif "ack" in msg:  # Customer is sending the signed contract to be registered on the ledger
+                # logging
+                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                print "log;"+timestamp+";RU;"+msg.split(";")[1]
             else:
                 print "Invalid message\n"
 
@@ -488,12 +492,22 @@ def publishAgreement(info):
 
     # Register the agreement on the ledger
     x = subprocess.check_output('node publish.js registerAgreement \''+key+'\' \''+contractHash+'\' \''+customer+'\' \''+provider+'\' \''+customerSignature+'\' \''+providerSignature+'\''+' '+myUser+' '+ordererIP, shell=True)
-
-    # TODO store the agreement on the dictionary
-
+    agreementsProv[key] = customer+";"+provider
     print "Success! Updating routing configuration!"
 
-    agreementsProv[key] = customer+";"+provider
+    # Get provider's address
+    address = getAddress(customer)
+    # Split address into IP and port
+    IP = address.split(':')[0]
+    port = int(address.split(':')[1])
+
+    offerID=info.slpit(";")[1]
+    # Send message with the contract signed by the customer
+    msg = "ack;"+offerID
+    sendMessage(msg, IP, port)
+    # logging
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print "log;"+timestamp+";SU;"+offerID
 
 def executeAgreements():
 
