@@ -116,10 +116,16 @@ def processMessages():
         msg = connection.recv(1024)     # NOTE We may need to change the amount of received bytes
         if len(msg) > 0:
             if "query" in msg:  # Customer is asking for an offer
+                # logging
+                timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                print "log;"+timestamp+";RQ;"+msg.split(";")[3]+";"+msg.split(";")[1]
                 t = threading.Thread(target=sendOffer, args=(msg,))
                 messageThreads.append(t)
                 t.start()
             elif "offer" in msg: # Provider have sent an offer
+                # logging
+                timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                print "log;"+timestamp+";RO;"+msg.split(";")[3]+";"+msg.split(";")[1]
                 t = threading.Thread(target=collectOffer, args=(msg,))
                 messageThreads.append(t)
                 t.start()
@@ -169,6 +175,10 @@ def sendQuery(action):
     # Create the message that is going to be sent
     msg = 'query;'+myASN+';'+query+";"+ID # TODO encrypt with provider's pubkey
 
+    # logging
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    print "log;"+timestamp+";SQ;"+ID+";"+provider
+
     # Send the query to the provider   
     sendMessage(msg, IP, port)
 
@@ -208,7 +218,7 @@ def getPubKey(ASN):
 # Receive a query from a customer, decide if it is going to answer, and compose and agreement offer 
 def sendOffer(query):
     # queryFormat = query;customerASN;properties
-    print "Received : "+query
+    print "debug: Received : "+query
 
     # Get customer's ASN
     customer = query.split(";")[1]
@@ -230,6 +240,11 @@ def sendOffer(query):
             pubKey = getPubKey(customer)
             #Send offer
             sendMessage(offer+";"+ID, IP, port)
+
+            # logging
+            timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+            print "log;"+timestamp+";SO;"+ID+";"+offer.split(";")[1]
+
         # Provider is not able to offer an agreement with the desired properties
         else:
            print "I cannot offer an agreement!"
