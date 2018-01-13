@@ -117,27 +117,36 @@ def processMessages():
         if len(msg) > 0:
             if "query" in msg:  # Customer is asking for an offer
                 # logging
-                timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 print "log;"+timestamp+";RQ;"+msg.split(";")[3]+";"+msg.split(";")[1]
                 t = threading.Thread(target=sendOffer, args=(msg,))
                 messageThreads.append(t)
                 t.start()
             elif "offer" in msg: # Provider have sent an offer
                 # logging
-                timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 print "log;"+timestamp+";RO;"+msg.split(";")[3]+";"+msg.split(";")[1]
                 t = threading.Thread(target=collectOffer, args=(msg,))
                 messageThreads.append(t)
                 t.start()
             elif "propose" in msg: # Customer is asking to establish an interconnection agreement
+                # logging
+                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                print "log;"+timestamp+";RP;"+msg.split(";")[1]
                 t = threading.Thread(target=establishAgreement, args=(msg,))
                 messageThreads.append(t)
                 t.start()
             elif "contract" in msg: # Provider have sent the contract to be signed
+                # logging
+                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                print "log;"+timestamp+";RC;"+msg.split(";")[1]
                 t = threading.Thread(target=signContract, args=(msg,))
                 messageThreads.append(t)
                 t.start()
             elif "publish" in msg:  # Customer is sending the signed contract to be registered on the ledger
+                # logging
+                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                print "log;"+timestamp+";RS;"+msg.split(";")[1]
                 t = threading.Thread(target=publishAgreement, args=(msg,))
                 messageThreads.append(t)
                 t.start()
@@ -176,7 +185,7 @@ def sendQuery(action):
     msg = 'query;'+myASN+';'+query+";"+ID # TODO encrypt with provider's pubkey
 
     # logging
-    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     print "log;"+timestamp+";SQ;"+ID+";"+provider
 
     # Send the query to the provider   
@@ -242,7 +251,7 @@ def sendOffer(query):
             sendMessage(offer+";"+ID, IP, port)
 
             # logging
-            timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             print "log;"+timestamp+";SO;"+ID+";"+offer.split(";")[1]
 
         # Provider is not able to offer an agreement with the desired properties
@@ -366,6 +375,11 @@ def sendProposal(action):
         # Send interconnection proposal
         msg = "propose"+";"+offerID
         sendMessage(msg, IP, port)
+
+        # logging
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print "log;"+timestamp+";SP;"+offerID
+
     # If the offer is not valid anymore, there is no reason to send the interconnection proposal
     else:
         print "Offer is not valid anymore!"
@@ -426,6 +440,10 @@ def sendContract(offerID):
     msg = "contract;"+offerID+";"+h+";"+customer+";"+provider+";"+providerSignature
     sendMessage(msg, IP, port)
 
+    # logging
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print "log;"+timestamp+";SC;"+offerID
+
 # Customer sign the contract
 def signContract(contract):
 
@@ -449,6 +467,10 @@ def signContract(contract):
     # Send message with the contract signed by the customer
     msg = "publish;"+s+";"+customerSignature
     sendMessage(msg, IP, port)
+
+    # logging
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print "log;"+timestamp+";SS;"+contract.split(";")[1]
 
     key = "IA-"+h
     agreementsCust[key] = myASN+";"+provider
