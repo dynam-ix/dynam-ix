@@ -35,6 +35,9 @@ offersRecvd = {}
 agreementsCust = {}
 agreementsProv = {}
 
+# Evaluation
+QID = 0
+
 #===================================================#
 #                     Functions                     #
 #===================================================#
@@ -157,8 +160,12 @@ def sendQuery(action):
     # Query the ledger to get the provider's public key
     pubkey = getPubKey(provider)
 
+    # Evaluation control
+    ID = QID
+    QID = QID + 1
+
     # Create the message that is going to be sent
-    msg = 'query;'+myASN+';'+query # TODO encrypt with provider's pubkey
+    msg = 'query;'+myASN+';'+query+";"+ID # TODO encrypt with provider's pubkey
 
     # Send the query to the provider   
     sendMessage(msg, IP, port)
@@ -209,6 +216,7 @@ def sendOffer(query):
     if int(reputation) >= 0:                # TODO Define reputation threshold
         # Check interconnection policy to compose and offer to the customer
         offer = composeOffer(query.split(";")[2], customer)
+        ID = query.split(";")[3]
         # If provider can offer something, send
         if offer != -1:
             # Get customer's address
@@ -219,7 +227,7 @@ def sendOffer(query):
             # Get customer's public key
             pubKey = getPubKey(customer)
             #Send offer
-            sendMessage(offer, IP, port)
+            sendMessage(offer+";"+ID, IP, port)
         # Provider is not able to offer an agreement with the desired properties
         else:
            print "I cannot offer an agreement!"
@@ -457,7 +465,6 @@ def executeAgreements():
         # update customer's reputation
         x = subprocess.check_output('node update.js updateCustRep \''+customer+'\' \'1\''+' '+myUser+' '+ordererIP, shell=True)
         print x
-
 
         del agreementsProv[agmnt]
 
