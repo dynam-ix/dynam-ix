@@ -501,7 +501,7 @@ def publishAgreement(info):
     IP = address.split(':')[0]
     port = int(address.split(':')[1])
 
-    offerID=info.slpit(";")[1]
+    offerID=info.split(";")[1]
     # Send message with the contract signed by the customer
     msg = "ack;"+offerID
     sendMessage(msg, IP, port)
