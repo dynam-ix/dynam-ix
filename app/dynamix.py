@@ -151,6 +151,7 @@ def processMessages():
                 messageThreads.append(t)
                 t.start()
             elif "ack" in msg:  # Customer is sending the signed contract to be registered on the ledger
+                print "Success! Updating routing configuration!"
                 # logging
                 timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 print "log;"+timestamp+";RU;"+msg.split(";")[1]
