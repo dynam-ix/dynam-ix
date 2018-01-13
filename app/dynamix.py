@@ -163,7 +163,7 @@ def sendQuery(action):
     pubkey = getPubKey(provider)
 
     # Evaluation control
-    ID = QID
+    ID = str(QID)
     QID = QID + 1
 
     # Create the message that is going to be sent
