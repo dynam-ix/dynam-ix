@@ -35,8 +35,7 @@ offersRecvd = {}
 agreementsCust = {}
 agreementsProv = {}
 
-# Evaluation
-QID = 0
+# Evaluation log
 logs = open(myASN+".log", "w")
 
 #===================================================#
@@ -120,14 +119,14 @@ def processMessages():
             if "query" in msg:  # Customer is asking for an offer
                 # logging
                 timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                logs.write(timestamp+";RQ;"+msg.split(";")[3]+";"+msg.split(";")[1]+"\n")
+                logs.write(timestamp+";RQ;"+msg.split(";")[3]+"\n")
                 t = threading.Thread(target=sendOffer, args=(msg,))
                 messageThreads.append(t)
                 t.start()
             elif "offer" in msg: # Provider have sent an offer
                 # logging
                 timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                logs.write(timestamp+";RO;"+msg.split(";")[3]+";"+msg.split(";")[1]+"\n")
+                logs.write(timestamp+";RO;"+msg.split(";")[3]+"\n")
                 t = threading.Thread(target=collectOffer, args=(msg,))
                 messageThreads.append(t)
                 t.start()
@@ -170,8 +169,6 @@ def sendMessage(msg, ip, port):
 # Receives a query action and send it to a potential provider
 def sendQuery(action):
 
-    global QID
-
     # Get provider's ASN
     provider = action.split(" ")[1]
     # Query the ledger to get the provider's address
@@ -185,15 +182,16 @@ def sendQuery(action):
     pubkey = getPubKey(provider)
 
     # Evaluation control
-    ID = str(QID)
-    QID = QID + 1
+    # Generate the query/offer ID
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    ID = myASN+"-"+provider+"-"+timestamp
 
     # Create the message that is going to be sent
     msg = 'query;'+myASN+';'+query+";"+ID # TODO encrypt with provider's pubkey
 
     # logging
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    logs.write(timestamp+";SQ;"+ID+";"+provider+"\n")
+    logs.write(timestamp+";SQ;"+ID+"\n")
 
     # Send the query to the provider   
     sendMessage(msg, IP, port)
@@ -243,8 +241,8 @@ def sendOffer(query):
     # If AS is a good customer, send offer
     if int(reputation) >= 0:                # TODO Define reputation threshold
         # Check interconnection policy to compose and offer to the customer
-        offer = composeOffer(query.split(";")[2], customer)
         ID = query.split(";")[3]
+        offer = composeOffer(query.split(";")[2], customer, ID)
         # If provider can offer something, send
         if offer != -1:
             # Get customer's address
@@ -259,7 +257,7 @@ def sendOffer(query):
 
             # logging
             timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            logs.write(timestamp+";SO;"+ID+";"+offer.split(";")[1]+"\n")
+            logs.write(timestamp+";SO;"+ID"\n")
 
         # Provider is not able to offer an agreement with the desired properties
         else:
@@ -269,11 +267,11 @@ def sendOffer(query):
         print "Customer with poor reputation!"
 
 # Check the interconnection policy and compose and offer to be sent to the customer
-def composeOffer(query, customer):
+def composeOffer(query, customer, ID):
 
     # Generate the offer ID
-    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-    ID = myASN+"-"+customer+"-"+timestamp
+#    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+#    ID = myASN+"-"+customer+"-"+timestamp
 
 #    offer = "offer;"+ID+";"+query+";10$;"+expireDate
     properties = checkIntents(query)
