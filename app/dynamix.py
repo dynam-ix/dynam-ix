@@ -257,7 +257,7 @@ def sendOffer(query):
 
             # logging
             timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            logs.write(timestamp+";SO;"+ID"\n")
+            logs.write(timestamp+";SO;"+ID+"\n")
 
         # Provider is not able to offer an agreement with the desired properties
         else:
