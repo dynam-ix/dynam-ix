@@ -368,7 +368,7 @@ def sendProposal(action):
     # Get only the offerID
     offerID = action.split("propose ")[1]
     # Get the provider's ASN
-    provider = offerID.split("-")[0]
+    provider = offerID.split("-")[1]
 
     # If the offer is still valid, send interconnection proposal to the provider
     if checkValidity(offerID) == 1:     
@@ -423,7 +423,7 @@ def establishAgreement(propose):
 def sendContract(offerID):
 
     # Get customer's ASN
-    customer = offerID.split("-")[1]
+    customer = offerID.split("-")[0]
     provider = myASN
 
     # Get provider's address
