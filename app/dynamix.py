@@ -111,13 +111,13 @@ def autonomous():
 
     AS = "AS2"
 
-    for i in range(0,50):
+    for i in range(0,20):
         #query AS prefix
         query = "query "+AS+" 8.8.8.0/24"
         sendQuery(query)
 
 
-    for offer in offersRecvd.keys:
+    for offer in offersRecvd.keys():
         offerID = offer
 
         proposal = "propose "+offerID
