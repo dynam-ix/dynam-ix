@@ -12,6 +12,7 @@ from datetime import timedelta
 import hashlib
 from Crypto.Cipher import AES
 import base64
+import time
 
 #===================================================#
 #                   Global config                   #
@@ -90,6 +91,8 @@ def cli():
                  myAgreements()
             elif "executeAgreements" in action:
                  executeAgreements()
+            elif "autonomous" in action:
+                 autonomous()
             elif "updateIntents" in action:
                  intents = json.load(open(action.split(" ")[1]))
             elif "quit" in action:
@@ -100,6 +103,25 @@ def cli():
                 print "Invalid command\n"
 
     return
+
+
+def autonomous():
+
+    print "Entering autonomous mode!"
+
+    AS = 2
+
+    for i in range(0,50):
+        #query AS prefix
+        query = "query "+AS+" 8.8.8.0/24"
+        sendQuery(query)
+        sleep(0.5)
+        proposal = "propose "+offerID
+        #propose offerID
+        sendProposal(proposal)
+
+    print "Leaving autonomous mode!"
+
 
 # Receive messages and create threads to process them
 def processMessages():
