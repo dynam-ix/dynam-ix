@@ -120,9 +120,9 @@ def autonomous():
         for offer in offersRecvd:
             offerID = offer
 
-        proposal = "propose "+offerID
-        #propose offerID
-        sendProposal(proposal)
+            proposal = "propose "+offerID
+            #propose offerID
+            sendProposal(proposal)
 
     print "Leaving autonomous mode!"
 
