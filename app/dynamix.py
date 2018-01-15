@@ -116,6 +116,7 @@ def autonomous():
         query = "query "+AS+" 8.8.8.0/24"
         sendQuery(query)
 
+    time.sleep(10)
 
     for offer in offersRecvd.keys():
         offerID = offer
