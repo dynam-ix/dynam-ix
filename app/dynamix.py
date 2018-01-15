@@ -115,14 +115,14 @@ def autonomous():
         #query AS prefix
         query = "query "+AS+" 8.8.8.0/24"
         sendQuery(query)
-        time.sleep(0.5)
 
-        for offer in offersRecvd:
-            offerID = offer
 
-            proposal = "propose "+offerID
-            #propose offerID
-            sendProposal(proposal)
+    for offer in offersRecvd.keys:
+        offerID = offer
+
+        proposal = "propose "+offerID
+        #propose offerID
+        sendProposal(proposal)
 
     print "Leaving autonomous mode!"
 
