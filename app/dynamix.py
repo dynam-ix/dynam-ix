@@ -116,7 +116,9 @@ def autonomous():
         query = "query "+AS+" 8.8.8.0/24"
         sendQuery(query)
 
-    time.sleep(10)
+    while len(offersRecvd) < 20:
+        print "Number of offers: "+str(len(offersRecvd))
+        time.sleep(4)
 
     for offer in offersRecvd.keys():
         offerID = offer
