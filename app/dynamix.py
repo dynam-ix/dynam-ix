@@ -109,13 +109,17 @@ def autonomous():
 
     print "Entering autonomous mode!"
 
-    AS = 2
+    AS = "2"
 
     for i in range(0,50):
         #query AS prefix
         query = "query "+AS+" 8.8.8.0/24"
         sendQuery(query)
         sleep(0.5)
+
+        for offer in offersRecvd:
+            offerID = offer
+
         proposal = "propose "+offerID
         #propose offerID
         sendProposal(proposal)
