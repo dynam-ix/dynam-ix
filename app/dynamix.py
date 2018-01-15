@@ -144,38 +144,39 @@ def processMessages():
         connection, address = serversocket.accept()
         msg = ''
         msg = connection.recv(1024)     # NOTE We may need to change the amount of received bytes
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
         if len(msg) > 0:
             if "query" in msg:  # Customer is asking for an offer
                 # logging
-                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+#                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
                 logs.write(timestamp+";RQ;"+msg.split(";")[3]+"\n")
                 t = threading.Thread(target=sendOffer, args=(msg,))
                 messageThreads.append(t)
                 t.start()
             elif "offer" in msg: # Provider have sent an offer
                 # logging
-                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+#                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
                 logs.write(timestamp+";RO;"+msg.split(";")[3]+"\n")
                 t = threading.Thread(target=collectOffer, args=(msg,))
                 messageThreads.append(t)
                 t.start()
             elif "propose" in msg: # Customer is asking to establish an interconnection agreement
                 # logging
-                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+#                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
                 logs.write(timestamp+";RP;"+msg.split(";")[1]+"\n")
                 t = threading.Thread(target=establishAgreement, args=(msg,))
                 messageThreads.append(t)
                 t.start()
             elif "contract" in msg: # Provider have sent the contract to be signed
                 # logging
-                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+#                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
                 logs.write(timestamp+";RC;"+msg.split(";")[1]+"\n")
                 t = threading.Thread(target=signContract, args=(msg,))
                 messageThreads.append(t)
                 t.start()
             elif "publish" in msg:  # Customer is sending the signed contract to be registered on the ledger
                 # logging
-                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+#                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
                 logs.write(timestamp+";RS;"+msg.split(";")[1]+"\n")
                 t = threading.Thread(target=publishAgreement, args=(msg,))
                 messageThreads.append(t)
@@ -183,7 +184,7 @@ def processMessages():
             elif "ack" in msg:  # Customer is sending the signed contract to be registered on the ledger
                 print "Success! Updating routing configuration!"
                 # logging
-                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+#                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
                 logs.write(timestamp+";RU;"+msg.split(";")[1]+"\n")
             else:
                 print "Invalid message\n"
@@ -220,10 +221,13 @@ def sendQuery(action):
 
     # logging
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-    logs.write(timestamp+";SQ;"+ID+"\n")
 
     # Send the query to the provider   
     sendMessage(msg, IP, port)
+
+    # logging
+    logs.write(timestamp+";SQ;"+ID+"\n")
+
 
 # get AS' reputation as a customer or as a provider from the ledger
 def getReputation(ASN, role):
@@ -281,11 +285,12 @@ def sendOffer(query):
             port = int(address.split(':')[1])
             # Get customer's public key
             pubKey = getPubKey(customer)
+
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
             #Send offer
             sendMessage(offer+";"+ID, IP, port)
 
             # logging
-            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
             logs.write(timestamp+";SO;"+ID+"\n")
 
         # Provider is not able to offer an agreement with the desired properties
@@ -408,10 +413,10 @@ def sendProposal(action):
         port = int(address.split(':')[1])
         # Send interconnection proposal
         msg = "propose"+";"+offerID
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
         sendMessage(msg, IP, port)
 
         # logging
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
         logs.write(timestamp+";SP;"+offerID+"\n")
 
     # If the offer is not valid anymore, there is no reason to send the interconnection proposal
@@ -472,10 +477,10 @@ def sendContract(offerID):
 
     # Send the contract
     msg = "contract;"+offerID+";"+h+";"+customer+";"+provider+";"+providerSignature
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
     sendMessage(msg, IP, port)
 
     # logging
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
     logs.write(timestamp+";SC;"+offerID+"\n")
 
 # Customer sign the contract
@@ -500,10 +505,10 @@ def signContract(contract):
 
     # Send message with the contract signed by the customer
     msg = "publish;"+s+";"+customerSignature
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
     sendMessage(msg, IP, port)
 
     # logging
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
     logs.write(timestamp+";SS;"+contract.split(";")[1]+"\n")
 
     key = "IA-"+h
@@ -534,9 +539,9 @@ def publishAgreement(info):
     offerID=info.split(";")[1]
     # Send message with the contract signed by the customer
     msg = "ack;"+offerID
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
     sendMessage(msg, IP, port)
     # logging
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
     logs.write(timestamp+";SU;"+offerID+"\n")
 
 def executeAgreements():
