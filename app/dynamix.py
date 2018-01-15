@@ -115,7 +115,7 @@ def autonomous():
         #query AS prefix
         query = "query "+AS+" 8.8.8.0/24"
         sendQuery(query)
-        sleep(0.5)
+        time.sleep(0.5)
 
         for offer in offersRecvd:
             offerID = offer
