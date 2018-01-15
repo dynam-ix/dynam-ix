@@ -109,7 +109,7 @@ def autonomous():
 
     print "Entering autonomous mode!"
 
-    AS = "2"
+    AS = "AS2"
 
     for i in range(0,50):
         #query AS prefix
