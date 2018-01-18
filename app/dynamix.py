@@ -84,21 +84,22 @@ def cli():
                 x = subprocess.check_output('node listAgreements.js'+' '+myUser, shell=True)
                 print x
             elif "listOffersSent" in action:
-                 listOffersSent()
+                listOffersSent()
             elif "listOffersRecvd" in action:
-                 listOffersRecvd()
+                listOffersRecvd()
             elif "myAgreements" in action:
-                 myAgreements()
+                myAgreements()
             elif "executeAgreements" in action:
-                 executeAgreements()
+                executeAgreements()
             elif "autonomous" in action:
-                 autonomous(int(action.split(" ")[1]))
+                offersRecvd = {} #clean previous offers
+                autonomous(int(action.split(" ")[1]))
             elif "updateIntents" in action:
-                 intents = json.load(open(action.split(" ")[1]))
+                intents = json.load(open(action.split(" ")[1]))
             elif "quit" in action:
-                 print "Quiting Dynam-IX"
-                 logs.close()
-                 os._exit(1)
+                print "Quiting Dynam-IX"
+                logs.close()
+                os._exit(1)
             else:
                 print "Invalid command\n"
 
@@ -110,8 +111,6 @@ def autonomous(num):
     print "Entering autonomous mode!"
 
     AS = "AS2"
-
-    offersRecvd = {} #clean previous offers
 
     for i in range(0,num):
         #query AS prefix
