@@ -5,8 +5,6 @@ SIZE=$(docker exec -it couchdb-1 du -b data/ | tail -n 1 | cut -f 1)
 echo $TRANSACTIONS $SIZE
 TRANSACTIONS=$((TRANSACTIONS+1))
 
-done
-
 for (( T=1; T <= 10000; T++ )) do
     # Generate agreement ID
     IA=$(date +%s%N |md5sum)
