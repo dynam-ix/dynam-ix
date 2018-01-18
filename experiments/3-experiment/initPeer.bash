@@ -11,6 +11,10 @@ export MODE=$6
 export USER="org${AS}"
 export COMPOSE_PROJECT_NAME="net"
 
+export EXPERIMENT_DIR=${DYNAMIX_DIR}/experiments/3-experiment
+
+cd $EXPERIMENT_DIR
+
 # Exit in case of errors
 #set -ev
 
