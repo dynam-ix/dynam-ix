@@ -613,10 +613,10 @@ if __name__ == "__main__":
         t = threading.Thread(target=autonomous)
         threads.append(t)
         t.start()
-    else:
-        t = threading.Thread(target=cli)
-        threads.append(t)
-        t.start()
+
+    t = threading.Thread(target=cli)
+    threads.append(t)
+    t.start()
     t = threading.Thread(target=processMessages)
     threads.append(t)
     t.start()
