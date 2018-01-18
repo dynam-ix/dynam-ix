@@ -15,6 +15,8 @@ export EXPERIMENT_DIR=${DYNAMIX_DIR}/experiments/3-experiment
 
 cd $EXPERIMENT_DIR
 
+echo "Joined"
+echo $PWD
 # Exit in case of errors
 #set -ev
 
