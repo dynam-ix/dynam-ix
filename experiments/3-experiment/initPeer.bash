@@ -13,10 +13,6 @@ export COMPOSE_PROJECT_NAME="net"
 
 export EXPERIMENT_DIR=${DYNAMIX_DIR}/experiments/3-experiment
 
-cd $EXPERIMENT_DIR
-
-echo "Joined"
-echo $PWD
 # Exit in case of errors
 #set -ev
 
@@ -26,24 +22,24 @@ echo $PWD
 #git pull
 
 # Erase previous CA-Server DB
-sudo rm ca-server-config/fabric-ca-server.db
+sudo rm $EXPERIMENT_DIR/ca-server-config/fabric-ca-server.db
 
 # Getting KEYFILE
 echo "Getting KEYFILE"
-cd crypto-config/peerOrganizations/org${AS}.example.com/ca/
+cd $EXPERIMENT_DIR/crypto-config/peerOrganizations/org${AS}.example.com/ca/
 export KEYFILE=$(ls *_sk) 
-cd ../../../../
+cd $EXPERIMENT_DIR
 
 # Cleaning any previous experiment
 echo "Cleaning docker environment"
 docker rm -f $(docker ps -aq)
 docker rmi $(docker images dev-* -q)
 docker network prune -f
-docker-compose -f docker-compose-base.yml down
+docker-compose -f $EXPERIMENT_DIR/docker-compose-base.yml down
 
 # Start Docker Containers
 echo "Staring docker containers"
-docker-compose -f docker-compose-base.yml up -d peer ca couchdb cli
+docker-compose -f $EXPERIMENT_DIR/docker-compose-base.yml up -d peer ca couchdb cli
 
 sleep 12    #increase in case of errors
 
