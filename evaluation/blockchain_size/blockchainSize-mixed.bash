@@ -16,7 +16,7 @@ for (( AS=1; AS <= $NUM_ASES; AS++ )) do
     TRANSACTIONS=$((TRANSACTIONS+1))
 done
 
-for (( T=1; T <= 3000; T++ )) do
+for (( T=1; T <= 2750; T++ )) do
     for (( AS=1; AS <= $NUM_ASES; AS++ )) do
         # Generate agreement ID
         IA=$(date +%s%N |md5sum)
@@ -41,10 +41,20 @@ for (( T=1; T <= 3000; T++ )) do
         TRANSACTIONS=$((TRANSACTIONS+1))
     done
 done
-#docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp" cli peer chaincode query -C mychannel -n dynamix -c '{"Args":["listASes"]}'
+for (( T=1; T <= 125; T++ )) do
 
-#docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp" cli peer chaincode query -C mychannel -n dynamix -c '{"Args":["listAgreements"]}'
+    docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp" cli peer chaincode invoke -o orderer.example.com:7050 -C mychannel -n dynamix -c '{"function":"updateService","Args":["AS1", "Cloud Provider"]}'
 
+    SIZE=$(docker exec -it couchdb-1 du -b data/ | tail -n 1 | cut -f 1)
+    echo $TRANSACTIONS $SIZE
+    TRANSACTIONS=$((TRANSACTIONS+1))
 
+    docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp" cli peer chaincode invoke -o orderer.example.com:7050 -C mychannel -n dynamix -c '{"function":"updateService","Args":["AS1", "Transit Provider"]}'
+
+    SIZE=$(docker exec -it couchdb-1 du -b data/ | tail -n 1 | cut -f 1)
+    echo $TRANSACTIONS $SIZE
+    TRANSACTIONS=$((TRANSACTIONS+1))
+
+done
 
 
