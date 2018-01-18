@@ -92,7 +92,6 @@ def cli():
             elif "executeAgreements" in action:
                 executeAgreements()
             elif "autonomous" in action:
-                global offersRecvd = {} #clean previous offers
                 autonomous(int(action.split(" ")[1]))
             elif "updateIntents" in action:
                 intents = json.load(open(action.split(" ")[1]))
@@ -112,6 +111,10 @@ def autonomous(num):
 
     AS = "AS2"
 
+    global offersRecvd
+
+    offersRecvd = {}
+    
     for i in range(0,num):
         #query AS prefix
         query = "query "+AS+" 8.8.8.0/24"
