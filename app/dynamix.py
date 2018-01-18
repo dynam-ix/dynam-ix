@@ -92,7 +92,7 @@ def cli():
             elif "executeAgreements" in action:
                  executeAgreements()
             elif "autonomous" in action:
-                 autonomous()
+                 autonomous(int(action.split(" ")[1]))
             elif "updateIntents" in action:
                  intents = json.load(open(action.split(" ")[1]))
             elif "quit" in action:
@@ -105,20 +105,20 @@ def cli():
     return
 
 
-def autonomous():
+def autonomous(num):
 
     print "Entering autonomous mode!"
 
     AS = "AS2"
 
-    for i in range(0,20):
+    for i in range(0,num):
         #query AS prefix
         query = "query "+AS+" 8.8.8.0/24"
         sendQuery(query)
 
-    while len(offersRecvd) < 20:
+    while len(offersRecvd) < num:
         print "Number of offers: "+str(len(offersRecvd))
-        time.sleep(4)
+        time.sleep(2)
 
     for offer in offersRecvd.keys():
         offerID = offer
