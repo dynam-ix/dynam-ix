@@ -35,11 +35,11 @@ echo "Cleaning docker environment"
 docker rm -f $(docker ps -aq)
 docker rmi $(docker images dev-* -q)
 docker network prune -f
-docker-compose -f $EXPERIMENT_DIR/docker-compose-base.yml down
+$HOME/.local/bin/docker-compose -f $EXPERIMENT_DIR/docker-compose-base.yml down
 
 # Start Docker Containers
 echo "Staring docker containers"
-docker-compose -f $EXPERIMENT_DIR/docker-compose-base.yml up -d peer ca couchdb cli
+$HOME/.local/bin/docker-compose -f $EXPERIMENT_DIR/docker-compose-base.yml up -d peer ca couchdb cli
 
 sleep 12    #increase in case of errors
 
