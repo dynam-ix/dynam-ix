@@ -7,6 +7,7 @@ export ADDRESS=$2          #10.0.0.1:5000
 export SERVICE=$3          #"Transit Provider"
 export INTENT_FILE=$4      #/path/to/intent/file
 export ORDERER_IP=$5       #192.168.1.130
+export MODE=$6
 export USER="org${AS}"
 export COMPOSE_PROJECT_NAME="net"
 
@@ -14,9 +15,12 @@ export COMPOSE_PROJECT_NAME="net"
 #set -ev
 
 # Make sure to have the block to join the channel
-echo "Downloading latest files"
-git config --global credential.helper 'cache --timeout 3600'
-git pull
+#echo "Downloading latest files"
+#git config --global credential.helper 'cache --timeout 3600'
+#git pull
+
+# Erase previous CA-Server DB
+sudo rm ca-server-config/fabric-ca-server.db
 
 # Getting KEYFILE
 echo "Getting KEYFILE"
@@ -66,5 +70,5 @@ echo "Registering user"
 node registerUser.js org${AS} Org${AS}MSP
 
 # Run Dynam-IX
-echo "Starting Dynam-IX with $AS, $ADDRESS, $SERVICE, $INTENT_FILE, $USER, $ORDERER_IP"
-python dynamix.py AS${AS} $ADDRESS $SERVICE $INTENT_FILE $USER $ORDERER_IP
+echo "Starting Dynam-IX with $AS, $ADDRESS, $SERVICE, $INTENT_FILE, $USER, $ORDERER_IP, $MODE"
+python dynamix.py AS${AS} $ADDRESS $SERVICE $INTENT_FILE $USER $ORDERER_IP $MODE

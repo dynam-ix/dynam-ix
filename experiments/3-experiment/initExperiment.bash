@@ -7,11 +7,15 @@ export ADDRESS=$2          #10.0.0.1:5000
 export SERVICE=$3          #"Transit Provider"
 export INTENT_FILE=$4      #/path/to/intent/file
 export ORDERER_IP=$5       #192.168.1.130
+export MODE=$6
 export USER="org${AS}"
 export COMPOSE_PROJECT_NAME="net"
 
 # Exit in case of errors
 #set -v
+
+# Erase previous CA-Server DB
+sudo rm ca-server-config/fabric-ca-server.db
 
 # Getting KEYFILE
 echo "Getting KEYFILE"
@@ -38,11 +42,11 @@ echo "Copying block"
 docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/users/Admin@org${AS}.example.com/msp" peer0.org${AS}.example.com cp mychannel.block /etc/hyperledger/configtx/
 
 # Share the block 
-echo "Uploading block to git"
-git config --global credential.helper 'cache --timeout 3600'
-git add config/mychannel.block
-git commit -m "new block"
-git push
+#echo "Uploading block to git"
+#git config --global credential.helper 'cache --timeout 3600'
+#git add config/mychannel.block
+#git commit -m "new block"
+#git push
 
 sleep 10
 
@@ -82,5 +86,5 @@ echo "Registering user"
 node registerUser.js org${AS} Org${AS}MSP
 
 # Run Dynam-IX
-echo "Starting Dynam-IX with $AS, $ADDRESS, $SERVICE, $INTENT_FILE, $USER, $ORDERER_IP"
-python dynamix.py AS${AS} $ADDRESS $SERVICE $INTENT_FILE $USER $ORDERER_IP
+echo "Starting Dynam-IX with $AS, $ADDRESS, $SERVICE, $INTENT_FILE, $USER, $ORDERER_IP $MODE"
+python dynamix.py AS${AS} $ADDRESS $SERVICE $INTENT_FILE $USER $ORDERER_IP $MODE

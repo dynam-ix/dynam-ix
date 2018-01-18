@@ -16,7 +16,7 @@ echo "PATH=$PATH:$GOROOT/bin" >> $HOME/.bashrc
 
 # Download and install docker
 wget https://download.docker.com/linux/ubuntu/dists/xenial/pool/stable/amd64/docker-ce_17.06.0~ce-0~ubuntu_amd64.deb
-dpkg -i docker-ce_17.06.0~ce-0~ubuntu_amd64.deb
+sudo dpkg -i docker-ce_17.06.0~ce-0~ubuntu_amd64.deb
 
 # Fix docker user issue
 sudo groupadd docker
@@ -26,7 +26,12 @@ sudo usermod -aG docker $USER
 
 # Verify docker installation
 docker run hello-world 
-apt-get install python-pip curl npm
+
+curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+sudo apt-get update
+sudo apt-get install python-pip curl npm libltdl7
 pip install docker-compose pycrypto
 
 # Download plaftorm specific binaries (necessary to run Dynam-IX using docker containers)

@@ -92,7 +92,7 @@ def cli():
             elif "executeAgreements" in action:
                 executeAgreements()
             elif "autonomous" in action:
-                autonomous(int(action.split(" ")[1]))
+                autonomous()
             elif "updateIntents" in action:
                 intents = json.load(open(action.split(" ")[1]))
             elif "quit" in action:
@@ -105,16 +105,18 @@ def cli():
     return
 
 
-def autonomous(num):
+def autonomous():
 
     print "Entering autonomous mode!"
 
-    AS = "AS2"
+    AS = "AS1"
 
     global offersRecvd
 
     offersRecvd = {}
-    
+
+    num = 10
+
     for i in range(0,num):
         #query AS prefix
         query = "query "+AS+" 8.8.8.0/24"
@@ -142,7 +144,7 @@ def processMessages():
     # Open socket to accept connections
     serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     serversocket.bind((myIP, int(myPort)))
-    serversocket.listen(20) # NOTE We may need to increase the number simultaneous requests 
+    serversocket.listen(256) # NOTE We may need to increase the number simultaneous requests 
 
     while True:
         connection, address = serversocket.accept()
@@ -471,7 +473,7 @@ def sendContract(offerID):
     port = int(address.split(':')[1])
 
     # Write the contract
-    contract = "contract of the Interconnection agreement between "+provider+" and "+customer
+    contract = "contract of the Interconnection agreement between "+provider+" and "+customer+offerID
     # Compute the contract hash
     hash_object = hashlib.md5(contract.encode())
     h = hash_object.hexdigest()
@@ -602,11 +604,19 @@ if __name__ == "__main__":
         print "Updating AS address", myASN, myAddress, myService
         x = subprocess.check_output('node update.js updateAddress \''+myASN+'\' \''+myAddress+'\''+' '+myUser+' '+ordererIP, shell=True)
 
+
+    mode = sys.argv[7]
+
     # Start threads
     threads = []
-    t = threading.Thread(target=cli)
-    threads.append(t)
-    t.start()
+    if mode == "autonomous":
+        t = threading.Thread(target=autonomous)
+        threads.append(t)
+        t.start()
+    else:
+        t = threading.Thread(target=cli)
+        threads.append(t)
+        t.start()
     t = threading.Thread(target=processMessages)
     threads.append(t)
     t.start()
