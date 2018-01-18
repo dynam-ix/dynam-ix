@@ -92,7 +92,7 @@ def cli():
             elif "executeAgreements" in action:
                 executeAgreements()
             elif "autonomous" in action:
-                offersRecvd = {} #clean previous offers
+                global offersRecvd = {} #clean previous offers
                 autonomous(int(action.split(" ")[1]))
             elif "updateIntents" in action:
                 intents = json.load(open(action.split(" ")[1]))
