@@ -111,6 +111,8 @@ def autonomous(num):
 
     AS = "AS2"
 
+    offersRecvd = {} #clean previous offers
+
     for i in range(0,num):
         #query AS prefix
         query = "query "+AS+" 8.8.8.0/24"
