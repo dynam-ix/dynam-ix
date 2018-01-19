@@ -127,6 +127,7 @@ def autonomous():
 
         while len(offersRecvd) < num:
             print "Number of offers: "+str(len(offersRecvd))
+            time.sleep(1)
 
         for offer in offersRecvd.keys():
             offerID = offer
