@@ -21,7 +21,7 @@ export EXPERIMENT_DIR=${DYNAMIX_DIR}/experiments/3-experiment
 #git pull
 
 # Get IP address
-export ADDRESS=$(ifconfig eth0 | grep "inet addr" | cut -d ':' -f 2 | cut -d ' ' -f 1):7052
+export ADDRESS=$(ifconfig eth0 | grep "inet addr" | cut -d ':' -f 2 | cut -d ' ' -f 1):7052 # You may need to change the network interface (eth0)
 
 # Erase previous CA-Server DB
 sudo rm $EXPERIMENT_DIR/ca-server-config/fabric-ca-server.db
