@@ -143,6 +143,7 @@ def autonomous():
         print "Waking up"
 
     print "Leaving autonomous mode!"
+    time.sleep(30)  # Be sure of getting all agreements
     print "Quiting Dynam-IX"
     logs.close()
     os._exit(1)
