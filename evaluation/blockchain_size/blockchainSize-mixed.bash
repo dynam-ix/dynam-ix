@@ -1,7 +1,5 @@
 #!/bin/bash
 
-export NUM_ASES=$1
-
 TRANSACTIONS=0
 SIZE=$(docker exec -it couchdb-1 du -b data/ | tail -n 1 | cut -f 1)
 echo $TRANSACTIONS $SIZE
