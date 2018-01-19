@@ -135,7 +135,9 @@ def autonomous():
             #propose offerID
             sendProposal(proposal)
 
-        sleep sleepTime
+        print "Sleeping"
+        time.sleep(sleepTime)
+        print "Waking up"
 
     print "Leaving autonomous mode!"
 
