@@ -3,11 +3,10 @@
 # Environment variables
 export DYNAMIX_DIR=$HOME/dynam-ix 
 export AS=$1               #1234
-export ADDRESS=$2          #10.0.0.1:5000
-export SERVICE=$3          #"Transit Provider"
-export INTENT_FILE=$4      #/path/to/intent/file
-export ORDERER_IP=$5       #192.168.1.130
-export MODE=$6
+export SERVICE=$2          #"Transit Provider"
+export INTENT_FILE=$3      #/path/to/intent/file
+export ORDERER_IP=$4       #192.168.1.130
+export MODE=$5
 export USER="org${AS}"
 export COMPOSE_PROJECT_NAME="net"
 
@@ -20,6 +19,9 @@ export EXPERIMENT_DIR=${DYNAMIX_DIR}/experiments/3-experiment
 #echo "Downloading latest files"
 #git config --global credential.helper 'cache --timeout 3600'
 #git pull
+
+# Get IP address
+export ADDRESS=$(ifconfig eth0 | grep "inet addr" | cut -d ':' -f 2 | cut -d ' ' -f 1):7052
 
 # Erase previous CA-Server DB
 sudo rm $EXPERIMENT_DIR/ca-server-config/fabric-ca-server.db
