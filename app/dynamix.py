@@ -110,31 +110,34 @@ def autonomous():
     print "Entering autonomous mode!"
 
     AS = "AS1"
+    num = int(sys.argv[8])
+    sleepTime = int(sys.argv[9])
+
+    print "Going to interact with "+AS+" doing "+str(num)+" queries/proposals every "+str(sleepTime)+" seconds"
 
     global offersRecvd
 
-    offersRecvd = {}
+    while True:
+        offersRecvd = {}
 
-    num = 10
+        for i in range(0,num):
+            #query AS prefix
+            query = "query "+AS+" 8.8.8.0/24"
+            sendQuery(query)
 
-    for i in range(0,num):
-        #query AS prefix
-        query = "query "+AS+" 8.8.8.0/24"
-        sendQuery(query)
+        while len(offersRecvd) < num:
+            print "Number of offers: "+str(len(offersRecvd))
 
-    while len(offersRecvd) < num:
-        print "Number of offers: "+str(len(offersRecvd))
-        time.sleep(2)
+        for offer in offersRecvd.keys():
+            offerID = offer
 
-    for offer in offersRecvd.keys():
-        offerID = offer
+            proposal = "propose "+offerID
+            #propose offerID
+            sendProposal(proposal)
 
-        proposal = "propose "+offerID
-        #propose offerID
-        sendProposal(proposal)
+        sleep sleepTime
 
     print "Leaving autonomous mode!"
-
 
 # Receive messages and create threads to process them
 def processMessages():
