@@ -117,7 +117,8 @@ def autonomous():
 
     global offersRecvd
 
-    while True:
+    total = 0
+    while total < 100:
         offersRecvd = {}
 
         for i in range(0,num):
@@ -136,11 +137,15 @@ def autonomous():
             #propose offerID
             sendProposal(proposal)
 
+        total = total + num
         print "Sleeping"
         time.sleep(sleepTime)
         print "Waking up"
 
     print "Leaving autonomous mode!"
+    print "Quiting Dynam-IX"
+    logs.close()
+    os._exit(1)
 
 # Receive messages and create threads to process them
 def processMessages():

@@ -15,12 +15,7 @@ def plot(file):
         t = line.split(" ")[0]
         s = line.split(" ")[1]
 
-        if "M" in s:
-            s=s.replace("M","")
-            y.append(float(s))
-        if "K" in s:
-            s=s.replace("K","")
-            y.append(float(s)/1024)
+        y.append(float(s)/(1024*1024))
 
         x.append(int(t))
 
@@ -33,8 +28,8 @@ def plot(file):
     pylab.ylabel("Blockchain size (MB)", fontsize=18)
     pylab.xlabel("Cumulative number of transactions", fontsize=18)
     pylab.grid(True)
-    pylab.xlim(0, 20000)
-    pylab.ylim(0, )
+    pylab.xlim(0, 10000)
+    pylab.ylim(0, max(y))
     #pylab.legend(loc="best", fontsize=14)
     pylab.savefig('blockchainSize.pdf', dpi=600)
     pylab.savefig('blockchainSize.png', dpi=600)
