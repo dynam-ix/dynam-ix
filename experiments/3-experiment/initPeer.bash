@@ -7,6 +7,9 @@ export SERVICE=$2          #"Transit Provider"
 export INTENT_FILE=$3      #/path/to/intent/file
 export ORDERER_IP=$4       #192.168.1.130
 export MODE=$5
+export REQUESTS=$6
+export INTERVAL=$7
+
 export USER="org${AS}"
 export COMPOSE_PROJECT_NAME="net"
 
@@ -74,5 +77,5 @@ echo "Registering user"
 node registerUser.js org${AS} Org${AS}MSP
 
 # Run Dynam-IX
-echo "Starting Dynam-IX with $AS, $ADDRESS, $SERVICE, $INTENT_FILE, $USER, $ORDERER_IP, $MODE"
-python dynamix.py AS${AS} $ADDRESS $SERVICE $INTENT_FILE $USER $ORDERER_IP $MODE
+echo "Starting Dynam-IX with $AS, $ADDRESS, $SERVICE, $INTENT_FILE, $USER, $ORDERER_IP, $MODE, $REQUESTS, $INTERVAL"
+python dynamix.py AS${AS} $ADDRESS $SERVICE $INTENT_FILE $USER $ORDERER_IP $MODE $REQUESTS $INTERVAL
