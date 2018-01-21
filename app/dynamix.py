@@ -297,7 +297,10 @@ def sendOffer(query):
         # If provider can offer something, send
         if offer != -1:
             # Get customer's address
-            address = getAddress(customer)
+            address = ""
+            while ":" not in address:
+                address = getAddress(customer)
+            print "Got address "+address+" for query "+query
             # Split address into IP and port
             IP = address.split(':')[0]
             port = int(address.split(':')[1])
