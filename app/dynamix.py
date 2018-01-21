@@ -252,8 +252,11 @@ def sendQuery(action):
 # get AS' reputation as a customer or as a provider from the ledger
 def getReputation(ASN, role):
 
-    # Query the ledger to get AS' information
-    x = subprocess.check_output('node query.js show \''+ASN+'\''+' '+myUser, shell=True)
+    x=""
+
+    while "address" not in x:
+        # Query the ledger to get AS' information
+        x = subprocess.check_output('node query.js show \''+ASN+'\''+' '+myUser, shell=True)
     # Get the reputation
     if role == "customer":
         return x.split(",")[1].split(':')[1]
@@ -263,8 +266,11 @@ def getReputation(ASN, role):
 # get AS' address from the ledger
 def getAddress(ASN):
 
-    # Query the ledger to get AS' information
-    x = subprocess.check_output('node query.js show \''+ASN+'\''+' '+myUser, shell=True)
+    x=""
+
+    while "address" not in x:
+        # Query the ledger to get AS' information
+        x = subprocess.check_output('node query.js show \''+ASN+'\''+' '+myUser, shell=True)
     # Get the address
     aux = x.split(",")[0]
     ip = aux.split(":")[1]
@@ -276,8 +282,11 @@ def getAddress(ASN):
 # get AS' public key from the ledger
 def getPubKey(ASN):
 
-    # Query the ledger to get AS' information
-    x = subprocess.check_output('node query.js show \''+ASN+'\''+' '+myUser, shell=True)
+    x=""
+
+    while "address" not in x:
+        # Query the ledger to get AS' information
+        x = subprocess.check_output('node query.js show \''+ASN+'\''+' '+myUser, shell=True)
     S = x.split(",")[3].split(":")[1]
 
     return S.split("\"")[1]
@@ -290,7 +299,7 @@ def sendOffer(query):
     # Get customer's ASN
     customer = query.split(";")[1]
     # Verify customer's reputation
-    reputation = getReputation(customer, "customer")
+    reputation = 1 #getReputation(customer, "customer")
     # If AS is a good customer, send offer
     if int(reputation) >= 0:                # TODO Define reputation threshold
         # Check interconnection policy to compose and offer to the customer
