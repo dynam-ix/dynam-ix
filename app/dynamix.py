@@ -220,7 +220,9 @@ def sendQuery(action):
     # Get provider's ASN
     provider = action.split(" ")[1]
     # Query the ledger to get the provider's address
-    address = getAddress(provider)
+    address = ""
+    while ":" not in address:
+        address = getAddress(provider)
     # Split the address into IP and port
     IP = address.split(":")[0]
     port = int(address.split(":")[1])
@@ -428,8 +430,9 @@ def sendProposal(action):
     # If the offer is still valid, send interconnection proposal to the provider
     if checkValidity(offerID) == 1:     
         # Get provider's address
-        address = getAddress(provider)
-        # Split address into IP and port
+        address = ""
+        while ":" not in address:
+            address = getAddress(provider)        # Split address into IP and port
         IP = address.split(':')[0]
         port = int(address.split(':')[1])
         # Send interconnection proposal
@@ -482,7 +485,9 @@ def sendContract(offerID):
     provider = myASN
 
     # Get provider's address
-    address = getAddress(customer)
+    address = ""
+    while ":" not in address:
+        address = getAddress(customer))
     # Split address into IP and port
     IP = address.split(':')[0]
     port = int(address.split(':')[1])
@@ -519,8 +524,9 @@ def signContract(contract):
     provider = contract.split(";")[4]
 
     # Get provider's address
-    address = getAddress(provider)
-    # Split address into IP and port
+    address = ""
+    while ":" not in address:
+        address = getAddress(provider)    # Split address into IP and port
     IP = address.split(':')[0]
     port = int(address.split(':')[1])
 
@@ -551,8 +557,10 @@ def publishAgreement(info):
     agreementsProv[key] = customer+";"+provider
     print "Success! Updating routing configuration!"
 
-    # Get provider's address
-    address = getAddress(customer)
+    # Get customer's address
+    address = ""
+    while ":" not in address:
+        address = getAddress(customer)
     # Split address into IP and port
     IP = address.split(':')[0]
     port = int(address.split(':')[1])
