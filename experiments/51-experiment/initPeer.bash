@@ -13,7 +13,7 @@ export INTERVAL=$7
 export USER="org${AS}"
 export COMPOSE_PROJECT_NAME="net"
 
-export EXPERIMENT_DIR=${DYNAMIX_DIR}/experiments/3-experiment
+export EXPERIMENT_DIR=${DYNAMIX_DIR}/experiments/51-experiment
 
 # Exit in case of errors
 #set -ev
