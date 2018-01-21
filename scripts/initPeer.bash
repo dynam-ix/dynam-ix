@@ -3,13 +3,17 @@
 # Environment variables
 export DYNAMIX_DIR=$HOME/dynam-ix 
 export AS=$1               #1234
-export ADDRESS=$2          #10.0.0.1:5000
-export SERVICE=$3          #"Transit Provider"
-export INTENT_FILE=$4      #/path/to/intent/file
-export ORDERER_IP=$5       #192.168.1.130
-export MODE=$6
+export SERVICE=$2          #"Transit Provider"
+export INTENT_FILE=$3      #/path/to/intent/file
+export ORDERER_IP=$4       #192.168.1.130
+export MODE=$5
+export REQUESTS=$6
+export INTERVAL=$7
+
 export USER="org${AS}"
 export COMPOSE_PROJECT_NAME="net"
+
+export EXPERIMENT_DIR=${DYNAMIX_DIR}/experiments/3-experiment
 
 # Exit in case of errors
 #set -ev
@@ -19,25 +23,28 @@ export COMPOSE_PROJECT_NAME="net"
 #git config --global credential.helper 'cache --timeout 3600'
 #git pull
 
+# Get IP address
+export ADDRESS=$(ifconfig eth0 | grep "inet addr" | cut -d ':' -f 2 | cut -d ' ' -f 1):7052 # You may need to change the network interface (eth0)
+
 # Erase previous CA-Server DB
-sudo rm ca-server-config/fabric-ca-server.db
+sudo rm $EXPERIMENT_DIR/ca-server-config/fabric-ca-server.db
 
 # Getting KEYFILE
 echo "Getting KEYFILE"
-cd crypto-config/peerOrganizations/org${AS}.example.com/ca/
+cd $EXPERIMENT_DIR/crypto-config/peerOrganizations/org${AS}.example.com/ca/
 export KEYFILE=$(ls *_sk) 
-cd ../../../../
+cd $EXPERIMENT_DIR
 
 # Cleaning any previous experiment
 echo "Cleaning docker environment"
 docker rm -f $(docker ps -aq)
 docker rmi $(docker images dev-* -q)
 docker network prune -f
-docker-compose -f docker-compose-base.yml down
+$HOME/.local/bin/docker-compose -f $EXPERIMENT_DIR/docker-compose-base.yml down
 
 # Start Docker Containers
 echo "Staring docker containers"
-docker-compose -f docker-compose-base.yml up -d peer ca couchdb cli
+$HOME/.local/bin/docker-compose -f $EXPERIMENT_DIR/docker-compose-base.yml up -d peer ca couchdb cli
 
 sleep 12    #increase in case of errors
 
@@ -70,5 +77,5 @@ echo "Registering user"
 node registerUser.js org${AS} Org${AS}MSP
 
 # Run Dynam-IX
-echo "Starting Dynam-IX with $AS, $ADDRESS, $SERVICE, $INTENT_FILE, $USER, $ORDERER_IP, $MODE"
-python dynamix.py AS${AS} $ADDRESS $SERVICE $INTENT_FILE $USER $ORDERER_IP $MODE
+echo "Starting Dynam-IX with $AS, $ADDRESS, $SERVICE, $INTENT_FILE, $USER, $ORDERER_IP, $MODE, $REQUESTS, $INTERVAL"
+python dynamix.py AS${AS} $ADDRESS $SERVICE $INTENT_FILE $USER $ORDERER_IP $MODE $REQUESTS $INTERVAL
