@@ -1,0 +1,312 @@
+OrdererOrgs:
+  - Name: Orderer
+    Domain: example.com
+    Specs:
+      - Hostname: orderer
+PeerOrgs:
+  - Name: Org1
+    Domain: org1.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org2
+    Domain: org2.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org3
+    Domain: org3.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org4
+    Domain: org4.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org5
+    Domain: org5.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org6
+    Domain: org6.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org7
+    Domain: org7.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org8
+    Domain: org8.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org9
+    Domain: org9.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org10
+    Domain: org10.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org11
+    Domain: org11.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org12
+    Domain: org12.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org13
+    Domain: org13.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org14
+    Domain: org14.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org15
+    Domain: org15.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org16
+    Domain: org16.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org17
+    Domain: org17.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org18
+    Domain: org18.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org19
+    Domain: org19.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org20
+    Domain: org20.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org21
+    Domain: org21.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org22
+    Domain: org22.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org23
+    Domain: org23.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org24
+    Domain: org24.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org25
+    Domain: org25.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org26
+    Domain: org26.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org27
+    Domain: org27.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org28
+    Domain: org28.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org29
+    Domain: org29.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org30
+    Domain: org30.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org31
+    Domain: org31.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org32
+    Domain: org32.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org33
+    Domain: org33.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org34
+    Domain: org34.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org35
+    Domain: org35.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org36
+    Domain: org36.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org37
+    Domain: org37.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org38
+    Domain: org38.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org39
+    Domain: org39.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org40
+    Domain: org40.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org41
+    Domain: org41.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org42
+    Domain: org42.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org43
+    Domain: org43.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org44
+    Domain: org44.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org45
+    Domain: org45.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org46
+    Domain: org46.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org47
+    Domain: org47.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org48
+    Domain: org48.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org49
+    Domain: org49.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org50
+    Domain: org50.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Org51
+    Domain: org51.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
