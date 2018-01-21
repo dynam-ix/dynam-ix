@@ -487,7 +487,7 @@ def sendContract(offerID):
     # Get provider's address
     address = ""
     while ":" not in address:
-        address = getAddress(customer))
+        address = getAddress(customer)
     # Split address into IP and port
     IP = address.split(':')[0]
     port = int(address.split(':')[1])
