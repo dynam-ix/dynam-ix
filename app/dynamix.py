@@ -118,7 +118,7 @@ def autonomous():
     global offersRecvd
 
     total = 0
-    while total < 100:
+    while total < 30:
         offersRecvd = {}
 
         for i in range(0,num):
