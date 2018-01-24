@@ -3,6 +3,8 @@ import sys
 import os
 from datetime import datetime
 import numpy as np
+import matplotlib
+import pylab
 
 transactions = {}
 
@@ -54,6 +56,20 @@ def process():
     
     print len(qt), len(et)
     print np.average(qt), np.average(et)
+
+    pylab.plot(np.sort(qt),np.arange(len(qt))/float(len(qt)-1), label='query', linestyle="solid", linewidth=2)
+    pylab.plot(np.sort(et),np.arange(len(et))/float(len(et)-1), label='establish', linestyle="dashed", linewidth=2)
+    pylab.ylabel("Frequency", fontsize=18)
+    pylab.xlabel("Time (s)", fontsize=18)
+    pylab.grid(True)
+    pylab.xlim(0, )
+    pylab.ylim(0, 1)
+    pylab.legend(loc="best", fontsize=14)
+    pylab.savefig("response.pdf", dpi=600)
+    pylab.savefig("response.png", dpi=600)
+    #pylab.show() #uncomment to show plots during execution
+    pylab.clf()
+
 
 #Main function
 if __name__ == "__main__":
