@@ -595,11 +595,11 @@ def publishAgreement(info):
 
     offerID=info.split(";")[1]
     # Send message with the contract signed by the customer
-    msg = "ack;"+offerID
+    msg = "ack;"+offerID+";"+key
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
     sendMessage(msg, IP, port)
     # logging
-    logs.write(timestamp+";SU;"+offerID+";"+key+"\n")
+    logs.write(timestamp+";SU;"+offerID"\n")
 
 def executeAgreements():
 
