@@ -214,7 +214,7 @@ def processMessages():
 def verifyUpdate(ack):
 
     offerID = ack.split(";")[1]
-    IA = ack.split(";")[1]
+    IA = ack.split(";")[2]
 
     out = ""
 
