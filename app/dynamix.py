@@ -128,8 +128,8 @@ def autonomous():
             sendQuery(query)
 
         while len(offersRecvd) < num:
-            print "Number of offers: "+str(len(offersRecvd))
-            time.sleep(1)
+            #print "Number of offers: "+str(len(offersRecvd))
+            time.sleep(0.5)
 
         for offer in offersRecvd.keys():
             offerID = offer
@@ -139,9 +139,9 @@ def autonomous():
             sendProposal(proposal)
 
         total = total + num
-        print "Sleeping"
-        time.sleep(sleepTime)
-        print "Waking up"
+        #print "Sleeping"
+        #time.sleep(sleepTime)
+        #print "Waking up"
 
     print "Leaving autonomous mode!"
     time.sleep(90)  # Be sure of getting all agreements answers
