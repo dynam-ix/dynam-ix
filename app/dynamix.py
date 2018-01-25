@@ -599,7 +599,7 @@ def publishAgreement(info):
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
     sendMessage(msg, IP, port)
     # logging
-    logs.write(timestamp+";SU;"+offerID+";"+key"\n")
+    logs.write(timestamp+";SU;"+offerID+";"+key+"\n")
 
 def executeAgreements():
 
