@@ -119,7 +119,7 @@ def autonomous():
     global offersRecvd
 
     total = 0
-    while total < 200:
+    while total < 20:
         offersRecvd = {}
 
         for i in range(0,num):
@@ -140,7 +140,7 @@ def autonomous():
 
         total = total + num
         #print "Sleeping"
-        #time.sleep(sleepTime)
+        time.sleep(1)
         #print "Waking up"
 
     print "Leaving autonomous mode!"
