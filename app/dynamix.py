@@ -108,6 +108,7 @@ def cli():
 def autonomous():
 
     print "Entering autonomous mode!"
+    time.sleep(90)  # Be sure of getting all agreements answers
 
     AS = "AS1"
     num = int(sys.argv[8])
@@ -143,7 +144,7 @@ def autonomous():
         print "Waking up"
 
     print "Leaving autonomous mode!"
-    time.sleep(30)  # Be sure of getting all agreements
+    time.sleep(90)  # Be sure of getting all agreements answers
     print "Quiting Dynam-IX"
     logs.close()
     os._exit(1)
