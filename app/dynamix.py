@@ -204,7 +204,6 @@ def processMessages():
                 # logging
 #                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
                 logs.write(timestamp+";RU;"+msg.split(";")[1]+"\n")
-                print timestamp+";RU;"+msg.split(";")[1]+"\n"
                 t = threading.Thread(target=verifyUpdate, args=(msg,))
                 messageThreads.append(t)
                 t.start()
@@ -218,14 +217,12 @@ def verifyUpdate(ack):
 
     out = ""
 
-    print IA
     while "hash" not in out:
         out = subprocess.check_output('node query.js show '+IA+' '+myUser, shell=True)
         time.sleep(1)
 
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
     logs.write(timestamp+";VU;"+offerID+"\n")
-    print timestamp+";VU;"+offerID+"\n"
 
 def sendMessage(msg, ip, port):
 
