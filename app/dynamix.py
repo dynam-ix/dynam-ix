@@ -119,7 +119,7 @@ def autonomous():
     global offersRecvd
 
     total = 0
-    while total < 30:
+    while total < 600:
         offersRecvd = {}
 
         for i in range(0,num):
@@ -312,7 +312,7 @@ def getPubKey(ASN):
 # Receive a query from a customer, decide if it is going to answer, and compose and agreement offer 
 def sendOffer(query):
     # queryFormat = query;customerASN;properties
-    print "debug: Received : "+query
+    print "Received : "+query
 
     # Get customer's ASN
     customer = query.split(";")[1]
@@ -329,7 +329,7 @@ def sendOffer(query):
             address = ""
             while ":" not in address:
                 address = getAddress(customer)
-            print "Got address "+address+" for query "+query
+            #print "Got address "+address+" for query "+query
             # Split address into IP and port
             IP = address.split(':')[0]
             port = int(address.split(':')[1])
@@ -492,6 +492,8 @@ def establishAgreement(propose):
 
     offerID = propose.split(";")[1]
 
+    print "Received: "+propose
+
     # If offer is still valid, send the contract
     if checkValidity(offerID) == 1:
         sendContract(offerID)
@@ -582,7 +584,7 @@ def publishAgreement(info):
     # Register the agreement on the ledger
     x = subprocess.check_output('node publish.js registerAgreement \''+key+'\' \''+contractHash+'\' \''+customer+'\' \''+provider+'\' \''+customerSignature+'\' \''+providerSignature+'\''+' '+myUser+' '+ordererIP, shell=True)
     agreementsProv[key] = customer+";"+provider
-    print "Success! Updating routing configuration!"
+    print key+" Success! Updating routing configuration!"
 
     # Get customer's address
     address = ""
@@ -631,6 +633,12 @@ def myAgreements():
     for agmnt in agreementsProv:
         print agmnt, agreementsProv[agmnt]
 
+def end():
+
+    time.sleep(720)
+    print "Quiting Dynam-IX"
+    logs.close()
+    os._exit(1)
 
 #Main function
 if __name__ == "__main__":
@@ -663,6 +671,10 @@ if __name__ == "__main__":
         t = threading.Thread(target=autonomous)
         threads.append(t)
         t.start()
+        t = threading.Thread(target=end)
+        threads.append(t)
+        t.start()
+
 
     t = threading.Thread(target=cli)
     threads.append(t)
