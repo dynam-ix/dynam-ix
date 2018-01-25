@@ -119,7 +119,7 @@ def autonomous():
     global offersRecvd
 
     total = 0
-    while total < 600:
+    while total < 200:
         offersRecvd = {}
 
         for i in range(0,num):
@@ -635,7 +635,7 @@ def myAgreements():
 
 def end():
 
-    time.sleep(720)
+    time.sleep(1200)
     print "Quiting Dynam-IX"
     logs.close()
     os._exit(1)

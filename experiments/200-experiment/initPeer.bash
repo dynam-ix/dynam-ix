@@ -46,7 +46,7 @@ $HOME/.local/bin/docker-compose -f $EXPERIMENT_DIR/docker-compose-base.yml down
 echo "Staring docker containers"
 $HOME/.local/bin/docker-compose -f $EXPERIMENT_DIR/docker-compose-base.yml up -d peer ca couchdb cli
 
-sleep 12    #increase in case of errors
+sleep 20    #increase in case of errors
 
 # Join channel
 echo "Joining channel"
