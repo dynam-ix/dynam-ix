@@ -219,9 +219,8 @@ def verifyUpdate(ack):
     out = ""
 
     print IA
-    while "IA" not in out:
+    while "hash" not in out:
         out = subprocess.check_output('node query.js show '+IA+' '+myUser, shell=True)
-        print out
         time.sleep(1)
 
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
