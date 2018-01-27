@@ -32,7 +32,7 @@ docker-compose -f docker-compose-base.yml down
 
 # Start Docker Containers
 echo "Staring docker containers"
-docker-compose -f docker-compose-base.yml up -d peer ca couchdb cli orderer
+docker-compose -f docker-compose-base.yml up -d peer ca couchdb cli
 
 # Create channel
 echo "Creating channel"
