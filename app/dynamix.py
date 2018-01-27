@@ -108,8 +108,8 @@ def cli():
 def autonomous():
 
     print "Entering autonomous mode!"
-    time.sleep(90)  # Be sure of getting all agreements answers
-
+    time.sleep(90)  # Be sure to wait the necessary time to start
+    
     AS = "AS1"
     num = int(sys.argv[8])
     sleepTime = int(sys.argv[9])
@@ -119,7 +119,7 @@ def autonomous():
     global offersRecvd
 
     total = 0
-    while total < 20:
+    while total < 30:
         offersRecvd = {}
 
         for i in range(0,num):
@@ -140,11 +140,11 @@ def autonomous():
 
         total = total + num
         #print "Sleeping"
-        time.sleep(1)
+        #time.sleep(1)
         #print "Waking up"
 
     print "Leaving autonomous mode!"
-    time.sleep(90)  # Be sure of getting all agreements answers
+    time.sleep(300)  # Be sure of getting all agreements answers
     print "Quiting Dynam-IX"
     logs.close()
     os._exit(1)
@@ -671,14 +671,13 @@ if __name__ == "__main__":
         t = threading.Thread(target=autonomous)
         threads.append(t)
         t.start()
-        t = threading.Thread(target=end)
+        #t = threading.Thread(target=end)
+        #threads.append(t)
+        #t.start()
+    else:
+        t = threading.Thread(target=cli)
         threads.append(t)
         t.start()
-
-
-    t = threading.Thread(target=cli)
-    threads.append(t)
-    t.start()
     t = threading.Thread(target=processMessages)
     threads.append(t)
     t.start()

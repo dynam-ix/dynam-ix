@@ -11,15 +11,15 @@ AS=2
 
 while IFS='' read -r line || [[ -n "$line" ]]; do
 
-    scp -i "${KEY_PATH}" ubuntu@${line}:/home/ubuntu/dynam-ix/app/AS*.log .
-
-    #echo $line
+    echo $line
+    #rsh  -i "${KEY_PATH}" ubuntu@${line} "ifconfig eth0 | grep \"inet addr\" | cut -d ':' -f 2 | cut -d ' ' -f 1" &
     #rsh -i "${KEY_PATH}" ubuntu@${line} "pkill -f dynamix.py" &
     #rsh  -i "${KEY_PATH}" ubuntu@${line} "ps aux |grep dynamix" &
+    #rsh -i "${KEY_PATH}" ubuntu@${line} "cd dynam-ix ; git pull https://pedrobmarcos:Chup3t1nha@github.com/pedrobmarcos/dynam-ix" &
+    #rsh -i "${KEY_PATH}" ubuntu@${line} "cd dynam-ix/app ; rm  *.log" &
     #rsh -i "${KEY_PATH}" ubuntu@${line} "cd dynam-ix/experiments/${EXP_NUM}-experiment ; ./initPeer.bash ${AS} Transit intents.json ${ORDERER_IP} autonomous ${REQUESTS} ${SLEEP} > run.log" &
 
-    #rsh -i "${KEY_PATH}" ubuntu@${line} "cd dynam-ix/app ; rm  *.log" &
-    #rsh -i "${KEY_PATH}" ubuntu@${line} "cd dynam-ix ; git pull https://pedrobmarcos:Chup3t1nha@github.com/pedrobmarcos/dynam-ix" &
+    scp -i "${KEY_PATH}" ubuntu@${line}:/home/ubuntu/dynam-ix/app/AS*.log .
 
     AS=$((AS+1))
 
