@@ -15,43 +15,35 @@ Pycrypto 2.6.1 <br/>
 
 Preparing your system
 --------------
-1. Download and install Go Language
+**Download and install Go Language**<br/>
+`cd $HOME/ && wget https://storage.googleapis.com/golang/go1.7.1.linux-amd64.tar.gz`<br/>
+`tar -xvf go1.7.1.linux-amd64.tar.gz`<br/>
 
-- `cd $HOME/ && wget https://storage.googleapis.com/golang/go1.7.1.linux-amd64.tar.gz`
+**Configure environment variables** <br/>
+`export GOROOT=$HOME/go` <br/>
+`export PATH=$PATH:$GOROOT/bin`<br/>
+`echo "GOROOT=$HOME/go" >> $HOME/.bashrc`<br/>
+`echo "PATH=$PATH:$GOROOT/bin" >> $HOME/.bashrc`<br/>
 
-- `tar -xvf go1.7.1.linux-amd64.tar.gz`
+**Install software**<br/>
+`sudo apt-get update`<br/>
+`sudo apt-get install python-pip curl npm libltdl7`<br/>
+`pip install docker-compose pycrypto`<br/>
 
-2. Configure environment variables
+**Download and install Docker**<br/>
+`wget https://download.docker.com/linux/ubuntu/dists/xenial/pool/stable/amd64/docker-ce_17.06.0~ce-0~ubuntu_amd64.deb`<br/>
+`sudo dpkg -i docker-ce_17.06.0~ce-0~ubuntu_amd64.deb`<br/>
 
-- `export GOROOT=$HOME/go` 
-- `export PATH=$PATH:$GOROOT/bin`
-- `echo "GOROOT=$HOME/go" >> $HOME/.bashrc`
-- `echo "PATH=$PATH:$GOROOT/bin" >> $HOME/.bashrc`
+**Set Docker permissions**<br/>
+`sudo groupadd docker`<br/>
+`sudo usermod -aG docker $USER`<br/>
 
-3. Install software
+**Install NodeJS**<br/>
+`curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -`<br/>
+`sudo apt-get install -y nodejs`<br/>
 
-sudo apt-get update
-sudo apt-get install python-pip curl npm libltdl7
-pip install docker-compose pycrypto
-
-4. Download and install Docker
-
-wget https://download.docker.com/linux/ubuntu/dists/xenial/pool/stable/amd64/docker-ce_17.06.0~ce-0~ubuntu_amd64.deb
-sudo dpkg -i docker-ce_17.06.0~ce-0~ubuntu_amd64.deb
-
-5. Set permissions to run docker
-
-sudo groupadd docker
-sudo usermod -aG docker $USER
-
-6. Install NodeJS
-
-curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-7. Download Hyperledger Fabric 1.05 Docker containers
-
-curl -sSL https://goo.gl/byy2Qj | bash -s 1.0.5
+**Download Hyperledger Fabric 1.05 Docker images**<br/>
+`curl -sSL https://goo.gl/byy2Qj | bash -s 1.0.5`<br/>
 
 Running the examples
 --------------
