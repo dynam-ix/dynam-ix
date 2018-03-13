@@ -17,17 +17,16 @@ Preparing your system
 --------------
 1. Download and install Go Language
 
-"cd $HOME/ && wget https://storage.googleapis.com/golang/go1.7.1.linux-amd64.tar.gz"
+- `cd $HOME/ && wget https://storage.googleapis.com/golang/go1.7.1.linux-amd64.tar.gz`
 
-tar -xvf go1.7.1.linux-amd64.tar.gz
+- `tar -xvf go1.7.1.linux-amd64.tar.gz`
 
 2. Configure environment variables
 
-export GOROOT=$HOME/go 
-export PATH=$PATH:$GOROOT/bin
-echo "GOPATH=$HOME/gopath" >> $HOME/.bashrc
-echo "GOROOT=$HOME/go" >> $HOME/.bashrc
-echo "PATH=$PATH:$GOROOT/bin" >> $HOME/.bashrc
+- `export GOROOT=$HOME/go` 
+- `export PATH=$PATH:$GOROOT/bin`
+- `echo "GOROOT=$HOME/go" >> $HOME/.bashrc`
+- `echo "PATH=$PATH:$GOROOT/bin" >> $HOME/.bashrc`
 
 3. Install software
 
