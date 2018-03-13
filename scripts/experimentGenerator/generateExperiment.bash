@@ -6,7 +6,7 @@ NUM_ORGS=$1
 EXPERIMENT=${NUM_ORGS}-experiment
 
 # Exit in case of errors
-set -ev
+set -e
 
 # Create directory for the experiment
 echo "Creating directory ${DYNAMIX_DIR}/experiments/${EXPERIMENT}"
