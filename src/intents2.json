@@ -1,0 +1,44 @@
+{ 
+    "intent-1": {
+        "routing": {
+            "reachability": "8.8.8.0/24",
+            "aspath": "ASN1234-ASN5555-ASN5678-ASN9999"
+        },
+        "sla": {
+            "bandwidth": "10000",
+            "latency": "25",
+            "loss": "0.23",
+            "repair": "180",
+            "guarantee": "99.96"
+        },
+        "pricing": {
+            "egress": "0",
+            "ingress": "0.9",
+            "billing": "95th-percentile"
+        },
+        "time": {
+            "unit": "1"
+        }
+    },
+    "intent-2": {
+        "routing": {
+            "reachability": "4.4.0.0/16",
+            "aspath": "ASN5678-ASN1234"
+        },
+        "sla": {
+            "bandwidth": "1000",
+            "latency": "11",
+            "loss": "0.02",
+            "repair": "180",
+            "guarantee": "99.99"
+        },
+        "pricing": {
+            "egress": "0",
+            "ingress": "0.8",
+            "billing": "95th-percentile"
+        },
+        "time": {
+            "unit": "1"
+        }
+    }
+}
