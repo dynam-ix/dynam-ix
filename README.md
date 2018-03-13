@@ -1,5 +1,16 @@
 # Dynam-IX - Dynamic Interconnection eXchange
 
+Code organization
+----------------
+    |-- examples/
+    | \---- local/
+    | |   
+    | \---- distributed/
+    |
+    |-- scripts/
+    | \---- dataAnalysis/
+
+
 Software version
 ---------------
 Ubuntu 16.04 LTS <br/>
