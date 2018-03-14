@@ -61,15 +61,15 @@ npm install
 
 # Remove previous keys
 echo "Cleaning previous keys"
-rm -rf hfc-key-store/
+rm -rf js/hfc-key-store/
 
 # Enroll admin user
 echo "Creating admin"
-node enrollAdmin.js Org${AS}MSP
+node js/enrollAdmin.js Org${AS}MSP
 
 # Register regular user
 echo "Registering user"
-node registerUser.js org${AS} Org${AS}MSP
+node js/registerUser.js org${AS} Org${AS}MSP
 
 # Run Dynam-IX
 echo "Starting Dynam-IX with $AS, $ADDRESS, $SERVICE, $INTENT_FILE, $USER, $ORDERER_IP, $MODE, $REQUESTS, $INTERVAL"

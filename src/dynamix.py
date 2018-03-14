@@ -50,38 +50,38 @@ def cli():
         action = raw_input("Dynam-IX: ")
         if len(action) > 0:
             if "registerAS" in action: # registerAS 'ASN' 'address' 'service' 'custRep' 'provRep' 'pubKey'
-                x = subprocess.check_output('node register.js '+action+' '+myUser+' '+ordererIP, shell=True)
+                x = subprocess.check_output('node js/register.js '+action+' '+myUser+' '+ordererIP, shell=True)
                 print x
             elif "listASes" in action:  # listASes 
-                x = subprocess.check_output('node list.js'+' '+myUser, shell=True)
+                x = subprocess.check_output('node js/list.js'+' '+myUser, shell=True)
                 print x
             elif "findService" in action: # findService service         # TODO fix this function when string has space
                 #queryString = "{\"selector\":{\"service\":\"Transit\"}}"
                 service = action.split("- ")[1]
                 print service
-                x = subprocess.check_output('node query.js findService \'{\"selector\":{\"service\":\"'+service+'\"}}\''+' '+myUser, shell=True)
+                x = subprocess.check_output('node js/query.js findService \'{\"selector\":{\"service\":\"'+service+'\"}}\''+' '+myUser, shell=True)
                 print x
             elif "show" in action: #show 'key'
-                x = subprocess.check_output('node query.js '+action+' '+myUser, shell=True)
+                x = subprocess.check_output('node js/query.js '+action+' '+myUser, shell=True)
                 print x
             elif "history" in action: #history 'key'
-                x = subprocess.check_output('node query.js '+action+' '+myUser, shell=True)
+                x = subprocess.check_output('node js/query.js '+action+' '+myUser, shell=True)
                 print x
             elif "delete" in action: #delete 'key'
-                x = subprocess.check_output('node delete.js '+action+' '+myUser+' '+ordererIP, shell=True)
+                x = subprocess.check_output('node js/delete.js '+action+' '+myUser+' '+ordererIP, shell=True)
                 print x
             elif "updateService" in action: #updateService 'ASN' 'newService'
-                x = subprocess.check_output('node update.js '+action+' '+myUser+' '+ordererIP, shell=True)
+                x = subprocess.check_output('node js/update.js '+action+' '+myUser+' '+ordererIP, shell=True)
                 print x
             elif "updateAddress" in action: #updateAddress 'ASN' 'newAddress'
-                x = subprocess.check_output('node update.js '+action+' '+myUser+' '+ordererIP, shell=True)
+                x = subprocess.check_output('node js/update.js '+action+' '+myUser+' '+ordererIP, shell=True)
                 print x
             elif "query" in action: #query providerASN request
                 sendQuery(action)
             elif "propose" in action: #propose ID
                 sendProposal(action)
             elif "listAgreements" in action:
-                x = subprocess.check_output('node listAgreements.js'+' '+myUser, shell=True)
+                x = subprocess.check_output('node js/listAgreements.js'+' '+myUser, shell=True)
                 print x
             elif "listOffersSent" in action:
                 listOffersSent()
@@ -219,7 +219,7 @@ def verifyUpdate(ack):
     out = ""
 
     while "hash" not in out:
-        out = subprocess.check_output('node query.js show '+IA+' '+myUser, shell=True)
+        out = subprocess.check_output('node js/query.js show '+IA+' '+myUser, shell=True)
         time.sleep(1)
 
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
@@ -274,7 +274,7 @@ def getReputation(ASN, role):
 
     while "address" not in x:
         # Query the ledger to get AS' information
-        x = subprocess.check_output('node query.js show \''+ASN+'\''+' '+myUser, shell=True)
+        x = subprocess.check_output('node js/query.js show \''+ASN+'\''+' '+myUser, shell=True)
     # Get the reputation
     if role == "customer":
         return x.split(",")[1].split(':')[1]
@@ -288,7 +288,7 @@ def getAddress(ASN):
 
     while "address" not in x:
         # Query the ledger to get AS' information
-        x = subprocess.check_output('node query.js show \''+ASN+'\''+' '+myUser, shell=True)
+        x = subprocess.check_output('node js/query.js show \''+ASN+'\''+' '+myUser, shell=True)
     # Get the address
     aux = x.split(",")[0]
     ip = aux.split(":")[1]
@@ -304,7 +304,7 @@ def getPubKey(ASN):
 
     while "address" not in x:
         # Query the ledger to get AS' information
-        x = subprocess.check_output('node query.js show \''+ASN+'\''+' '+myUser, shell=True)
+        x = subprocess.check_output('node js/query.js show \''+ASN+'\''+' '+myUser, shell=True)
     S = x.split(",")[3].split(":")[1]
 
     return S.split("\"")[1]
@@ -582,7 +582,7 @@ def publishAgreement(info):
     key = "IA-"+contractHash 
 
     # Register the agreement on the ledger
-    x = subprocess.check_output('node publish.js registerAgreement \''+key+'\' \''+contractHash+'\' \''+customer+'\' \''+provider+'\' \''+customerSignature+'\' \''+providerSignature+'\''+' '+myUser+' '+ordererIP, shell=True)
+    x = subprocess.check_output('node js/publish.js registerAgreement \''+key+'\' \''+contractHash+'\' \''+customer+'\' \''+provider+'\' \''+customerSignature+'\' \''+providerSignature+'\''+' '+myUser+' '+ordererIP, shell=True)
     agreementsProv[key] = customer+";"+provider
     print key+" Success! Updating routing configuration!"
 
@@ -609,7 +609,7 @@ def executeAgreements():
         customer = agreementsProv[agmnt].split(";")[0]
         print customer
         # update customer's reputation
-        x = subprocess.check_output('node update.js updateCustRep \''+customer+'\' \'1\''+' '+myUser+' '+ordererIP, shell=True)
+        x = subprocess.check_output('node js/update.js updateCustRep \''+customer+'\' \'1\''+' '+myUser+' '+ordererIP, shell=True)
         print x
 
         del agreementsProv[agmnt]
@@ -619,7 +619,7 @@ def executeAgreements():
         provider = agreementsCust[agmnt].split(";")[1]
         print provider
         # update provider's reputation
-        x = subprocess.check_output('node update.js updateProvRep \''+provider+'\' \'1\''+' '+myUser+' '+ordererIP, shell=True)
+        x = subprocess.check_output('node js/update.js updateProvRep \''+provider+'\' \'1\''+' '+myUser+' '+ordererIP, shell=True)
         print x
 
         del agreementsCust[agmnt]
@@ -653,14 +653,14 @@ if __name__ == "__main__":
 
     # TODO optimize to not query the blockchain
     # If AS is not registered
-    if '{' not in subprocess.check_output('node query.js show \''+myASN+'\''+' '+myUser, shell=True):
+    if '{' not in subprocess.check_output('node js/query.js show \''+myASN+'\''+' '+myUser, shell=True):
         print "Registering new AS", myASN, myAddress, myService
-        x = subprocess.check_output('node register.js registerAS \''+myASN+'\' \''+myAddress+'\' \''+myService+'\' \'0\' \'0\' \''+myPubKey+'\''+' '+myUser+' '+ordererIP, shell=True)
+        x = subprocess.check_output('node js/register.js registerAS \''+myASN+'\' \''+myAddress+'\' \''+myService+'\' \'0\' \'0\' \''+myPubKey+'\''+' '+myUser+' '+ordererIP, shell=True)
         print x
     # else, update address
     else:
         print "Updating AS address", myASN, myAddress, myService
-        x = subprocess.check_output('node update.js updateAddress \''+myASN+'\' \''+myAddress+'\''+' '+myUser+' '+ordererIP, shell=True)
+        x = subprocess.check_output('node js/update.js updateAddress \''+myASN+'\' \''+myAddress+'\''+' '+myUser+' '+ordererIP, shell=True)
 
 
     mode = sys.argv[7]
