@@ -31,20 +31,20 @@ python ${DYNAMIX_DIR}/tools/experimentGenerator/generateConfigtx.py $NUM_ORGS > 
 
 # Generate certifactes
 echo "Generating certificates"
-$DYNAMIX_DIR/tools/HLFConfig/cryptogen generate --config=./crypto-config.yaml 
+$DYNAMIX_DIR/tools/experimentGenerator/HLFConfig/cryptogen generate --config=./crypto-config.yaml 
 
 echo "Generating channel artifacts"
 mkdir -p config
 # Genesis block
 echo "Generating genesis block"
-$DYNAMIX_DIR/tools/HLFConfig/configtxgen -profile SingleOrgOrdererGenesis -outputBlock ./config/genesis.block
+$DYNAMIX_DIR/tools/experimentGenerator/HLFConfig/configtxgen -profile SingleOrgOrdererGenesis -outputBlock ./config/genesis.block
 # Channnel
 echo "Creating channel"
-$DYNAMIX_DIR/tools/HLFConfig/configtxgen -profile MultipleOrgChannel -outputCreateChannelTx ./config/channel.tx -channelID mychannel
+$DYNAMIX_DIR/tools/experimentGenerator/HLFConfig/configtxgen -profile MultipleOrgChannel -outputCreateChannelTx ./config/channel.tx -channelID mychannel
 # Anchor peer update for each org
 for (( ASN=1; ASN <= $NUM_ORGS; ASN++ )) do
     echo "Updating anchor peer for org $ASN" # TODO Repeat for all peers
-    $DYNAMIX_DIR/tools/HLFConfig/configtxgen -profile MultipleOrgChannel -outputAnchorPeersUpdate ./config/Org${ASN}MSPanchors.tx -channelID mychannel -asOrg Org${ASN}MSP
+    $DYNAMIX_DIR/tools/experimentGenerator/HLFConfig/configtxgen -profile MultipleOrgChannel -outputAnchorPeersUpdate ./config/Org${ASN}MSPanchors.tx -channelID mychannel -asOrg Org${ASN}MSP
 done
 
 # Generate ca-file
