@@ -3,10 +3,13 @@
 # Environment variables
 DYNAMIX_DIR=$HOME/dynam-ix-beta
 NUM_ORGS=$1
-EXPERIMENT=${NUM_ORGS}-experiment
+EXPERIMENT=${NUM_ORGS}-ASes
 
 # Exit in case of errors
 set -e
+
+# Create directory for the experiment
+mkdir -p ${DYNAMIX_DIR}/experiments/
 
 # Create directory for the experiment
 echo "Creating directory ${DYNAMIX_DIR}/experiments/${EXPERIMENT}"

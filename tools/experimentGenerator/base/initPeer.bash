@@ -39,7 +39,7 @@ docker-compose -f docker-compose-base.yml up -d peer ca couchdb cli # use $HOME/
 
 # Wait the proper initialization of the containers
 echo "Waiting the proper initialization of the containers"
-sleep 12    #increase in case of errors
+sleep 10    #increase in case of errors
 
 # Do not forget to pull the repository to get the genesis block. You only need to do this once
 
