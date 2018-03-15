@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export AS=1
-export ORDERER_IP="143.54.12.173" # set the proper IP
+export ORDERER_IP=$1
 export COMPOSE_PROJECT_NAME="net"
 
 # Get list of experiments
