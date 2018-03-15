@@ -34,7 +34,7 @@ docker-compose -f docker-compose-base.yml down # use $HOME/.local/bin/docker-com
 
 # Start Docker Containers
 echo "Staring docker containers"
-docker-compose -f docker-compose-base.yml up -d peer ca couchdb cli # use $HOME/.local/bin/docker-compose in case of errors
+docker-compose -f docker-compose-base.yml up -d peer0.org2.example.com ca.org2.example.com couchdb-2 # use $HOME/.local/bin/docker-compose in case of errors
 
 # Wait the proper initialization of the containers
 echo "Waiting the proper initialization of the containers"
