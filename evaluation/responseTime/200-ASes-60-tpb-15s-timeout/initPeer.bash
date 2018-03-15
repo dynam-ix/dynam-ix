@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # Environment variables
-export DYNAMIX_DIR=$HOME/dynam-ix 
 export AS=$1               #1234
 export SERVICE=$2          #"Transit Provider"
 export INTENT_FILE=$3      #/path/to/intent/file
@@ -12,16 +11,10 @@ export INTERVAL=$7
 
 export USER="org${AS}"
 export COMPOSE_PROJECT_NAME="net"
-
-export EXPERIMENT_DIR=${DYNAMIX_DIR}/experiments/200-experiment-60
+export EXPERIMENT_DIR=${DYNAMIX_DIR}/evaluation/responseTime/200-ASes-60-tpb-15s-timeout
 
 # Exit in case of errors
-#set -ev
-
-# Make sure to have the block to join the channel
-#echo "Downloading latest files"
-#git config --global credential.helper 'cache --timeout 3600'
-#git pull
+set -e
 
 # Get IP address
 export ADDRESS=$(ifconfig eth0 | grep "inet addr" | cut -d ':' -f 2 | cut -d ' ' -f 1):7052 # You may need to change the network interface (eth0)
@@ -40,13 +33,15 @@ echo "Cleaning docker environment"
 docker rm -f $(docker ps -aq)
 docker rmi $(docker images dev-* -q)
 docker network prune -f
-$HOME/.local/bin/docker-compose -f $EXPERIMENT_DIR/docker-compose-base.yml down
+docker-compose -f $EXPERIMENT_DIR/docker-compose-base.yml down
 
 # Start Docker Containers
 echo "Staring docker containers"
-$HOME/.local/bin/docker-compose -f $EXPERIMENT_DIR/docker-compose-base.yml up -d peer ca couchdb cli
+docker-compose -f $EXPERIMENT_DIR/docker-compose-base.yml up -d peer ca couchdb cli
 
-sleep 35    #increase in case of errors
+# Wait the proper initialization of the containers
+echo "Waiting the proper initialization of the containers"
+sleep 10    #increase in case of errors
 
 # Join channel
 echo "Joining channel"
@@ -58,7 +53,7 @@ docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/o
 
 # Dynam-IX
 echo "Entering Dynam-IX directory"
-cd $DYNAMIX_DIR/app
+cd $DYNAMIX_DIR/src
 
 # Install node depencies
 echo "Installing dependencies"
@@ -66,15 +61,15 @@ npm install
 
 # Remove previous keys
 echo "Cleaning previous keys"
-rm -rf hfc-key-store/
+rm -rf js/hfc-key-store/
 
 # Enroll admin user
 echo "Creating admin"
-node enrollAdmin.js Org${AS}MSP
+node js/enrollAdmin.js Org${AS}MSP
 
 # Register regular user
 echo "Registering user"
-node registerUser.js org${AS} Org${AS}MSP
+node js/registerUser.js org${AS} Org${AS}MSP
 
 # Run Dynam-IX
 echo "Starting Dynam-IX with $AS, $ADDRESS, $SERVICE, $INTENT_FILE, $USER, $ORDERER_IP, $MODE, $REQUESTS, $INTERVAL"

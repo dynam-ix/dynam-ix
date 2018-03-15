@@ -1,10 +1,7 @@
 #!/bin/sh
 
 # Environment variables
-export DYNAMIX_DIR=$HOME/dynam-ix 
 export COMPOSE_PROJECT_NAME="net"
-
-
 
 # Cleaning any previous experiment
 echo "Cleaning docker environment"
