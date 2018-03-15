@@ -111,7 +111,7 @@ services:
     command: /bin/bash
     volumes:
         - /var/run/:/host/var/run/
-        - ./../../src/chaincode/:/opt/gopath/src/github.com/    # Update if move chaincode to a different path
+        - ./../../../src/chaincode/:/opt/gopath/src/github.com/    # Update if move chaincode to a different path
         - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
         - ./config:/opt/gopath/src/github.com/hyperledger/fabric/peer/
     networks:

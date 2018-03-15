@@ -12,7 +12,7 @@ export USER="org${AS}"
 export COMPOSE_PROJECT_NAME="net"
 
 # Exit in case of errors
-set -e
+#set -e
 
 # Erase previous CA-Server DB
 sudo rm ca-server-config/fabric-ca-server.db
