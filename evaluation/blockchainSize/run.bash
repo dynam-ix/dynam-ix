@@ -5,12 +5,12 @@ export ORDERER_IP=$1
 export COMPOSE_PROJECT_NAME="net"
 
 # Get list of experiments
-dirs=($(ls))
+DIRS=($(ls))
 
-for DIR in "${dirs[@]}"; do
+for DIR in "${DIRS[@]}"; do
     test -d $DIR || continue
     TIMEOUT=($(echo $DIR | cut -d - -f 5))
-    echo $DIR $TIMEOUT
+    echo "Starting experiment $DIR"
     # Cleaning any previous experiment
     echo "Cleaning docker environment"
     docker rm -f $(docker ps -aq)
