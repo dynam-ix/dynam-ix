@@ -21,11 +21,11 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
     # Update the repository
     #rsh -i "${KEY_PATH}" ubuntu@${line} "cd dynam-ix ; git pull" &
     # Remove logs from previous experiments
-    #rsh -i "${KEY_PATH}" ubuntu@${line} "cd dynam-ix/app ; rm  *.log" &
+    #rsh -i "${KEY_PATH}" ubuntu@${line} "cd dynam-ix/src ; rm  *.log" &
     # Start Dynam-IX
     rsh -i "${KEY_PATH}" ubuntu@${line} "cd dynam-ix/evaluation/responseTime/200-ASes-60-tpb-15s-timeout ; ./initPeer.bash ${AS} Transit intents.json ${ORDERER_IP} autonomous ${REQUESTS} ${SLEEP}" &
     # Copy the execution logs
-    #scp -i "${KEY_PATH}" ubuntu@${line}:/home/ubuntu/dynam-ix/app/AS*.log .
+    #scp -i "${KEY_PATH}" ubuntu@${line}:/home/ubuntu/dynam-ix/src/AS*.log .
 
     AS=$((AS+1))
 
