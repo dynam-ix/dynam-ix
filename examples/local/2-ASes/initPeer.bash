@@ -18,23 +18,24 @@ set -e
 export ADDRESS=$(ifconfig eth0 | grep "inet addr" | cut -d ':' -f 2 | cut -d ' ' -f 1):7052 # You may need to change the network interface (eth0)
 
 # Erase previous CA-Server DB
-sudo rm ca-server-config/fabric-ca-server.db
+#sudo rm ca-server-config/fabric-ca-server.db
 
 # Getting KEYFILE
 echo "Getting KEYFILE"
 cd crypto-config/peerOrganizations/org${AS}.example.com/ca/
 export KEYFILE=$(ls *_sk) 
+cd ../../../../
 
 # Cleaning any previous experiment
-echo "Cleaning docker environment"
-docker rm -f $(docker ps -aq)
-docker rmi $(docker images dev-* -q)
-docker network prune -f
-docker-compose -f docker-compose-base.yml down # use $HOME/.local/bin/docker-compose in case of errors
+#echo "Cleaning docker environment"
+#docker rm -f $(docker ps -aq)
+#docker rmi $(docker images dev-* -q)
+#docker network prune -f
+#docker-compose -f docker-compose-base.yml down # use $HOME/.local/bin/docker-compose in case of errors
 
 # Start Docker Containers
 echo "Staring docker containers"
-docker-compose -f docker-compose-base.yml up -d peer0.org2.example.com ca.org2.example.com couchdb-2 # use $HOME/.local/bin/docker-compose in case of errors
+docker-compose -f docker-compose-base.yml up -d peer0.org2.example.com ca.org2.example.com couchdb-2 cli-2 # use $HOME/.local/bin/docker-compose in case of errors
 
 # Wait the proper initialization of the containers
 echo "Waiting the proper initialization of the containers"
@@ -48,28 +49,28 @@ docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/e
 
 # Install chaincode
 echo "Installing chaincode"
-docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org${AS}.example.com/users/Admin@org${AS}.example.com/msp" cli peer chaincode install -n dynamix -v 1.0 -p github.com/
+docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org${AS}.example.com/users/Admin@org${AS}.example.com/msp" cli-2 peer chaincode install -n dynamix -v 1.0 -p github.com/
 
 # Dynam-IX
 echo "Entering Dynam-IX directory"
 cd $DYNAMIX_DIR/src
 
 # Install node depencies
-echo "Installing dependencies"
-npm install
+#echo "Installing dependencies"
+#npm install
 
 # Remove previous keys
-echo "Cleaning previous keys"
-rm -rf js/hfc-key-store/
+#echo "Cleaning previous keys"
+#rm -rf js/hfc-key-store/
 
 # Enroll admin user
-echo "Creating admin"
-node js/enrollAdmin.js Org${AS}MSP
+#echo "Creating admin"
+#node js/enrollAdmin.js Org${AS}MSP
 
 # Register regular user
-echo "Registering user"
-node js/registerUser.js org${AS} Org${AS}MSP
+#echo "Registering user"
+#node js/registerUser.js org${AS} Org${AS}MSP
 
 # Run Dynam-IX
-echo "Starting Dynam-IX with $AS, $ADDRESS, $SERVICE, $INTENT_FILE, $USER, $ORDERER_IP, $MODE, $REQUESTS, $INTERVAL"
-python dynamix.py AS${AS} $ADDRESS $SERVICE $INTENT_FILE $USER $ORDERER_IP $MODE $REQUESTS $INTERVAL
+#echo "Starting Dynam-IX with $AS, $ADDRESS, $SERVICE, $INTENT_FILE, $USER, $ORDERER_IP, $MODE, $REQUESTS, $INTERVAL"
+#python dynamix.py AS${AS} $ADDRESS $SERVICE $INTENT_FILE $USER $ORDERER_IP $MODE $REQUESTS $INTERVAL

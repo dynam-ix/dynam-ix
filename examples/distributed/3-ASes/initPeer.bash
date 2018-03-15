@@ -25,6 +25,7 @@ sudo rm ca-server-config/fabric-ca-server.db
 echo "Getting KEYFILE"
 cd crypto-config/peerOrganizations/org${AS}.example.com/ca/
 export KEYFILE=$(ls *_sk) 
+cd ../../../../
 
 # Cleaning any previous experiment
 echo "Cleaning docker environment"
