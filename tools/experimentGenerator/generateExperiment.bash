@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Environment variables
-DYNAMIX_DIR=$HOME/dynam-ix-beta
 NUM_ORGS=$1
 EXPERIMENT=${NUM_ORGS}-ASes
 

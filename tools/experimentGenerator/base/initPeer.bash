@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # Environment variables
-export DYNAMIX_DIR=$HOME/dynam-ix-beta 
 export AS=$1               #1234
 export SERVICE=$2          #"Transit Provider"
 export INTENT_FILE=$3      #/path/to/intent/file

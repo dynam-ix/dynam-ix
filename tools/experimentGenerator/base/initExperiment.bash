@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # Environment variables
-export DYNAMIX_DIR=$HOME/dynam-ix-beta
 export AS=$1               #1234
 export ADDRESS=$2          #10.0.0.1:5000
 export SERVICE=$3          #"Transit Provider"

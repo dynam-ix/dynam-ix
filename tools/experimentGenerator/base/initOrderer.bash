@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # Environment variables
-export DYNAMIX_DIR=$HOME/dynam-ix-beta
 export COMPOSE_PROJECT_NAME="net"
 
 # Exit in case of errors
