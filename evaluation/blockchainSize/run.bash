@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export AS=1
-export ORDERER_IP="127.0.0.1" # set the proper IP
+export ORDERER_IP="143.54.12.173" # set the proper IP
 export COMPOSE_PROJECT_NAME="net"
 
 # Cleaning any previous experiment
@@ -12,13 +12,11 @@ docker network prune -f
 docker-compose -f 1-AS-1-tpb-1s-timeout/docker-compose-base.yml down
 # Start Docker Containers
 echo "Staring docker containers"
-docker-compose -f 1-AS-1-tpb-1s-timeout/docker-compose-base.yml up -d peer ca couchdb cli orderer
+docker-compose -f 1-AS-1-tpb-1s-timeout/docker-compose-base.yml up -d peer couchdb cli orderer
 
 # Create channel
 echo "Creating channel"
 docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/users/Admin@org${AS}.example.com/msp" peer0.org${AS}.example.com peer channel create -o orderer.example.com:7050 -c mychannel -f /etc/hyperledger/configtx/channel.tx
-echo "Copying block"
-docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/users/Admin@org${AS}.example.com/msp" peer0.org${AS}.example.com cp mychannel.block /etc/hyperledger/configtx/
 sleep 10
 # Join channel
 echo "Joining channel"
