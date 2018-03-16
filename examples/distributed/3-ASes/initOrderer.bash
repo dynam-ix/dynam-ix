@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Environment variables
 export DYNAMIX_DIR=$HOME/dynam-ix-beta

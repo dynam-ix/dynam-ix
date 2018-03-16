@@ -1,7 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
 # Environment variables
-export DYNAMIX_DIR=$HOME/dynam-ix-beta
 export AS=$1               #1234
 export ADDRESS=$2          #10.0.0.1:5000
 export SERVICE=$3          #"Transit Provider"
@@ -38,12 +37,8 @@ docker-compose -f docker-compose-base.yml up -d peer ca couchdb cli orderer
 echo "Creating channel"
 docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/users/Admin@org${AS}.example.com/msp" peer0.org${AS}.example.com peer channel create -o orderer.example.com:7050 -c mychannel -f /etc/hyperledger/configtx/channel.tx
 
-# Copy genesis block to shared area
-echo "Copying block"
-docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/users/Admin@org${AS}.example.com/msp" peer0.org${AS}.example.com cp mychannel.block /etc/hyperledger/configtx/
-
-# Do not forget to push the genesis block to the repository. You only need to do this on the first time
-
+# Wait the proper initialization of the containers
+echo "Waiting the proper initialization of the containers"
 sleep 10
 
 # Join channel
@@ -63,7 +58,7 @@ docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/o
 
 # Dynam-IX
 echo "Entering Dynam-IX directory"
-cd $DYNAMIX_DIR/src
+cd ../../../src
 
 # Install node depencies
 echo "Installing dependencies"

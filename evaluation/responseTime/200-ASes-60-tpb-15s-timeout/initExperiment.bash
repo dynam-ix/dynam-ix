@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Environment variables
 export AS=$1               #1234
@@ -37,9 +37,6 @@ docker-compose -f docker-compose-base.yml up -d peer ca couchdb cli orderer
 echo "Creating channel"
 docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/users/Admin@org${AS}.example.com/msp" peer0.org${AS}.example.com peer channel create -o orderer.example.com:7050 -c mychannel -f /etc/hyperledger/configtx/channel.tx
 
-#echo "Copying block"
-#docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/users/Admin@org${AS}.example.com/msp" peer0.org${AS}.example.com cp mychannel.block /etc/hyperledger/configtx/
-
 # Wait the proper initialization of the containers
 echo "Waiting the proper initialization of the containers"
 sleep 10
@@ -55,13 +52,13 @@ docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/o
 echo "Instantiating chaincode"
 docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org${AS}.example.com/users/Admin@org${AS}.example.com/msp" cli peer chaincode instantiate -o orderer.example.com:7050 -C mychannel -n dynamix -v 1.0 -c '{"Args":[""]}'
 # Init (Invoke) chaincode
-sleep 30
+sleep 60
 echo "Invoking chaincode"
 docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org${AS}.example.com/users/Admin@org${AS}.example.com/msp" cli peer chaincode invoke -o orderer.example.com:7050 -C mychannel -n dynamix -c '{"function":"initLedger","Args":[""]}'
 
 # Dynam-IX
 echo "Entering Dynam-IX directory"
-cd $DYNAMIX_DIR/src
+cd ../../../src/
 
 # Install node depencies
 echo "Installing dependencies"

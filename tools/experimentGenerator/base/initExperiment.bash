@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Environment variables
 export AS=$1               #1234
@@ -62,7 +62,7 @@ docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/o
 
 # Dynam-IX
 echo "Entering Dynam-IX directory"
-cd $DYNAMIX_DIR/src
+cd ../../src
 
 # Install node depencies
 echo "Installing dependencies"

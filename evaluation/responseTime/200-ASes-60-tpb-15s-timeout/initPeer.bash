@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Environment variables
 export AS=$1               #1234
@@ -11,7 +11,7 @@ export INTERVAL=$7
 
 export USER="org${AS}"
 export COMPOSE_PROJECT_NAME="net"
-export EXPERIMENT_DIR=${DYNAMIX_DIR}/evaluation/responseTime/200-ASes-60-tpb-15s-timeout
+export EXPERIMENT_DIR=200-ASes-60-tpb-15s-timeout
 
 # Exit in case of errors
 set -e
@@ -53,7 +53,7 @@ docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/o
 
 # Dynam-IX
 echo "Entering Dynam-IX directory"
-cd $DYNAMIX_DIR/src
+cd ../../../src
 
 # Install node depencies
 echo "Installing dependencies"

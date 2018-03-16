@@ -1,7 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
 # Environment variables
-export DYNAMIX_DIR=$HOME/dynam-ix-beta 
 export AS=$1               #1234
 export SERVICE=$2          #"Transit Provider"
 export INTENT_FILE=$3      #/path/to/intent/file
@@ -54,7 +53,7 @@ docker exec -e "CORE_PEER_LOCALMSPID=Org${AS}MSP" -e "CORE_PEER_MSPCONFIGPATH=/o
 
 # Dynam-IX
 echo "Entering Dynam-IX directory"
-cd $DYNAMIX_DIR/src
+cd ../../../src
 
 # Install node depencies
 echo "Installing dependencies"

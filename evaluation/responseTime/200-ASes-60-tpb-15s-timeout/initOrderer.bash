@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Environment variables
 export COMPOSE_PROJECT_NAME="net"
