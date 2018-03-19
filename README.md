@@ -1,28 +1,20 @@
 # Dynam-IX - Dynamic Interconnection eXchange
 
-Code organization
-----------------
-    |-- examples/
-    | \---- local/
-    | |   
-    | \---- distributed/
-    |
-    |-- scripts/
-    | \---- dataAnalysis/
-
-
 Software version
 ---------------
-Ubuntu 16.04 LTS <br/>
-Python 2.7.12 <br/>
-Pip 8.1.1 <br/>
-Curl 7.47 <br/>
-Npm 5.5.1 <br/>
-Node JS 8.9.3 <br/>
-Docker 17.06.0 <br/>
-Go language 1.7.1 <br/>
-Docker-compose 1.8 <br/>
-Pycrypto 2.6.1 <br/>
+Dynam-IX was tested and evaluated using the following software:
+
+* Ubuntu 16.04 LTS <br/>
+* Hyperledger Fabric 1.0.5 <br/>
+* Docker 17.06.0 <br/>
+* Docker-compose 1.8 <br/>
+* Go language 1.7.1 <br/>
+* Python 2.7.12 <br/>
+* Pip 8.1.1 <br/>
+* Pycrypto 2.6.1 <br/>
+* Curl 7.47 <br/>
+* Node JS 8.9.3 <br/>
+* Npm 5.5.1 <br/>
 
 Preparing your system
 --------------
@@ -45,9 +37,10 @@ Preparing your system
 `wget https://download.docker.com/linux/ubuntu/dists/xenial/pool/stable/amd64/docker-ce_17.06.0~ce-0~ubuntu_amd64.deb`<br/>
 `sudo dpkg -i docker-ce_17.06.0~ce-0~ubuntu_amd64.deb`<br/>
 
-**Set Docker permissions**<br/>
+**Set Docker permissions***<br/>
 `sudo groupadd docker`<br/>
 `sudo usermod -aG docker $USER`<br/>
+<small> *You might need to restart the system to effectively load the new permissions </small>
 
 **Install NodeJS**<br/>
 `curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -`<br/>
@@ -58,9 +51,34 @@ Preparing your system
 
 Running the examples
 --------------
-
-
+Check the README.md file located in the examples/ folder.
 
 Creating an experiment
 --------------
+Check the README.md file located in the tools/experimentGenerator/ folder.
 
+Reproducing our results
+--------------
+Check the README.md file located in the evaluation/ folder.
+
+Repository organization
+----------------
+    |-- evaluation/
+    | \---- blockchainSize/
+    | |   
+    | \---- responseTime/
+    |
+    |-- examples/
+    | \---- distributed/
+    | |   
+    | \---- local/
+    | |   
+    |-- src/
+    | \---- chaincode/
+    | |   
+    | \---- js/
+    |
+    |-- tools/
+    | \---- dataAnalysis/
+    | |   
+    | \---- experimentGenerator/
