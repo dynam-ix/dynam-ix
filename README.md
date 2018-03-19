@@ -2,7 +2,7 @@
 
 Repository organization
 ---------------
- `evalution/` contains the configure files and the scripts to reproduce our paper results. <br/>
+ `evaluation/` contains the configuration files and the scripts to reproduce our paper results. <br/>
  `examples/` contains examples showing how to run Dynam-IX locally or in a distributed way. <br/>
  `src/` contains Dynam-IX source code. <br/>
  `tools/` contains tools to create new experiments and to analyze their results. <br/>
