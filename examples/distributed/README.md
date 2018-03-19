@@ -4,7 +4,7 @@ This examples consists of a scenario with 3 ASes running in different hosts. In 
 
 **AS 1 (will also run the ordering system)**
 
-`cd distributed/3-ASes-joint-orderer/` <br/>
+`cd 3-ASes-joint-orderer/` <br/>
 `bash initExperiment.bash ASN IP:PORT SERVICE_DESCRIPTION INTENT_FILE ORDERER_IP MODE`, where: <br/>
 
 * ASN: contains the Autonomous System Number (in this case, 1)
@@ -16,7 +16,7 @@ This examples consists of a scenario with 3 ASes running in different hosts. In 
 
 **ASes 2 and 3**
 
-`cd distributed/3-ASes-joint-orderer/` <br/>
+`cd 3-ASes-joint-orderer/` <br/>
 `bash initPeer.bash ASN SERVICE_DESCRIPTION INTENT_FILE ORDERER_IP MODE`<br/>
 
 Orderer running in a separeted host
@@ -26,8 +26,8 @@ This examples consists of a scenario with 3 ASes, running in different hosts and
 
 **Ordering system host**
 
-`cd distributed/3-ASes-independent-orderer/` <br/>
-`bash initOrderer.bash <br/>
+`cd 3-ASes-independent-orderer/` <br/>
+`bash initOrderer.bash` <br/>
 
 **AS 1**
 
@@ -43,5 +43,5 @@ This examples consists of a scenario with 3 ASes, running in different hosts and
 
 **ASes 2 and 3**
 
-`cd distributed/3-ASes-independent-orderer/` <br/>
+`cd 3-ASes-independent-orderer/` <br/>
 `bash initPeer.bash ASN SERVICE_DESCRIPTION INTENT_FILE ORDERER_IP MODE`<br/>
