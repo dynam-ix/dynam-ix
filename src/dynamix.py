@@ -95,15 +95,32 @@ def cli():
                 autonomous()
             elif "updateIntents" in action:
                 intents = json.load(open(action.split(" ")[1]))
+            elif "help" in action:
+                help()
             elif "quit" in action:
                 print "Quiting Dynam-IX"
                 logs.close()
                 os._exit(1)
             else:
-                print "Invalid command\n"
+                print "Invalid command. Type \'help\' to list the available commands.\n"
 
     return
 
+def help():
+    print("List of Dynam-IX commands")
+    print("listASes - lists the ASes connected to the Dynam-IX blockchain")
+    print("listAgreements - lists the interconnection agreements registered on Dynam-IX")
+    print("query ASx PREFIX - sends a query to ASx for an interconnection agreement to reach prefix")
+    print("\t\t example: query AS2 8.8.8.0/24")
+    print("propose PROPOSAL_ID - sends an interconnection proposal request to the AS that offered the PROPOSAL_ID")
+    print("\t\t example: propose AS2-AS1-123414121251")
+    print("listOffersRecvd - lists the offeres that were received")
+    print("listOffersSent - lists the offers that were sent")
+    print("updateIntents PATH/TO/FILE - loads a new intent file")
+    print("\t\t example: updateIntents newIntents.json")
+    print("executeAgreements - updates the reputation of the ASes connected to me")  
+    print("myAgreements - lists my interconnection agreements")      
+    print("quit - quits Dynam-IX")
 
 def autonomous():
 
