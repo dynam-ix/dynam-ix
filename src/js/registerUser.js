@@ -56,7 +56,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 
     // at this point we should have the admin user
     // first need to register the user with the CA server
-    return fabric_ca_client.register({enrollmentID: process.argv[2], affiliation: process.argv[2]}, admin_user);     //get org
+    return fabric_ca_client.register({enrollmentID: process.argv[2], affiliation: process.argv[2], role: 'client'}, admin_user);     //get org
 }).then((secret) => {
     // next we need to enroll the user with CA server
     console.log('Successfully registered user - secret:'+ secret); //Update username
