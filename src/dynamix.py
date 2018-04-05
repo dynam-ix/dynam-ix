@@ -14,6 +14,9 @@ from Crypto.Cipher import AES
 import base64
 import time
 
+import ipaddress
+
+
 #===================================================#
 #                   Global config                   #
 #===================================================#
@@ -52,7 +55,7 @@ def cli():
             if "registerAS" in action: # registerAS 'ASN' 'address' 'service' 'custRep' 'provRep' 'pubKey'
                 x = subprocess.check_output('node js/register.js '+action+' '+myUser+' '+ordererIP, shell=True)
                 print x
-            elif "listASes" in action:  # listASes 
+            elif "listASes" in action:  # listASes
                 x = subprocess.check_output('node js/list.js'+' '+myUser, shell=True)
                 print x
             elif "findService" in action: # findService service         # TODO fix this function when string has space
@@ -118,15 +121,15 @@ def help():
     print("listOffersSent - lists the offers that were sent")
     print("updateIntents PATH/TO/FILE - loads a new intent file")
     print("\t\t example: updateIntents newIntents.json")
-    print("executeAgreements - updates the reputation of the ASes connected to me")  
-    print("myAgreements - lists my interconnection agreements")      
+    print("executeAgreements - updates the reputation of the ASes connected to me")
+    print("myAgreements - lists my interconnection agreements")
     print("quit - quits Dynam-IX")
 
 def autonomous():
 
     print "Entering autonomous mode!"
     time.sleep(90)  # Be sure to wait the necessary time to start
-    
+
     AS = "AS1"
     num = int(sys.argv[8])
     sleepTime = int(sys.argv[9])
@@ -172,9 +175,9 @@ def processMessages():
     messageThreads = []
 
     # Open socket to accept connections
-    serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+    serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     serversocket.bind((myIP, int(myPort)))
-    serversocket.listen(256) # NOTE We may need to increase the number simultaneous requests 
+    serversocket.listen(256) # NOTE We may need to increase the number simultaneous requests
 
     while True:
         connection, address = serversocket.accept()
@@ -277,7 +280,7 @@ def sendQuery(action):
     # logging
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
-    # Send the query to the provider   
+    # Send the query to the provider
     sendMessage(msg, IP, port)
 
     # logging
@@ -326,7 +329,7 @@ def getPubKey(ASN):
 
     return S.split("\"")[1]
 
-# Receive a query from a customer, decide if it is going to answer, and compose and agreement offer 
+# Receive a query from a customer, decide if it is going to answer, and compose and agreement offer
 def sendOffer(query):
     # queryFormat = query;customerASN;properties
     print "Received : "+query
@@ -385,20 +388,31 @@ def composeOffer(query, customer, ID):
     else:
         return properties
 
-
 def checkIntents(query):
 
-    customerIntent = query # TODO improve
-
-    #print "customer intent "+customerIntent
-
     i = 1
+
+    customerIntent = query # TODO improve
+    customerAddress,barraCustomer = customerIntent.split("/")
+
+    #turns a string into ipv4address
+    customerAddress = ipaddress.ip_address(unicode(customerAddress))
+
     # iterate over provider's intents
     while "intent-"+str(i) in intents:
-        #print i, str(intents["intent-"+str(i)]["routing"]["reachability"])
-        if str(intents["intent-"+str(i)]["routing"]["reachability"]) == customerIntent:
-            offer = fillOffer(i)
-            return offer
+
+        fileIntent = str(intents["intent-"+str(i)]["routing"]["reachability"])
+        fileAddress,barraIntent = fileIntent.split("/")
+
+        #turns a string into ipv4network
+        fileIntent = ipaddress.ip_network(unicode(fileIntent))
+
+        # if str(intents["intent-"+str(i)]["routing"]["reachability"]) == customerIntent:
+        if barraCustomer >= barraIntent:
+            if customerAddress in fileIntent:
+                offer = fillOffer(i)
+                return offer
+
         i = i + 1
 
     # return -1 if the provider cannot offer an agreement with the desired propertiess
@@ -426,7 +440,7 @@ def fillOffer(i):
 
 # Receive an offer and store it on the appropriate dictionary
 def collectOffer(offer):
-    
+
     ID = offer.split(";")[1]
     properties = offer.split(";")[2]
 
@@ -472,7 +486,7 @@ def sendProposal(action):
     provider = offerID.split("-")[1]
 
     # If the offer is still valid, send interconnection proposal to the provider
-    if checkValidity(offerID) == 1:     
+    if checkValidity(offerID) == 1:
         # Get provider's address
         address = ""
         while ":" not in address:
@@ -589,14 +603,14 @@ def signContract(contract):
 
 def publishAgreement(info):
 
-    # Get the parameters that will be registered on the ledger 
+    # Get the parameters that will be registered on the ledger
     contractHash = info.split(";")[2]
     customer = info.split(";")[3]
     provider = myASN
     providerSignature = info.split(";")[5]
     customerSignature = info.split(";")[6]
 
-    key = "IA-"+contractHash 
+    key = "IA-"+contractHash
 
     # Register the agreement on the ledger
     x = subprocess.check_output('node js/publish.js registerAgreement \''+key+'\' \''+contractHash+'\' \''+customer+'\' \''+provider+'\' \''+customerSignature+'\' \''+providerSignature+'\''+' '+myUser+' '+ordererIP, shell=True)
@@ -641,7 +655,7 @@ def executeAgreements():
 
         del agreementsCust[agmnt]
 
-    return 
+    return
 
 def myAgreements():
 
@@ -662,7 +676,7 @@ if __name__ == "__main__":
 
     # Generate public and private keys
     basePhrase = myASN+myASN+"Dynam-IX"
-    myPubKey = hashlib.md5(basePhrase.encode()).hexdigest() 
+    myPubKey = hashlib.md5(basePhrase.encode()).hexdigest()
     myPrivKey = myPubKey
 
     # Read intent file
