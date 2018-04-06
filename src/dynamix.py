@@ -114,7 +114,7 @@ def help():
     print("listASes - lists the ASes connected to the Dynam-IX blockchain")
     print("listAgreements - lists the interconnection agreements registered on Dynam-IX")
     print("query ASx PREFIX - sends a query to ASx for an interconnection agreement to reach prefix")
-    print("\t\t example: query AS2 8.8.8.0/24")
+    print("\t\t example: query(AS2, 8.8.8.0/24, sla.latency == 10 && sla.repair == 0.1)")
     print("propose PROPOSAL_ID - sends an interconnection proposal request to the AS that offered the PROPOSAL_ID")
     print("\t\t example: propose AS2-AS1-123414121251")
     print("listOffersRecvd - lists the offeres that were received")
@@ -255,8 +255,11 @@ def sendMessage(msg, ip, port):
 # Receives a query action and send it to a potential provider
 def sendQuery(action):
 
+    #query(AS2, 8.8.8.0/24, sla.latency == 10)
     # Get provider's ASN
-    provider = action.split(" ")[1]
+    provider = action.split(",")[0]
+    provider = provider[6:]
+
     # Query the ledger to get the provider's address
     address = ""
     while ":" not in address:
@@ -264,8 +267,14 @@ def sendQuery(action):
     # Split the address into IP and port
     IP = address.split(":")[0]
     port = int(address.split(":")[1])
+
     # Get the query
-    query = action.split(" ")[2]
+    properties = action.split(",")[2]
+    properties = properties[1:-1]
+    intent = action.split(",")[1]
+    intent = intent[1:]
+    query = intent + " " + properties
+
     # Query the ledger to get the provider's public key
     pubkey = getPubKey(provider)
 
@@ -392,8 +401,10 @@ def checkIntents(query):
 
     i = 1
 
-    customerIntent = query # TODO improve
-    customerAddress,barraCustomer = customerIntent.split("/")
+    customerIntent = query.split(" ")[0]
+    customerProperties = query[len(customerIntent)+1:]
+
+    customerAddress,subnetCustomer = customerIntent.split("/")
 
     #turns a string into ipv4address
     customerAddress = ipaddress.ip_address(unicode(customerAddress))
@@ -402,21 +413,65 @@ def checkIntents(query):
     while "intent-"+str(i) in intents:
 
         fileIntent = str(intents["intent-"+str(i)]["routing"]["reachability"])
-        fileAddress,barraIntent = fileIntent.split("/")
+        fileAddress,subnetIntent = fileIntent.split("/")
 
         #turns a string into ipv4network
         fileIntent = ipaddress.ip_network(unicode(fileIntent))
 
         # if str(intents["intent-"+str(i)]["routing"]["reachability"]) == customerIntent:
-        if barraCustomer >= barraIntent:
+        if subnetCustomer >= subnetIntent:
             if customerAddress in fileIntent:
-                offer = fillOffer(i)
-                return offer
+                if checkproperties(customerProperties,i) == 1:
+                    offer = fillOffer(i)
+                    return offer
 
         i = i + 1
 
     # return -1 if the provider cannot offer an agreement with the desired propertiess
     return -1
+
+def checkproperties(customerProperties,i):
+
+    j = i
+    k = 0
+
+    try:
+        properties = customerProperties.split("&& ")
+    except ValueError:
+        properties = customerProperties
+
+    while k < len(properties):
+
+        testProp = properties[k]
+
+        #TODO assuming the same command line as shown in help: query(AS2, 8.8.8.0/24, sla.latency == 10)
+        prop = testProp.split(" ")[0]
+        value = testProp.split(" ")[2]
+
+        if prop == "sla.bwidth" and float(value) > float(intents["intent-"+str(i)]["sla"]["bandwidth"]):
+            return -1
+        elif prop == "sla.latency" and float(value) < float(intents["intent-"+str(i)]["sla"]["latency"]):
+            return -1
+        elif prop == "sla.pkt_loss" and float(value) < float(intents["intent-"+str(i)]["sla"]["loss"]):
+            return -1
+        elif prop == "sla.jitter" and float(value) < float(intents["intent-"+str(i)]["sla"]["jitter"]):
+            return -1
+        elif prop == "sla.repair" and float(value) < float(intents["intent-"+str(i)]["sla"]["repair"]):
+            return -1
+        elif prop == "sla.guarantee" and float(value) > float(intents["intent-"+str(i)]["sla"]["guarantee"]):
+            return -1
+        elif testProp == "sla.availability" and float(value) > float(intents["intent-"+str(i)]["sla"]["availability"]):
+            return -1
+        elif prop == "pricing.egress" and float(value) < float(intents["intent-"+str(i)]["pricing"]["egress"]):
+            return -1
+        elif prop == "pricing.ingress" and float(value) < float(intents["intent-"+str(i)]["pricing"]["ingress"]):
+            return -1
+        elif prop == "pricing.billing" and str(value) != str(intents["intent-"+str(i)]["pricing"]["billing"]):
+            return -1
+        else:
+            k = k+1
+
+    return 1
 
 def fillOffer(i):
 

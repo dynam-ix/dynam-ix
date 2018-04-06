@@ -1,14 +1,16 @@
-{ 
+{
     "intent-1": {
         "routing": {
-            "reachability": "8.8.8.0/24",
+            "reachability": "8.8.0.0/16",
             "aspath": "ASN1234-ASN5678-ASN9999"
         },
         "sla": {
             "bandwidth": "10000",
             "latency": "15",
+            "jitter":" 10",
             "loss": "0.3",
             "repair": "180",
+            "availability": "90.9",
             "guarantee": "99.99"
         },
         "pricing": {
@@ -28,8 +30,10 @@
         "sla": {
             "bandwidth": "1000",
             "latency": "11",
+            "jitter":" 10",
             "loss": "0.02",
             "repair": "180",
+            "availability": "90.9",
             "guarantee": "99.99"
         },
         "pricing": {
