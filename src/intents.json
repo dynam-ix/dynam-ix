@@ -1,7 +1,6 @@
 {
-    "intent-1": {
+    "8.8.0.0/16": {
         "routing": {
-            "reachability": "8.8.0.0/16",
             "aspath": "ASN1234-ASN5678-ASN9999"
         },
         "sla": {
@@ -22,9 +21,8 @@
             "unit": "1"
         }
     },
-    "intent-2": {
+    "4.4.0.0/16": {
         "routing": {
-            "reachability": "4.4.0.0/16",
             "aspath": "ASN5678-ASN1234"
         },
         "sla": {

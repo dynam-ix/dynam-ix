@@ -13,9 +13,7 @@ import hashlib
 from Crypto.Cipher import AES
 import base64
 import time
-
 import ipaddress
-
 
 #===================================================#
 #                   Global config                   #
@@ -45,7 +43,6 @@ logs = open(myASN+".log", "w")
 #===================================================#
 #                     Functions                     #
 #===================================================#
-
 # Command line interface. Reads an instructions and call the appropriate function.
 def cli():
 
@@ -113,8 +110,8 @@ def help():
     print("List of Dynam-IX commands")
     print("listASes - lists the ASes connected to the Dynam-IX blockchain")
     print("listAgreements - lists the interconnection agreements registered on Dynam-IX")
-    print("query ASx PREFIX - sends a query to ASx for an interconnection agreement to reach prefix")
-    print("\t\t example: query(AS2, 8.8.8.0/24, sla.latency == 10 && sla.repair == 0.1)")
+    print("query(ASx, TARGET, PROPERTIES) - sends a query to ASx for an interconnection agreement to reach prefix")
+    print("\t\t example: query(AS2, 8.8.8.0/24, sla.latency == 10 && sla.repair < 0.1)")
     print("propose PROPOSAL_ID - sends an interconnection proposal request to the AS that offered the PROPOSAL_ID")
     print("\t\t example: propose AS2-AS1-123414121251")
     print("listOffersRecvd - lists the offeres that were received")
@@ -255,7 +252,7 @@ def sendMessage(msg, ip, port):
 # Receives a query action and send it to a potential provider
 def sendQuery(action):
 
-    #query(AS2, 8.8.8.0/24, sla.latency == 10)
+    #query(AS2, 8.8.8.0/24, sla.latency == 10 && sla.repair < 0.5)
     # Get provider's ASN
     provider = action.split(",")[0]
     provider = provider[6:]
@@ -264,6 +261,7 @@ def sendQuery(action):
     address = ""
     while ":" not in address:
         address = getAddress(provider)
+
     # Split the address into IP and port
     IP = address.split(":")[0]
     port = int(address.split(":")[1])
@@ -399,7 +397,7 @@ def composeOffer(query, customer, ID):
 
 def checkIntents(query):
 
-    i = 1
+    i = 0
 
     customerIntent = query.split(" ")[0]
     customerProperties = query[len(customerIntent)+1:]
@@ -410,15 +408,13 @@ def checkIntents(query):
     customerAddress = ipaddress.ip_address(unicode(customerAddress))
 
     # iterate over provider's intents
-    while "intent-"+str(i) in intents:
-
-        fileIntent = str(intents["intent-"+str(i)]["routing"]["reachability"])
+    while i < len(intents.keys()):
+        fileIntent = str(intents.keys()[i])
         fileAddress,subnetIntent = fileIntent.split("/")
 
         #turns a string into ipv4network
         fileIntent = ipaddress.ip_network(unicode(fileIntent))
 
-        # if str(intents["intent-"+str(i)]["routing"]["reachability"]) == customerIntent:
         if subnetCustomer >= subnetIntent:
             if customerAddress in fileIntent:
                 if checkproperties(customerProperties,i) == 1:
@@ -432,7 +428,6 @@ def checkIntents(query):
 
 def checkproperties(customerProperties,i):
 
-    j = i
     k = 0
 
     try:
@@ -440,33 +435,34 @@ def checkproperties(customerProperties,i):
     except ValueError:
         properties = customerProperties
 
+    # iterate over customer's properties
     while k < len(properties):
 
         testProp = properties[k]
 
-        #TODO assuming the same command line as shown in help: query(AS2, 8.8.8.0/24, sla.latency == 10)
+        #TODO assuming the same command line as shown in help: query(AS2, 8.8.8.0/24, sla.latency == 10 && sla.repair < 0.5)
         prop = testProp.split(" ")[0]
         value = testProp.split(" ")[2]
 
-        if prop == "sla.bwidth" and float(value) > float(intents["intent-"+str(i)]["sla"]["bandwidth"]):
+        if prop == "sla.bwidth" and float(value) > float(intents[intents.keys()[i]]["sla"]["bandwidth"]):
             return -1
-        elif prop == "sla.latency" and float(value) < float(intents["intent-"+str(i)]["sla"]["latency"]):
+        elif prop == "sla.latency" and float(value) < float(intents[intents.keys()[i]]["sla"]["latency"]):
             return -1
-        elif prop == "sla.pkt_loss" and float(value) < float(intents["intent-"+str(i)]["sla"]["loss"]):
+        elif prop == "sla.pkt_loss" and float(value) < float(intents[intents.keys()[i]]["sla"]["loss"]):
             return -1
-        elif prop == "sla.jitter" and float(value) < float(intents["intent-"+str(i)]["sla"]["jitter"]):
+        elif prop == "sla.jitter" and float(value) < float(intents[intents.keys()[i]]["sla"]["jitter"]):
             return -1
-        elif prop == "sla.repair" and float(value) < float(intents["intent-"+str(i)]["sla"]["repair"]):
+        elif prop == "sla.repair" and float(value) < float(intents[intents.keys()[i]]["sla"]["repair"]):
             return -1
-        elif prop == "sla.guarantee" and float(value) > float(intents["intent-"+str(i)]["sla"]["guarantee"]):
+        elif prop == "sla.guarantee" and float(value) > float(intents[intents.keys()[i]]["sla"]["guarantee"]):
             return -1
-        elif testProp == "sla.availability" and float(value) > float(intents["intent-"+str(i)]["sla"]["availability"]):
+        elif testProp == "sla.availability" and float(value) > float(intents[intents.keys()[i]]["sla"]["availability"]):
             return -1
-        elif prop == "pricing.egress" and float(value) < float(intents["intent-"+str(i)]["pricing"]["egress"]):
+        elif prop == "pricing.egress" and float(value) < float(intents[intents.keys()[i]]["pricing"]["egress"]):
             return -1
-        elif prop == "pricing.ingress" and float(value) < float(intents["intent-"+str(i)]["pricing"]["ingress"]):
+        elif prop == "pricing.ingress" and float(value) < float(intents[intents.keys()[i]]["pricing"]["ingress"]):
             return -1
-        elif prop == "pricing.billing" and str(value) != str(intents["intent-"+str(i)]["pricing"]["billing"]):
+        elif prop == "pricing.billing" and str(value) != str(intents[intents.keys()[i]]["pricing"]["billing"]):
             return -1
         else:
             k = k+1
@@ -475,20 +471,20 @@ def checkproperties(customerProperties,i):
 
 def fillOffer(i):
 
-    reachability = "routing.reachability:"+str(intents["intent-"+str(i)]["routing"]["reachability"])
-    aspath = ",routing.aspath:"+str(intents["intent-"+str(i)]["routing"]["aspath"])
-    bandwidth = ",sla.bandwidth:"+str(intents["intent-"+str(i)]["sla"]["bandwidth"])
-    latency = ",sla.latency:"+str(intents["intent-"+str(i)]["sla"]["latency"])
-    loss = ",sla.loss:"+str(intents["intent-"+str(i)]["sla"]["loss"])
-    repair = ",sla.repair:"+str(intents["intent-"+str(i)]["sla"]["repair"])
-    guarantee = ",sla.guarantee:"+str(intents["intent-"+str(i)]["sla"]["guarantee"])
-    egress = ",pricing.egress:"+str(intents["intent-"+str(i)]["pricing"]["egress"])
-    ingress = ",pricing.ingress:"+str(intents["intent-"+str(i)]["pricing"]["ingress"])
-    billing = ",pricing.billing:"+str(intents["intent-"+str(i)]["pricing"]["billing"])
-    length = ",time.length:"+str(intents["intent-"+str(i)]["time"]["unit"])
+    target = "target:"+str(intents.keys()[i])
+    aspath = ",routing.aspath:"+str(intents[intents.keys()[i]]["routing"]["aspath"])
+    bandwidth = ",sla.bandwidth:"+str(intents[intents.keys()[i]]["sla"]["bandwidth"])
+    latency = ",sla.latency:"+str(intents[intents.keys()[i]]["sla"]["latency"])
+    loss = ",sla.loss:"+str(intents[intents.keys()[i]]["sla"]["loss"])
+    repair = ",sla.repair:"+str(intents[intents.keys()[i]]["sla"]["repair"])
+    guarantee = ",sla.guarantee:"+str(intents[intents.keys()[i]]["sla"]["guarantee"])
+    egress = ",pricing.egress:"+str(intents[intents.keys()[i]]["pricing"]["egress"])
+    ingress = ",pricing.ingress:"+str(intents[intents.keys()[i]]["pricing"]["ingress"])
+    billing = ",pricing.billing:"+str(intents[intents.keys()[i]]["pricing"]["billing"])
+    length = ",time.length:"+str(intents[intents.keys()[i]]["time"]["unit"])
     expireDate = ",time.expire:"+str(datetime.now() + timedelta(hours=6))
 
-    offer = reachability+aspath+bandwidth+latency+loss+repair+guarantee+egress+ingress+billing+length+expireDate
+    offer = target+aspath+bandwidth+latency+loss+repair+guarantee+egress+ingress+billing+length+expireDate
 
     return offer
 
