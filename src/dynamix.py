@@ -11,6 +11,8 @@ from datetime import datetime
 from datetime import timedelta
 import hashlib
 from Crypto.Cipher import AES
+from Crypto.PublicKey import RSA
+from Crypto import Random
 import base64
 import time
 import ipaddress
@@ -111,7 +113,7 @@ def help():
     print("listASes - lists the ASes connected to the Dynam-IX blockchain")
     print("listAgreements - lists the interconnection agreements registered on Dynam-IX")
     print("query(ASx, TARGET, PROPERTIES) - sends a query to ASx for an interconnection agreement to reach prefix")
-    print("\t\t example: query(AS2, 8.8.8.0/24, sla.latency == 10 && sla.repair < 0.1)")
+    print("\t\t example: query(AS2, 8.8.8.0/24, sla.latency == 15 && sla.bwidth >= 1000)")
     print("propose PROPOSAL_ID - sends an interconnection proposal request to the AS that offered the PROPOSAL_ID")
     print("\t\t example: propose AS2-AS1-123414121251")
     print("listOffersRecvd - lists the offeres that were received")
@@ -252,6 +254,8 @@ def sendMessage(msg, ip, port):
 # Receives a query action and send it to a potential provider
 def sendQuery(action):
 
+    n = len(action.split(","))
+
     #query(AS2, 8.8.8.0/24, sla.latency == 10 && sla.repair < 0.5)
     # Get provider's ASN
     provider = action.split(",")[0]
@@ -267,11 +271,17 @@ def sendQuery(action):
     port = int(address.split(":")[1])
 
     # Get the query
-    properties = action.split(",")[2]
-    properties = properties[1:-1]
-    intent = action.split(",")[1]
-    intent = intent[1:]
-    query = intent + " " + properties
+    if n == 3:
+        properties = action.split(",")[2]
+        properties = properties[1:-1]
+        intent = action.split(",")[1]
+        intent = intent[1:]
+        query = intent + " " + properties
+    else:
+        #properties = "null"
+        intent = action.split(",")[1]
+        intent = intent[1:-1]
+        query = intent
 
     # Query the ledger to get the provider's public key
     pubkey = getPubKey(provider)
@@ -399,8 +409,13 @@ def checkIntents(query):
 
     i = 0
 
+    n = len(query.split(" "))
     customerIntent = query.split(" ")[0]
-    customerProperties = query[len(customerIntent)+1:]
+
+    if n > 1:
+        customerProperties = query[len(customerIntent)+1:]
+    else:
+        customerProperties = "null"
 
     customerAddress,subnetCustomer = customerIntent.split("/")
 
@@ -430,44 +445,47 @@ def checkproperties(customerProperties,i):
 
     k = 0
 
-    try:
-        properties = customerProperties.split("&& ")
-    except ValueError:
-        properties = customerProperties
+    if customerProperties == "null":
+        return 1
+    else:
+        try:
+            properties = customerProperties.split("&& ")
+        except ValueError:
+            properties = customerProperties
 
-    # iterate over customer's properties
-    while k < len(properties):
+            # iterate over customer's properties
+        while k < len(properties):
 
-        testProp = properties[k]
+            testProp = properties[k]
 
-        #TODO assuming the same command line as shown in help: query(AS2, 8.8.8.0/24, sla.latency == 10 && sla.repair < 0.5)
-        prop = testProp.split(" ")[0]
-        value = testProp.split(" ")[2]
+            #TODO assuming the same command line as shown in help: query(AS2, 8.8.8.0/24, sla.latency == 10 && sla.repair < 0.5)
+            prop = testProp.split(" ")[0]
+            value = testProp.split(" ")[2]
 
-        if prop == "sla.bwidth" and float(value) > float(intents[intents.keys()[i]]["sla"]["bandwidth"]):
-            return -1
-        elif prop == "sla.latency" and float(value) < float(intents[intents.keys()[i]]["sla"]["latency"]):
-            return -1
-        elif prop == "sla.pkt_loss" and float(value) < float(intents[intents.keys()[i]]["sla"]["loss"]):
-            return -1
-        elif prop == "sla.jitter" and float(value) < float(intents[intents.keys()[i]]["sla"]["jitter"]):
-            return -1
-        elif prop == "sla.repair" and float(value) < float(intents[intents.keys()[i]]["sla"]["repair"]):
-            return -1
-        elif prop == "sla.guarantee" and float(value) > float(intents[intents.keys()[i]]["sla"]["guarantee"]):
-            return -1
-        elif testProp == "sla.availability" and float(value) > float(intents[intents.keys()[i]]["sla"]["availability"]):
-            return -1
-        elif prop == "pricing.egress" and float(value) < float(intents[intents.keys()[i]]["pricing"]["egress"]):
-            return -1
-        elif prop == "pricing.ingress" and float(value) < float(intents[intents.keys()[i]]["pricing"]["ingress"]):
-            return -1
-        elif prop == "pricing.billing" and str(value) != str(intents[intents.keys()[i]]["pricing"]["billing"]):
-            return -1
-        else:
-            k = k+1
+            if prop == "sla.bwidth" and float(value) > float(intents[intents.keys()[i]]["sla"]["bandwidth"]):
+                return -1
+            elif prop == "sla.latency" and float(value) < float(intents[intents.keys()[i]]["sla"]["latency"]):
+                return -1
+            elif prop == "sla.pkt_loss" and float(value) < float(intents[intents.keys()[i]]["sla"]["loss"]):
+                return -1
+            elif prop == "sla.jitter" and float(value) < float(intents[intents.keys()[i]]["sla"]["jitter"]):
+                return -1
+            elif prop == "sla.repair" and float(value) < float(intents[intents.keys()[i]]["sla"]["repair"]):
+                return -1
+            elif prop == "sla.guarantee" and float(value) > float(intents[intents.keys()[i]]["sla"]["guarantee"]):
+                return -1
+            elif testProp == "sla.availability" and float(value) > float(intents[intents.keys()[i]]["sla"]["availability"]):
+                return -1
+            elif prop == "pricing.egress" and float(value) < float(intents[intents.keys()[i]]["pricing"]["egress"]):
+                return -1
+            elif prop == "pricing.ingress" and float(value) < float(intents[intents.keys()[i]]["pricing"]["ingress"]):
+                return -1
+            elif prop == "pricing.billing" and str(value) != str(intents[intents.keys()[i]]["pricing"]["billing"]):
+                return -1
+            else:
+                k = k+1
 
-    return 1
+        return 1
 
 def fillOffer(i):
 
@@ -489,7 +507,6 @@ def fillOffer(i):
     offer = target+aspath+bandwidth+latency+loss+repair+guarantee+egress+ingress+billing+length+expireDate
 
     return offer
-
 
 # Receive an offer and store it on the appropriate dictionary
 def collectOffer(offer):
@@ -727,8 +744,14 @@ def end():
 #Main function
 if __name__ == "__main__":
 
+    #TODO generate pub and priv key
     # Generate public and private keys
     basePhrase = myASN+myASN+"Dynam-IX"
+    baseNumber = Random.new().read
+
+    #myPrivKey = RSA.generate(2048, baseNumber)
+    #myPubKey = myPrivKey.publickey()
+
     myPubKey = hashlib.md5(basePhrase.encode()).hexdigest()
     myPrivKey = myPubKey
 
@@ -745,7 +768,6 @@ if __name__ == "__main__":
     else:
         print "Updating AS address", myASN, myAddress, myService
         x = subprocess.check_output('node js/update.js updateAddress \''+myASN+'\' \''+myAddress+'\''+' '+myUser+' '+ordererIP, shell=True)
-
 
     mode = sys.argv[7]
 
