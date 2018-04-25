@@ -16,10 +16,8 @@ from Crypto import Random
 import base64
 import time
 import ipaddress
-
 from Crypto.Cipher import ARC2
 from Crypto.Hash import MD2
-
 #===================================================#
 #                   Global config                   #
 #===================================================#
@@ -184,10 +182,18 @@ def processMessages():
     while True:
         connection, address = serversocket.accept()
         msg = ''
-        msg = connection.recv(2048)     # NOTE We may need to change the amount of received bytes
+        msg = connection.recv(4096)     # NOTE We may need to change the amount of received bytes
 
-        # Decrypt message with the privKey
-        msg = myPrivKey.decrypt(msg)
+        try:
+            encryptMsg = msg.split('signatures')[0]
+        except ValueError:
+            encryptMsg = msg
+        try:
+            signatures = msg.split('signatures')[1]
+        except IndexError:
+            signatures = ''
+
+        msg = myPrivKey.decrypt(encryptMsg) + signatures
 
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
         if len(msg) > 0:
@@ -251,14 +257,26 @@ def verifyUpdate(ack):
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
     logs.write(timestamp+";VU;"+offerID+"\n")
 
-def sendMessage(msg, ip, port, pubKey):
+def sendMessage(msg, ip, port, pubKey, flag):
 
     # Encrypt message with the pubKey
-    encryptMSG = pubKey.encrypt(msg, 0)
+    # contract MSG
+    if flag == 1:
+        signature = msg.split(';')[5]
+        msg = msg.split(';')[0]+';'+msg.split(';')[1]+';'+msg.split(';')[2]+';'+msg.split(';')[3]+';'+msg.split(';')[4]+';'
+        encryptMSG = pubKey.encrypt(msg, 0)[0]+'signatures'+signature
+    # publish MSG
+    elif flag == 2 :
+        signature1 = msg.split(';')[5]
+        signature2 = msg.split(';')[6]
+        msg = msg.split(';')[0]+';'+msg.split(';')[1]+';'+msg.split(';')[2]+';'+msg.split(';')[3]+';'+msg.split(';')[4]+';'
+        encryptMSG = pubKey.encrypt(msg, 0)[0]+'signatures'+signature1+';'+signature2
+    else:
+        encryptMSG = pubKey.encrypt(msg, 0)[0]
 
     clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     clientsocket.connect((ip, port))
-    clientsocket.send(encryptMSG[0])
+    clientsocket.send(encryptMSG)
     clientsocket.close()
 
 # Receives a query action and send it to a potential provider
@@ -308,7 +326,7 @@ def sendQuery(action):
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
     # Send the query to the provider
-    sendMessage(msg, IP, port, pubkey)
+    sendMessage(msg, IP, port, pubkey, 0)
 
     # logging
     logs.write(timestamp+";SQ;"+ID+"\n")
@@ -389,7 +407,7 @@ def sendOffer(query):
             pubKey = getPubKey(customer)
             timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
             #Send offer
-            sendMessage(offer+";"+ID, IP, port, pubKey)
+            sendMessage(offer+";"+ID, IP, port, pubKey, 0)
 
             # logging
             logs.write(timestamp+";SO;"+ID+"\n")
@@ -584,7 +602,7 @@ def sendProposal(action):
         msg = "propose"+";"+offerID
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
-        sendMessage(msg, IP, port, pubKey)
+        sendMessage(msg, IP, port, pubKey, 0)
 
         # logging
         logs.write(timestamp+";SP;"+offerID+"\n")
@@ -623,7 +641,7 @@ def establishAgreement(propose):
         print msg
         # TODO get address
         # Send message
-        sendMessage(msg, IP, port, pubKey)
+        sendMessage(msg, IP, port, pubKey, 0)
 
 
 # Send the contract of the interconnection agreement to the customer
@@ -652,16 +670,13 @@ def sendContract(offerID):
     h = hash_object.hexdigest()
 
     # Provider signs the contract
-    cipher = AES.new(signKey,AES.MODE_ECB)   #TODO use a stronger mode in the future
-    providerSignature = base64.b64encode(cipher.encrypt(h))
-    #providerSignature = myPrivKey.sign(h,0)
-    #providerSignature = pubKey.encrypt(h, 0)
+    providerSignature = myPrivKey.sign(h,0)
 
     # Send the contract
-    msg = "contract;"+offerID+";"+h+";"+customer+";"+provider+";"+providerSignature
+    msg = "contract;"+offerID+";"+h+";"+customer+";"+provider+";"+str(providerSignature[0])
 
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-    sendMessage(msg, IP, port, pubKey)
+    sendMessage(msg, IP, port, pubKey, 1)
 
     # logging
     logs.write(timestamp+";SC;"+offerID+"\n")
@@ -677,32 +692,36 @@ def signContract(contract):
     # Get provider's ASN
     provider = contract.split(";")[4]
 
+    # Get the contract hash
+    providerSignature = contract.split(";")[5]
+
     # Get provider's pubKey
     pubKey = getPubKey(provider)
 
-    # Customer signs the contract
-    cipher = AES.new(signKey,AES.MODE_ECB)   #TODO use a stronger mode in the future
-    customerSignature = base64.b64encode(cipher.encrypt(h))
-    #customerSignature = myPrivKey.sign(h,0)
-    #customerSignature = pubKey.encrypt(h, 0)
+    # Customer verify the provider signature
+    if pubKey.verify(h, (long(providerSignature),0)) == False:
+        print "Invalid signature!"
+    else:
+        # Customer signs the contract
+        customerSignature = myPrivKey.sign(h,0)
 
-    # Get provider's address
-    address = ""
-    while ":" not in address:
-        address = getAddress(provider)    # Split address into IP and port
-    IP = address.split(':')[0]
-    port = int(address.split(':')[1])
+        # Get provider's address
+        address = ""
+        while ":" not in address:
+            address = getAddress(provider)    # Split address into IP and port
+        IP = address.split(':')[0]
+        port = int(address.split(':')[1])
 
-    # Send message with the contract signed by the customer
-    msg = "publish;"+s+";"+customerSignature
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-    sendMessage(msg, IP, port, pubKey)
+        # Send message with the contract signed by the customer
+        msg = "publish;"+s+";"+str(customerSignature[0])
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+        sendMessage(msg, IP, port, pubKey,2)
 
-    # logging
-    logs.write(timestamp+";SS;"+contract.split(";")[1]+"\n")
+        # logging
+        logs.write(timestamp+";SS;"+contract.split(";")[1]+"\n")
 
-    key = "IA-"+h
-    agreementsCust[key] = myASN+";"+provider
+        key = "IA-"+h
+        agreementsCust[key] = myASN+";"+provider
 
 def publishAgreement(info):
 
@@ -710,37 +729,41 @@ def publishAgreement(info):
     contractHash = info.split(";")[2]
     customer = info.split(";")[3]
     provider = myASN
-    # TODO Verify signatures
     providerSignature = info.split(";")[5]
     customerSignature = info.split(";")[6]
 
     # Get customer's pubKey
     pubKey = getPubKey(customer)
 
-    key = "IA-"+contractHash
+    # Provider verify the customer signature
+    if pubKey.verify(contractHash, (long(customerSignature),0)) == False:
+        print "Invalid signature!"
+    else:
 
-    # Register the agreement on the ledger
-    x = subprocess.check_output('node js/publish.js registerAgreement \''+key+'\' \''+contractHash+'\' \''+customer+'\' \''+provider+'\' \''+customerSignature+'\' \''+providerSignature+'\''+' '+myUser+' '+ordererIP, shell=True)
-    agreementsProv[key] = customer+";"+provider
-    print key+" Success! Updating routing configuration!"
+        key = "IA-"+contractHash
 
-    # Get customer's address
-    address = ""
-    while ":" not in address:
-        address = getAddress(customer)
-    # Split address into IP and port
-    IP = address.split(':')[0]
-    port = int(address.split(':')[1])
+        # Register the agreement on the ledger
+        x = subprocess.check_output('node js/publish.js registerAgreement \''+key+'\' \''+contractHash+'\' \''+customer+'\' \''+provider+'\' \''+customerSignature+'\' \''+providerSignature+'\''+' '+myUser+' '+ordererIP, shell=True)
+        agreementsProv[key] = customer+";"+provider
+        print key+" Success! Updating routing configuration!"
 
-    offerID=info.split(";")[1]
+        # Get customer's address
+        address = ""
+        while ":" not in address:
+            address = getAddress(customer)
+        # Split address into IP and port
+        IP = address.split(':')[0]
+        port = int(address.split(':')[1])
 
-    # Send message with the key
-    msg = "ack;"+offerID+";"+key
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-    sendMessage(msg, IP, port, pubKey)
+        offerID=info.split(";")[1]
 
-    # logging
-    logs.write(timestamp+";SU;"+offerID+"\n")
+        # Send message with the key
+        msg = "ack;"+offerID+";"+key
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+        sendMessage(msg, IP, port, pubKey, 0)
+
+        # logging
+        logs.write(timestamp+";SU;"+offerID+"\n")
 
 def executeAgreements():
 
@@ -789,9 +812,6 @@ if __name__ == "__main__":
     myPrivKey = RSA.generate(4096, baseNumber)
     myPubKey = myPrivKey.publickey()
     myPubKeyString = myPubKey.exportKey('PEM')
-
-    signKey = hashlib.md5(basePhrase.encode()).hexdigest()
-    #myPrivKey = myPubKey
 
     # Read intent file
     intents = json.load(open(sys.argv[4]))
