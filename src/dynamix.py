@@ -17,6 +17,9 @@ import base64
 import time
 import ipaddress
 
+from Crypto.Cipher import ARC2
+from Crypto.Hash import MD2
+
 #===================================================#
 #                   Global config                   #
 #===================================================#
@@ -181,7 +184,11 @@ def processMessages():
     while True:
         connection, address = serversocket.accept()
         msg = ''
-        msg = connection.recv(1024)     # NOTE We may need to change the amount of received bytes
+        msg = connection.recv(2048)     # NOTE We may need to change the amount of received bytes
+
+        # Decrypt message with the privKey
+        msg = myPrivKey.decrypt(msg)
+
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
         if len(msg) > 0:
             if "query" in msg:  # Customer is asking for an offer
@@ -244,11 +251,14 @@ def verifyUpdate(ack):
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
     logs.write(timestamp+";VU;"+offerID+"\n")
 
-def sendMessage(msg, ip, port):
+def sendMessage(msg, ip, port, pubKey):
+
+    # Encrypt message with the pubKey
+    encryptMSG = pubKey.encrypt(msg, 0)
 
     clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     clientsocket.connect((ip, port))
-    clientsocket.send(msg)
+    clientsocket.send(encryptMSG[0])
     clientsocket.close()
 
 # Receives a query action and send it to a potential provider
@@ -256,7 +266,7 @@ def sendQuery(action):
 
     n = len(action.split(","))
 
-    #query(AS2, 8.8.8.0/24, sla.latency == 10 && sla.repair < 0.5)
+    # query(AS2, 8.8.8.0/24, sla.latency == 10 && sla.repair < 0.5)
     # Get provider's ASN
     provider = action.split(",")[0]
     provider = provider[6:]
@@ -298,7 +308,7 @@ def sendQuery(action):
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
     # Send the query to the provider
-    sendMessage(msg, IP, port)
+    sendMessage(msg, IP, port, pubkey)
 
     # logging
     logs.write(timestamp+";SQ;"+ID+"\n")
@@ -344,7 +354,12 @@ def getPubKey(ASN):
         x = subprocess.check_output('node js/query.js show \''+ASN+'\''+' '+myUser, shell=True)
     S = x.split(",")[3].split(":")[1]
 
-    return S.split("\"")[1]
+    #transform pubKey String in a pubKey obj
+    pubKeyString = S.split("\"")[1]
+    pubKeyString = pubKeyString.replace('\\n','\n')
+    pubKey = RSA.importKey(pubKeyString)
+
+    return pubKey
 
 # Receive a query from a customer, decide if it is going to answer, and compose and agreement offer
 def sendOffer(query):
@@ -372,10 +387,9 @@ def sendOffer(query):
             port = int(address.split(':')[1])
             # Get customer's public key
             pubKey = getPubKey(customer)
-
             timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
             #Send offer
-            sendMessage(offer+";"+ID, IP, port)
+            sendMessage(offer+";"+ID, IP, port, pubKey)
 
             # logging
             logs.write(timestamp+";SO;"+ID+"\n")
@@ -453,7 +467,7 @@ def checkproperties(customerProperties,i):
         except ValueError:
             properties = customerProperties
 
-            # iterate over customer's properties
+        # iterate over customer's properties
         while k < len(properties):
 
             testProp = properties[k]
@@ -482,6 +496,9 @@ def checkproperties(customerProperties,i):
                 return -1
             elif prop == "pricing.billing" and str(value) != str(intents[intents.keys()[i]]["pricing"]["billing"]):
                 return -1
+            elif prop != "sla.bwidth" and prop != "sla.latency" and prop != "sla.pkt_loss" and prop != "sla.jitter" and prop != "sla.repair" and prop != "sla.guarantee" and prop != "sla.availability" and prop != "pricing.egress" and prop != "pricing.ingress" and prop != "pricing.billing":
+                print "Invalid Propertie: ", prop
+                return -1
             else:
                 k = k+1
 
@@ -504,7 +521,7 @@ def fillOffer(i):
     length = ",time.length:"+str(intents[intents.keys()[i]]["time"]["unit"])
     expireDate = ",time.expire:"+str(datetime.now() + timedelta(hours=6))
 
-    offer = target+aspath+bandwidth+latency+loss+repair+guarantee+egress+ingress+billing+length+expireDate
+    offer = target+aspath+bandwidth+latency+jitter+loss+repair+availability+guarantee+egress+ingress+billing+length+expireDate
 
     return offer
 
@@ -554,7 +571,7 @@ def sendProposal(action):
     offerID = action.split("propose ")[1]
     # Get the provider's ASN
     provider = offerID.split("-")[1]
-
+    pubKey = getPubKey(provider)
     # If the offer is still valid, send interconnection proposal to the provider
     if checkValidity(offerID) == 1:
         # Get provider's address
@@ -566,7 +583,8 @@ def sendProposal(action):
         # Send interconnection proposal
         msg = "propose"+";"+offerID
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-        sendMessage(msg, IP, port)
+
+        sendMessage(msg, IP, port, pubKey)
 
         # logging
         logs.write(timestamp+";SP;"+offerID+"\n")
@@ -592,6 +610,7 @@ def checkValidity(offerID):
 def establishAgreement(propose):
 
     offerID = propose.split(";")[1]
+    pubKey = getPubKey(propose.split("-")[1])
 
     print "Received: "+propose
 
@@ -604,7 +623,7 @@ def establishAgreement(propose):
         print msg
         # TODO get address
         # Send message
-        sendMessage(msg, IP, port)
+        sendMessage(msg, IP, port, pubKey)
 
 
 # Send the contract of the interconnection agreement to the customer
@@ -613,6 +632,9 @@ def sendContract(offerID):
     # Get customer's ASN
     customer = offerID.split("-")[0]
     provider = myASN
+
+    # Get customer's pubKey
+    pubKey = getPubKey(customer)
 
     # Get provider's address
     address = ""
@@ -624,17 +646,22 @@ def sendContract(offerID):
 
     # Write the contract
     contract = "contract of the Interconnection agreement between "+provider+" and "+customer+offerID
+
     # Compute the contract hash
     hash_object = hashlib.md5(contract.encode())
     h = hash_object.hexdigest()
+
     # Provider signs the contract
-    cipher = AES.new(myPrivKey,AES.MODE_ECB)   #TODO use a stronger mode in the future
+    cipher = AES.new(signKey,AES.MODE_ECB)   #TODO use a stronger mode in the future
     providerSignature = base64.b64encode(cipher.encrypt(h))
+    #providerSignature = myPrivKey.sign(h,0)
+    #providerSignature = pubKey.encrypt(h, 0)
 
     # Send the contract
     msg = "contract;"+offerID+";"+h+";"+customer+";"+provider+";"+providerSignature
+
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-    sendMessage(msg, IP, port)
+    sendMessage(msg, IP, port, pubKey)
 
     # logging
     logs.write(timestamp+";SC;"+offerID+"\n")
@@ -646,12 +673,18 @@ def signContract(contract):
     s = contract.split("contract;")[1]
     # Get the contract hash
     h = contract.split(";")[2]
-    # Customer signs the contract
-    cipher = AES.new(myPrivKey,AES.MODE_ECB)   #TODO use a stronger mode in the future
-    customerSignature = base64.b64encode(cipher.encrypt(h))
 
     # Get provider's ASN
     provider = contract.split(";")[4]
+
+    # Get provider's pubKey
+    pubKey = getPubKey(provider)
+
+    # Customer signs the contract
+    cipher = AES.new(signKey,AES.MODE_ECB)   #TODO use a stronger mode in the future
+    customerSignature = base64.b64encode(cipher.encrypt(h))
+    #customerSignature = myPrivKey.sign(h,0)
+    #customerSignature = pubKey.encrypt(h, 0)
 
     # Get provider's address
     address = ""
@@ -663,7 +696,7 @@ def signContract(contract):
     # Send message with the contract signed by the customer
     msg = "publish;"+s+";"+customerSignature
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-    sendMessage(msg, IP, port)
+    sendMessage(msg, IP, port, pubKey)
 
     # logging
     logs.write(timestamp+";SS;"+contract.split(";")[1]+"\n")
@@ -677,8 +710,12 @@ def publishAgreement(info):
     contractHash = info.split(";")[2]
     customer = info.split(";")[3]
     provider = myASN
+    # TODO Verify signatures
     providerSignature = info.split(";")[5]
     customerSignature = info.split(";")[6]
+
+    # Get customer's pubKey
+    pubKey = getPubKey(customer)
 
     key = "IA-"+contractHash
 
@@ -696,10 +733,12 @@ def publishAgreement(info):
     port = int(address.split(':')[1])
 
     offerID=info.split(";")[1]
-    # Send message with the contract signed by the customer
+
+    # Send message with the key
     msg = "ack;"+offerID+";"+key
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-    sendMessage(msg, IP, port)
+    sendMessage(msg, IP, port, pubKey)
+
     # logging
     logs.write(timestamp+";SU;"+offerID+"\n")
 
@@ -744,16 +783,15 @@ def end():
 #Main function
 if __name__ == "__main__":
 
-    #TODO generate pub and priv key
     # Generate public and private keys
     basePhrase = myASN+myASN+"Dynam-IX"
     baseNumber = Random.new().read
+    myPrivKey = RSA.generate(4096, baseNumber)
+    myPubKey = myPrivKey.publickey()
+    myPubKeyString = myPubKey.exportKey('PEM')
 
-    #myPrivKey = RSA.generate(2048, baseNumber)
-    #myPubKey = myPrivKey.publickey()
-
-    myPubKey = hashlib.md5(basePhrase.encode()).hexdigest()
-    myPrivKey = myPubKey
+    signKey = hashlib.md5(basePhrase.encode()).hexdigest()
+    #myPrivKey = myPubKey
 
     # Read intent file
     intents = json.load(open(sys.argv[4]))
@@ -762,7 +800,7 @@ if __name__ == "__main__":
     # If AS is not registered
     if '{' not in subprocess.check_output('node js/query.js show \''+myASN+'\''+' '+myUser, shell=True):
         print "Registering new AS", myASN, myAddress, myService
-        x = subprocess.check_output('node js/register.js registerAS \''+myASN+'\' \''+myAddress+'\' \''+myService+'\' \'0\' \'0\' \''+myPubKey+'\''+' '+myUser+' '+ordererIP, shell=True)
+        x = subprocess.check_output('node js/register.js registerAS \''+myASN+'\' \''+myAddress+'\' \''+myService+'\' \'0\' \'0\' \''+myPubKeyString+'\''+' '+myUser+' '+ordererIP, shell=True)
         print x
     # else, update address
     else:
