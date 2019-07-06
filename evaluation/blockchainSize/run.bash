@@ -3,6 +3,7 @@
 export AS=1
 export ORDERER_IP=$1
 export MODE=$2
+export SIZE=$3
 
 # Get list of experiments
 DIRS=($(ls))
@@ -14,5 +15,12 @@ for DIR in "${DIRS[@]}"; do
     cd $DIR
     bash initExperiment.bash $ORDERER_IP $TIMEOUT
     cd ..
-    bash blockchainSize.bash > $DIR-$MODE.log
+    if [ "$MODE" == 'score' ]; then
+        echo "BABABBABABABA"
+        bash blockchainSize.bash > $DIR-$MODE.log
+    fi
+    if [ "$MODE" == 'report' ]; then
+        echo "lalalallala"
+        bash blockchainSize-report.bash $SIZE > $DIR-$MODE.log
+    fi
 done
