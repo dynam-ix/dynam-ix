@@ -21,6 +21,6 @@ for DIR in "${DIRS[@]}"; do
     fi
     if [ "$MODE" == 'report' ]; then
         echo "lalalallala"
-        bash blockchainSize-report.bash $SIZE > $DIR-$MODE.log
+        bash blockchainSize-report.bash $SIZE > $DIR-$MODE-$SIZE.log
     fi
 done
