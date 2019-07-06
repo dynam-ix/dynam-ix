@@ -61,6 +61,13 @@ type agreement struct {
 	ProviderSignature string `json:"providersignature"` // Hash of the agreement contract (terms) encrypted with the provider's public key
 }
 
+// Report structure. Tags are used by encoding/json library
+type report struct {
+	AgreementReport string `json:"agreementreport"` // Report of the agreement
+	AgreementID     string `json:"Agreement-ID"`    // AgreementID
+	ASSignature     string `json:"ASsignature"`     // Agreement ID encrypted with AS private key
+}
+
 //=======================================================================================//
 //								Smart Contract functions								 //
 //=======================================================================================//
@@ -102,6 +109,10 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.listAgreements(APIstub)
 	} else if function == "registerAgreement" {
 		return s.registerAgreement(APIstub, args)
+	} else if function == "registerReport" {
+		return s.registerReport(APIstub, args)
+	} else if function == "listReports" {
+		return s.listReports(APIstub)
 	}
 
 	return shim.Error("Invalid Smart Contract function name.")
@@ -357,6 +368,54 @@ func (s *SmartContract) registerAgreement(APIstub shim.ChaincodeStubInterface, a
 	APIstub.PutState(args[0], AgreementAsBytes)
 
 	return shim.Success(nil)
+}
+
+// Register a new report on the ledger
+func (s *SmartContract) registerReport(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 4 {
+		fmt.Printf("\n%s\n%d\n", args, len(args))
+		return shim.Error("Incorrect number of arguments. Expecting 4")
+	}
+
+	var rprt = report{AgreementReport: args[1], AgreementID: args[2], ASSignature: args[3]}
+
+	ReportAsBytes, _ := json.Marshal(rprt)
+	APIstub.PutState(args[0], ReportAsBytes)
+
+	return shim.Success(nil)
+}
+
+func (s *SmartContract) listReports(APIstub shim.ChaincodeStubInterface) sc.Response {
+
+	startKey := "AR-"
+	endKey := ""
+
+	resultsIterator, err := APIstub.GetStateByRange(startKey, endKey)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	defer resultsIterator.Close()
+
+	// buffer is a JSON array containing QueryResults
+	var buffer bytes.Buffer
+
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+
+		buffer.WriteString(queryResponse.Key)
+		buffer.WriteString(": ")
+		// Record is a JSON object, so we write as-is
+		buffer.WriteString(string(queryResponse.Value))
+		buffer.WriteString("\n")
+	}
+
+	fmt.Printf("- queryAllASes:\n%s\n", buffer.String())
+
+	return shim.Success(buffer.Bytes())
 }
 
 //=======================================================================================//
