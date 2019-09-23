@@ -17,10 +17,10 @@ for DIR in "${DIRS[@]}"; do
     cd ..
     if [ "$MODE" == 'score' ]; then
         echo "BABABBABABABA"
-        bash blockchainSize.bash > $DIR-$MODE.log
+        bash blockchainSize2.bash > $DIR-$MODE.log
     fi
     if [ "$MODE" == 'report' ]; then
         echo "lalalallala"
-        bash blockchainSize-report.bash $SIZE > $DIR-$MODE-$SIZE.log
+        bash blockchainSize-report2.bash $SIZE > $DIR-$MODE-$SIZE.log
     fi
 done
